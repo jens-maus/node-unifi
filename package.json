@@ -1,0 +1,31 @@
+{
+  "name": "node-unifi",
+  "version": "1.0.0",
+  "description": "NodeJS class for querying UniFi-Controller (www.ubnt.com)",
+  "author": "Jens Maus <mail@jens-maus.de>",
+  "homepage": "https://github.com/jens-maus/node-unifi",
+  "license": "MIT",
+  "keywords": [
+    "network",
+    "wifi",
+    "unifi",
+    "ubnt",
+    "ubiquiti"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jens-maus/node-unifi.git"
+  },
+  "dependencies": {
+    "request": "^2.69.0",
+    "async": "^2.1.4"
+  },
+  "main": "unifi.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/jens-maus/node-unifi/issues"
+  },
+  "readmeFilename": "README.md"
+}

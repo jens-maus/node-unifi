@@ -1,0 +1,20 @@
+---
+engines:
+  fixme:
+    enabled: true
+  eslint:
+    enabled: true
+  csslint:
+    enabled: false
+  duplication:
+    enabled: false
+    config:
+      languages:
+      - javascript    
+  markdownlint:
+    enabled: true
+ratings:
+  paths:
+  - "**.js"
+  - "**.json"
+  - "**.md"
