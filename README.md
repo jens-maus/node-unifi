@@ -15,7 +15,7 @@ Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http:
 
 ## ChangeLog
 
-### 1.0.0.
+### 1.0.0
   (jens-maus) first initial release
 
 ## References
