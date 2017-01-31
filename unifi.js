@@ -73,11 +73,11 @@ var Controller = function(hostname, port)
   _self.authorizeGuest = function(sites, mac, minutes, cb, up, down, mbytes, ap_mac)
   {
     var json = { cmd: 'authorize-guest', mac: mac.toLowerCase() };
-    if(typeof(minutes) !== 'undefined') json['minutes'] = minutes;
-    if(typeof(up) !== 'undefined')      json['up'] = up;
-    if(typeof(down) !== 'undefined')    json['down'] = down;
-    if(typeof(mbytes) !== 'undefined')  json['bytes'] = mbytes;
-    if(typeof(ap_mac) !== 'undefined')  json['ap_mac'] = ap_mac;
+    if(typeof(minutes) !== 'undefined') json.minutes = minutes;
+    if(typeof(up) !== 'undefined')      json.up = up;
+    if(typeof(down) !== 'undefined')    json.down = down;
+    if(typeof(mbytes) !== 'undefined')  json.bytes = mbytes;
+    if(typeof(ap_mac) !== 'undefined')  json.ap_mac = ap_mac;
 
     _self._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
   };
@@ -302,7 +302,7 @@ var Controller = function(hostname, port)
                  end: end };
 
     if(typeof(mac) !== 'undefined')
-      json['mac'] = mac.toLowerCase();
+      json.mac = mac.toLowerCase();
 
     _self._request('/api/s/<SITE>/stat/session', json, sites, cb);
   };
@@ -631,7 +631,7 @@ var Controller = function(hostname, port)
                  x_password: x_password };
 
     if(typeof(note) !== 'undefined')
-      json['note'] = note;
+      json.note = note;
 
     _self._request('/api/s/<SITE>/rest/hotspotop', json, sites, cb);
   };
@@ -669,10 +669,10 @@ var Controller = function(hostname, port)
                  n: count,
                  quota: quota };
 
-    if(typeof(note) !== 'undefined')   json['note'] = note;
-    if(typeof(up) !== 'undefined')     json['up'] = up;
-    if(typeof(down) !== 'undefined')   json['down'] = down;
-    if(typeof(mbytes) !== 'undefined') json['bytes'] = mbytes;
+    if(typeof(note) !== 'undefined')   json.note = note;
+    if(typeof(up) !== 'undefined')     json.up = up;
+    if(typeof(down) !== 'undefined')   json.down = down;
+    if(typeof(mbytes) !== 'undefined') json.bytes = mbytes;
 
     _self._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
   };
@@ -912,7 +912,7 @@ var Controller = function(hostname, port)
     var json = { x_passphrase: x_passphrase };
 
     if(typeof(name) !== 'undefined')
-      json['name'] = name;
+      json.name = name;
 
     _self._request('/api/s/<SITE>/upd/wlanconf/' + wlan_id, json, sites, cb);
   };
@@ -1008,7 +1008,7 @@ var Controller = function(hostname, port)
         if(json !== null)
         {
           reqfunc = request.post;
-          reqjson['json'] = json;
+          reqjson.json = json;
         }
 
         req = reqfunc(reqjson, function(error, response, body)
