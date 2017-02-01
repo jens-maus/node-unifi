@@ -993,6 +993,8 @@ var Controller = function(hostname, port)
       proc_sites = [{}];
     else if(Array.isArray(sites) === false)
       proc_sites = [ sites ];
+    else
+      proc_sites = sites;
 
     var count = 0;
     var results = [];
@@ -1055,13 +1057,12 @@ exports.Controller = Controller;
  * TEST
  ********************
 */
-
 /*
 var controller = new Controller("127.0.0.1", 8443);
 
 //////////////////////////////
 // LOGIN
-controller.login("admin", "XXXXXX", function(err) {
+controller.login("admin", "XXXXXXXX", function(err) {
 
   if(err)
   {
@@ -1071,33 +1072,42 @@ controller.login("admin", "XXXXXX", function(err) {
 
   //////////////////////////////
   // GET SITE STATS
-  controller.getSitesStats(function(err, sites) {
-    console.log('getSitesStats: ' + sites[0].name + ' : ' + sites.length);
-    console.log(JSON.stringify(sites));
+  controller.getSitesStats(function(err, site_data) {
+    var sites = site_data.map(function(s) { return s.name; });
+
+    console.log('getSitesStats: ' + sites + ' : ' + sites.length);
+    console.log(JSON.stringify(site_data));
 
     //////////////////////////////
     // GET SITE SYSINFO
-    controller.getSiteSysinfo(sites[0].name, function(err, sysinfo) {
+    controller.getSiteSysinfo(sites, function(err, sysinfo) {
       console.log('getSiteSysinfo: ' + sysinfo.length);
       console.log(JSON.stringify(sysinfo));
 
       //////////////////////////////
       // GET CLIENT DEVICES
-      controller.getClientDevices(sites[0].name, function(err, client_data) {
+      controller.getClientDevices(sites, function(err, client_data) {
         console.log('getClientDevices: ' + client_data[0].length);
         console.log(JSON.stringify(client_data));
 
         //////////////////////////////
         // GET ALL USERS EVER CONNECTED
-        controller.getAllUsers(sites[0].name, function(err, users_data) {
+        controller.getAllUsers(sites, function(err, users_data) {
           console.log('getAllUsers: ' + users_data[0].length);
           console.log(JSON.stringify(users_data));
 
           //////////////////////////////
-          // FINALIZE
+          // GET ALL ACCESS DEVICES
+          controller.getAccessDevices(sites, function(err, access_data) {
+            console.log('getAccessDevices: ' + access_data[0].length);
+            console.log(JSON.stringify(access_data));
 
-          // finalize, logout and finish
-          controller.logout();
+            //////////////////////////////
+            // FINALIZE
+
+            // finalize, logout and finish
+            controller.logout();
+          });
         });
       });
     });
