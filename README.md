@@ -11,12 +11,71 @@
 
 [![NPM](https://nodei.co/npm/node-unifi.png?downloads=true)](https://nodei.co/npm/node-unifi/)
 
-Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the latest UniFi-Controller API version starting with v4/v5+.
+Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the latest UniFi-Controller API version starting with v4.x.x/v5.x.x.
 
-## ChangeLog
+## Features
+* Supports all UniFi-Controller API features introduced with v4.x.x and v5.x.x.
+* Returns all data in JSON parsable strings/objects.
 
-### 1.0.0
-  (jens-maus) first initial release
+## Requirements
+* Installed [UniFi-Controller](https://www.ubnt.com/download/unifi) version v4 or v5
+* Working UniFi-device environment
+
+## Installation
+node-unifi can be installed using the following npm command:
+
+```
+npm install node-unifi
+```
+
+## Example
+node-unifi has been designed to be used quite straight forward and without introducing
+ackward language constructs. The following example should give a brief introduction on
+how to use node-unifi in your own applications:
+
+```
+var unifi = require('node-unifi');
+
+var controller = new unifi.Controller("127.0.0.1", 8443);
+
+// LOGIN
+controller.login("admin", "PASSWORD", function(err) {
+
+  if(err) {
+    console.log('ERROR: ' + err);
+    return;
+  }
+
+  // GET SITE STATS
+  controller.getSitesStats(function(err, sites) {
+    console.log('getSitesStats: ' + sites[0].name + ' : ' + sites.length);
+    console.log(JSON.stringify(sites));
+
+    // GET SITE SYSINFO
+    controller.getSiteSysinfo(sites[0].name, function(err, sysinfo) {
+      console.log('getSiteSysinfo: ' + sysinfo.length);
+      console.log(JSON.stringify(sysinfo));
+
+      // GET CLIENT DEVICES
+      controller.getClientDevices(sites[0].name, function(err, client_data) {
+        console.log('getClientDevices: ' + client_data[0].length);
+        console.log(JSON.stringify(client_data));
+
+        // GET ALL USERS EVER CONNECTED
+        controller.getAllUsers(sites[0].name, function(err, users_data) {
+          console.log('getAllUsers: ' + users_data[0].length);
+          console.log(JSON.stringify(users_data));
+
+          // FINALIZE, LOGOUT AND FINISH
+          controller.logout();
+        });
+      });
+    });
+  });
+});
+```
+
+Please note that with every `controller.XXXXX()` function a callback function have to be specified which will be called with a potential error message and the result data (second argument) as soon as the request succeeded.
 
 ## References
 This nodejs package/class uses functionality/Know-How gathered from different third-party projects:
