@@ -195,10 +195,10 @@ var Controller = function(hostname, port)
   _self.getDailySiteStats = function(sites, cb, start, end)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(new Date());
+      end = Math.floor(Date.now() / 1000);
 
     if(typeof(start) === 'undefined')
-      start = end - (52*7*24*3600*1000);
+      start = end - (52*7*24*3600);
 
     var json = { attrs: [ 'bytes',
                           'wan-tx_bytes',
@@ -229,10 +229,10 @@ var Controller = function(hostname, port)
   _self.getHourlySiteStats = function(sites, cb, start, end)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(new Date());
+      end = Math.floor(Date.now() / 1000);
 
     if(typeof(start) === 'undefined')
-      start = end - (7*24*3600*1000);
+      start = end - (7*24*3600);
 
     var json = { attrs: [ 'bytes',
                           'wan-tx_bytes',
@@ -263,10 +263,10 @@ var Controller = function(hostname, port)
   _self.getHourlyApStats = function(sites, cb, start, end)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(new Date());
+      end = Math.floor(Date.now() / 1000);
 
     if(typeof(start) === 'undefined')
-      start = end - (7*24*3600*1000);
+      start = end - (7*24*3600);
 
     var json = { attrs: [ 'bytes',
                           'num_sta',
@@ -292,7 +292,7 @@ var Controller = function(hostname, port)
   _self.getSessions = function(sites, cb, start, end, mac)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(new Date());
+      end = Math.floor(Date.now() / 1000);
 
     if(typeof(start) === 'undefined')
       start = end - (7*24*3600);
@@ -334,11 +334,14 @@ var Controller = function(hostname, port)
    *
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
+   *
+   * NOTES:
+   * - defaults to the past 7*24 hours
    */
   _self.getAllAuthorizations = function(sites, cb, start, end)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(new Date());
+      end = Math.floor(Date.now() / 1000);
 
     if(typeof(start) === 'undefined')
       start = end - (7*24*3600);
@@ -1103,10 +1106,38 @@ controller.login("admin", "XXXXXXXX", function(err) {
             console.log(JSON.stringify(access_data));
 
             //////////////////////////////
-            // FINALIZE
+            // GET ALL SESSIONS
+            controller.getSessions(sites, function(err, session_data) {
+              console.log('getSessions: ' + session_data[0].length);
+              console.log(JSON.stringify(session_data));
 
-            // finalize, logout and finish
-            controller.logout();
+              //////////////////////////////
+              // GET ALL AUTHORIZATIONS
+              controller.getAllAuthorizations(sites, function(err, auth_data) {
+                console.log('getAllAuthorizations: ' + auth_data[0].length);
+                console.log(JSON.stringify(auth_data));
+
+                //////////////////////////////
+                // GET USERS
+                controller.getUsers(sites, function(err, user_data) {
+                  console.log('getUsers: ' + user_data[0].length);
+                  console.log(JSON.stringify(user_data));
+
+                  //////////////////////////////
+                  // GET SELF
+                  controller.getSelf(sites, function(err, self_data) {
+                    console.log('getSelf: ' + self_data[0].length);
+                    console.log(JSON.stringify(self_data));
+
+                    //////////////////////////////
+                    // FINALIZE
+
+                    // finalize, logout and finish
+                    controller.logout();
+                  });
+                });
+              });
+            });
           });
         });
       });
