@@ -89,7 +89,7 @@ var Controller = function(hostname, port)
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
    */
-  _self.authorizeGuest = function(sites, mac, cb)
+  _self.unauthorizeGuest = function(sites, mac, cb)
   {
     var json = { cmd: 'unauthorize-guest', mac: mac.toLowerCase() };
 
