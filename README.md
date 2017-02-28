@@ -24,7 +24,7 @@ Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http:
 ## Installation
 node-unifi can be installed using the following npm command:
 
-```
+```sh
 npm install node-unifi
 ```
 
@@ -33,7 +33,7 @@ node-unifi has been designed to be used quite straight forward and without intro
 ackward language constructs. The following example should give a brief introduction on
 how to use node-unifi in your own applications:
 
-```
+```js
 var unifi = require('node-unifi');
 
 var controller = new unifi.Controller("127.0.0.1", 8443);
