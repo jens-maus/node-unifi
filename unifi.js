@@ -10,7 +10,7 @@
  *   UniFi-API sh client: https://www.ubnt.com/downloads/unifi/5.4.9/unifi_sh_api
  *
  * The majority of the functions in here are actually based on the PHP UniFi-API-browser class
- * version 1.0.12 which defines compatibility to UniFi-Controller versions v4+
+ * version 1.0.13 which defines compatibility to UniFi-Controller versions v4+
  *
  * Copyright (c) 2017 Jens Maus <mail@jens-maus.de>
  *
@@ -545,7 +545,42 @@ var Controller = function(hostname, port)
     var json = { desc: description,
                  cmd: 'add-site' };
 
-    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+    _self._request('/api/s/<SITE>/cmd/sitemgr', json, site, cb);
+  };
+
+  /**
+   * Delete a site - delete_site()
+   * -------------
+   *
+   * required paramater <site>  = name or _id (24 char string) of site to delete
+   *
+   */
+  _self.deleteSite = function(site, cb)
+  {
+    // lets get the _id first
+    _self.getSites(function(err, result) {
+      if(!err && result && result.length > 0) {
+        // only if name or _id matches the site paramater
+        if(result[0].name === site || result[0]._id === site) {
+          var json = { site: result[0]._id,
+                       cmd: 'delete-site' };
+
+          _self._request('/api/s/<SITE>/cmd/sitemgr', json, result[0].name, cb);
+        }
+      }
+    });
+  };
+
+  /**
+   * List admins - list_admins()
+   * -----------
+   *
+   * required paramater <sites> = name or array of site names
+   *
+   */
+  _self.listAdmins = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/sitemgr', { cmd: 'get-admins' }, sites, cb);
   };
 
   /**
@@ -756,6 +791,20 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Adopt a device - adopt_device()
+   * --------------
+   *
+   * required parameter <mac> = device MAC address
+   */
+  _self.adoptDevice = function(sites, mac, cb)
+  {
+    var json = { cmd: 'adopt',
+                 mac: mac.toLowerCase() };
+
+    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
+  };
+
+  /**
    * Reboot an access point - restart_ap()
    * ----------------------
    *
@@ -784,6 +833,20 @@ var Controller = function(hostname, port)
   _self.disableAccessPoint = function(sites, ap_id, disable, cb)
   {
     _self._request('/api/s/<SITE>/rest/device/' + ap_id, { disabled: disabled }, sites, cb);
+  };
+
+  /**
+   * Override LED mode for a device - led_override()
+   * ------------------------------
+   *
+   * required parameter <device_id>     = value of _id (24 char string) for the device which can be obtained from the device list
+   * required parameter <override_mode> = off/on/default; "off" will disable the LED of the device,
+   *                                                      "on" will enable the LED of the device,
+   *                                                      "default" will apply the site-wide setting for device LEDs
+   */
+  _self.setLEDOverride = function(sites, device_id, override_mode, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/device/' + device_id, { led_override: override_mode }, sites, cb);
   };
 
   /**
@@ -928,7 +991,7 @@ var Controller = function(hostname, port)
    */
   _self.getEvents = function(sites, cb)
   {
-    self._request('/api/s/<SITE>/stat/event', null, sites, cb);
+    _self._request('/api/s/<SITE>/stat/event', null, sites, cb);
   };
 
   /**
@@ -939,7 +1002,7 @@ var Controller = function(hostname, port)
    */
   _self.getWLanSettings = function(sites, cb)
   {
-    self._request('/api/s/<SITE>/list/wlanconf', null, sites, cb);
+    _self._request('/api/s/<SITE>/list/wlanconf', null, sites, cb);
   };
 
   /**
@@ -950,7 +1013,7 @@ var Controller = function(hostname, port)
    */
   _self.getAlarms = function(sites, cb)
   {
-    self._request('/api/s/<SITE>/list/alarm', null, sites, cb);
+    _self._request('/api/s/<SITE>/list/alarm', null, sites, cb);
   };
 
   /**
@@ -962,7 +1025,7 @@ var Controller = function(hostname, port)
    */
   _self.createBackup = function(sites, cb)
   {
-    self._request('/api/s/<SITE>/cmd/backup', { cmd: 'backup' }, sites, cb);
+    _self._request('/api/s/<SITE>/cmd/backup', { cmd: 'backup' }, sites, cb);
   };
 
   /**
@@ -979,8 +1042,9 @@ var Controller = function(hostname, port)
     var json = { url: firmware_url,
                  mac: mac.toLowerCase() };
 
-    self._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', json, sites, cb);
+    _self._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', json, sites, cb);
   };
+
 
   /** PRIVATE FUNCTIONS **/
 
@@ -1061,7 +1125,7 @@ exports.Controller = Controller;
  ********************
 */
 /*
-var controller = new Controller("127.0.0.1", 8443);
+var controller = new Controller("192.168.5.66", 8443);
 
 //////////////////////////////
 // LOGIN
