@@ -459,7 +459,7 @@ var Controller = function(hostname, port)
    *
    * required paramater <sites> = name or array of site names
    */
-  _self.getHealth = function(sites, cb)
+  _self.getDashboardStat = function(sites, cb)
   {
     _self._request('/api/s/<SITE>/stat/dashboard', null, sites, cb);
   };
