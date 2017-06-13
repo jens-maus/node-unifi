@@ -1091,7 +1091,7 @@ var Controller = function(hostname, port)
                         else if(typeof(body) !== 'undefined' && typeof(body.meta) !== 'undefined' && body.meta.rc === 'error')
                           callback(body.meta.msg);
                         else
-                          callback('ERROR: ' + reqjson);
+                          callback(error);
                       });
 
         req.on('error', function(err)
