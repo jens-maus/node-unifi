@@ -54,7 +54,7 @@ var Controller = function(hostname, port)
    */
   _self.logout = function(cb)
   {
-    _self._request('/api/logout', null, null, cb);
+    _self._request('/api/logout', {}, null, cb);
   };
 
   /**
