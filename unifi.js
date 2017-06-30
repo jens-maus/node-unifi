@@ -7,10 +7,10 @@
  * souces, namely:
  *
  *   UniFi-API-browser class: https://github.com/malle-pietje/UniFi-API-browser/blob/master/phpapi/class.unifi.php
- *   UniFi-API sh client: https://www.ubnt.com/downloads/unifi/5.4.9/unifi_sh_api
+ *   UniFi-API sh client: https://www.ubnt.com/downloads/unifi/5.4.16/unifi_sh_api
  *
  * The majority of the functions in here are actually based on the PHP UniFi-API-browser class
- * version 1.0.13 which defines compatibility to UniFi-Controller versions v4+
+ * version 1.1.6 which defines compatibility to UniFi-Controller versions v4+
  *
  * Copyright (c) 2017 Jens Maus <mail@jens-maus.de>
  *
@@ -158,7 +158,7 @@ var Controller = function(hostname, port)
       noted = 0;
     }
 
-    _self._request('/api/s/<SITE>/upd/user/' + user_id, { note: note, noted: noted }, sites, cb);
+    _self._request('/api/s/<SITE>/upd/user/' + user_id.trim(), { note: note, noted: noted }, sites, cb);
   };
 
   /**
@@ -177,12 +177,12 @@ var Controller = function(hostname, port)
     if(typeof(name) === 'undefined')
       name = '';
 
-    _self._request('/api/s/<SITE>/upd/user/' + user_id, { name: name }, sites, cb);
+    _self._request('/api/s/<SITE>/upd/user/' + user_id.trim(), { name: name }, sites, cb);
   };
 
   /**
-   * Daily stats method - stat_daily_site()
-   * ------------------
+   * Daily site stats method - stat_daily_site()
+   * -----------------------
    *
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
@@ -215,8 +215,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Hourly stats method - stat_hourly_site()
-   * -------------------
+   * Hourly site stats method - stat_hourly_site()
+   * ------------------------
    *
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
@@ -278,6 +278,35 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Daily stats method for all access points - stat_daily_aps()
+   * ----------------------------------------
+   *
+   * required paramater <sites> = name or array of site names
+   * optional parameter <start> = Unix timestamp in seconds
+   * optional parameter <end>   = Unix timestamp in seconds
+   *
+   * NOTES:
+   * - defaults to the past 7*24 hours
+   * - UniFi controller does not keep these stats longer than 5 hours with versions < 4.6.6
+   */
+  _self.getDailyApStats = function(sites, cb, start, end)
+  {
+    if(typeof(end) === 'undefined')
+      end = Math.floor(Date.now() / 1000);
+
+    if(typeof(start) === 'undefined')
+      start = end - (7*24*3600);
+
+    var json = { attrs: [ 'bytes',
+                          'num_sta',
+                          'time' ],
+                 start: start,
+                 end: end };
+
+    _self._request('/api/s/<SITE>/stat/report/daily.ap', json, sites, cb);
+  };
+
+  /**
    * Show all login sessions - stat_sessions()
    * -----------------------
    *
@@ -308,8 +337,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Show latest 'n' login sessions for a single device - stat_sta_sessions_latest()
-   * --------------------------------------------------
+   * Show latest 'n' login sessions for a single client device - stat_sta_sessions_latest()
+   * ---------------------------------------------------------
    *
    * required paramater <sites> = name or array of site names
    * required parameter <mac>   = client MAC address
@@ -399,7 +428,7 @@ var Controller = function(hostname, port)
     if(typeof(client_mac) === 'undefined')
       client_mac = '';
 
-    _self._request('/api/s/<SITE>/stat/sta/' + client_mac.toLowerCase(), null, sites, cb);
+    _self._request('/api/s/<SITE>/stat/sta/' + client_mac.trim().toLowerCase(), null, sites, cb);
   };
 
   /**
@@ -414,7 +443,7 @@ var Controller = function(hostname, port)
     if(typeof(client_mac) === 'undefined')
       client_mac = '';
 
-    _self._request('/api/s/<SITE>/stat/user/' + client_mac.toLowerCase(), null, sites, cb);
+    _self._request('/api/s/<SITE>/stat/user/' + client_mac.trim().toLowerCase(), null, sites, cb);
   };
 
   /**
@@ -439,7 +468,67 @@ var Controller = function(hostname, port)
    */
   _self.setUserGroup = function(sites, user_id, group_id, cb)
   {
-    _self._request('/api/s/<SITE>/upd/user/' + user_id, { usergroup_id: group_id }, sites, cb);
+    _self._request('/api/s/<SITE>/upd/user/' + user_id.trim(), { usergroup_id: group_id }, sites, cb);
+  };
+
+  /**
+   * Edit user group - edit_usergroup()
+   * ---------------
+   * returns an array containing a single object with attributes of the updated usergroup on success
+   *
+   * required paramater <sites>      = name or array of site names
+   * required parameter <group_id>   = id of the user group
+   * required parameter <site_id>    = id of the site
+   * required parameter <group_name> = name of the user group
+   * optional parameter <group_dn>   = limit download bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
+   * optional parameter <group_up>   = limit upload bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
+   *
+   */
+  _self.editUserGroup = function(sites, group_id, site_id, group_name, cb,
+                                 group_dn, group_up)
+  {
+    var json = { _id: group_id,
+                 site_id: site_id,
+                 name: group_name,
+                 qos_rate_max_down: typeof(group_dn) !== 'undefined' ? group_dn : -1,
+                 qos_rate_max_up:   typeof(group_up) !== 'undefined' ? group_up : -1 };
+
+    _self._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), json, sites, cb);
+  };
+
+  /**
+   * Add user group - add_usergroup()
+   * --------------
+   * returns an array containing a single object with attributes of the new usergroup ("_id", "name", "qos_rate_max_down", "qos_rate_max_up", "site_id") on success
+   *
+   * required paramater <sites>      = name or array of site names
+   * required parameter <group_name> = name of the user group
+   * optional parameter <group_dn>   = limit download bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
+   * optional parameter <group_up>   = limit upload bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
+   *
+   */
+  _self.addUserGroup = function(sites, group_name, cb,
+                                group_dn, group_up)
+  {
+    var json = { name: group_name,
+                 qos_rate_max_down: typeof(group_dn) !== 'undefined' ? group_dn : -1,
+                 qos_rate_max_up:   typeof(group_up) !== 'undefined' ? group_up : -1 };
+
+    _self._request('/api/s/<SITE>/rest/usergroup', json, sites, cb);
+  };
+
+  /**
+   * Delete user group - delete_usergroup()
+   * -----------------
+   * returns true on success
+   *
+   * required paramater <sites>    = name or array of site names
+   * required parameter <group_id> = id of the user group
+   *
+   */
+  _self.deleteUserGroup = function(sites, group_id, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), null, sites, cb, 'DELETE');
   };
 
   /**
@@ -476,7 +565,7 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * List access points and other devices under management of the controller (USW and/or USG devices) - list_aps()
+   * List access points and other devices under management of the controller (USW and/or USG devices) - list_devices()
    * ------------------------------------------------------------------------------------------------
    *
    * required paramater <sites>      = name or array of site names
@@ -487,7 +576,7 @@ var Controller = function(hostname, port)
     if(typeof(device_mac) === 'undefined')
       device_mac = '';
 
-    _self._request('/api/s/<SITE>/stat/device/' + device_mac.toLowerCase(), null, sites, cb);
+    _self._request('/api/s/<SITE>/stat/device/' + device_mac.trim().toLowerCase(), null, sites, cb);
   };
 
   /**
@@ -522,7 +611,7 @@ var Controller = function(hostname, port)
    * calls callback function(err, result) with an array of sysinfo information
    * for all sites registered to the UniFi controller
    *
-   * NOTE: endpoint was introduced with controller version 5.2.9
+   * NOTES: endpoint was introduced with controller version 5.2.9
    */
   _self.getSitesStats = function(cb)
   {
@@ -535,7 +624,7 @@ var Controller = function(hostname, port)
    *
    * required parameter <description> = the long name for the new site
    *
-   * NOTE: immediately after being added, the new site will be available in the output of the "list_sites" function
+   * NOTES: immediately after being added, the new site will be available in the output of the "list_sites" function
    */
   _self.addSite = function(site, cb, description)
   {
@@ -552,16 +641,16 @@ var Controller = function(hostname, port)
    * Delete a site - delete_site()
    * -------------
    *
-   * required paramater <site>  = name or _id (24 char string) of site to delete
+   * required parameter <site_id> = 24 char string; _id of the site to delete
    *
    */
-  _self.deleteSite = function(site, cb)
+  _self.deleteSite = function(site_id, cb)
   {
     // lets get the _id first
     _self.getSites(function(err, result) {
       if(!err && result && result.length > 0) {
         // only if name or _id matches the site paramater
-        if(result[0].name === site || result[0]._id === site) {
+        if(result[0].name === site_id || result[0]._id === site_id) {
           var json = { site: result[0]._id,
                        cmd: 'delete-site' };
 
@@ -648,7 +737,7 @@ var Controller = function(hostname, port)
   _self.getPayments = function(sites, cb, within)
   {
     if(typeof(within) !== 'undefined')
-      within = '?within=' + within;
+      within = '?within=' + within.trim();
     else
       within = '';
 
@@ -687,11 +776,11 @@ var Controller = function(hostname, port)
   /**
    * Create voucher(s) - create_voucher()
    * -----------------
-   * returns an array of voucher codes (NOTE: without the "-" in the middle) by calling the stat_voucher method
+   * returns an array of voucher codes (without the dash "-" in the middle) by calling the stat_voucher method
    *
    * required parameter <minutes> = minutes the voucher is valid after activation
    * optional parameter <count>   = number of vouchers to create, default value is 1
-   * optional parameter <quota>   = single-use or multi-use vouchers, string value '0' is for multi-use, '1' is for single-use
+   * optional parameter <quota>   = single-use or multi-use vouchers, string value '0' is for multi-use, '1' is for single-use, "n" is for multi-use n times
    * optional parameter <note>    = note text to add to voucher when printing
    * optional parameter <up>      = upload speed limit in kbps
    * optional parameter <down>    = download speed limit in kbps
@@ -720,12 +809,27 @@ var Controller = function(hostname, port)
    *---------------
    * return TRUE on success
    *
-   * required parameter <voucher_id> = _id of the voucher to revoke
+   * required parameter <voucher_id> = 24 char string; _id of the voucher to revoke
    */
   _self.revokeVoucher = function(sites, voucher_id, cb)
   {
     var json = { cmd: 'delete-voucher',
                  _id: voucher_id };
+
+    _self._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
+  };
+
+  /**
+   * Extend guest validity - extend_guest_validity()
+   * ---------------------
+   * return TRUE on success
+   *
+   * required parameter <guest_id> = 24 char string; _id of the guest to extend validity
+   */
+  _self.extendGuestValidity = function(sites, guest_id, cb)
+  {
+    var json = { cmd: 'extend',
+                 _id: guest_id };
 
     _self._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
   };
@@ -738,6 +842,26 @@ var Controller = function(hostname, port)
   _self.getPortForwardingStats = function(sites, cb)
   {
     _self._request('/api/s/<SITE>/stat/portforward', null, sites, cb);
+  };
+
+  /**
+   * List DPI stats - list_dpi_stats()
+   * --------------
+   * returns an array of DPI stats
+   */
+  _self.getDPIStats = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/stat/dpi', null, sites, cb);
+  };
+
+  /**
+   * List current channels - list_current_channels()
+   * ---------------------
+   * returns an array of currently allowed channels
+   */
+  _self.getCurrentChannels = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/stat/current-channel', null, sites, cb);
   };
 
   /**
@@ -791,8 +915,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Adopt a device - adopt_device()
-   * --------------
+   * Adopt a device to the selected site - adopt_device()
+   * -----------------------------------
    *
    * required parameter <mac> = device MAC address
    */
@@ -822,7 +946,7 @@ var Controller = function(hostname, port)
    * Disable/enable an access point - disable_ap()
    * ------------------------------
    *
-   * required parameter <ap_id>   = value of _id for the access point which can be obtained from the device list
+   * required parameter <ap_id>   = 24 char string; value of _id for the access point which can be obtained from the device list
    * required parameter <disable> = boolean; TRUE will disable the device, FALSE will enable the device
    *
    * NOTES:
@@ -832,69 +956,47 @@ var Controller = function(hostname, port)
    */
   _self.disableAccessPoint = function(sites, ap_id, disable, cb)
   {
-    _self._request('/api/s/<SITE>/rest/device/' + ap_id, { disabled: disabled }, sites, cb);
+    _self._request('/api/s/<SITE>/rest/device/' + ap_id.trim(), { disabled: disabled }, sites, cb);
   };
 
   /**
    * Override LED mode for a device - led_override()
    * ------------------------------
    *
-   * required parameter <device_id>     = value of _id (24 char string) for the device which can be obtained from the device list
-   * required parameter <override_mode> = off/on/default; "off" will disable the LED of the device,
-   *                                                      "on" will enable the LED of the device,
-   *                                                      "default" will apply the site-wide setting for device LEDs
+   * required parameter <device_id>     = 24 char string; value of _id for the device which can be obtained from the device list
+   * required parameter <override_mode> = string, off/on/default; "off" will disable the LED of the device,
+   *                                      "on" will enable the LED of the device,
+   *                                      "default" will apply the site-wide setting for device LEDs
    */
   _self.setLEDOverride = function(sites, device_id, override_mode, cb)
   {
-    _self._request('/api/s/<SITE>/rest/device/' + device_id, { led_override: override_mode }, sites, cb);
+    _self._request('/api/s/<SITE>/rest/device/' + device_id.trim(), { led_override: override_mode }, sites, cb);
   };
 
   /**
-   * Start flashing LED of an access point for locating purposes - set_locate_ap()
-   * -----------------------------------------------------------
+   * Toggle flashing LED of an access point for locating purposes - locate_ap()
+   * ------------------------------------------------------------
    *
    * required parameter <mac> = device MAC address
+   * required parameter <enable> = boolean; true will enable flashing LED, false will disable
    */
-  _self.setLocateAccessPoint = function(sites, mac, cb)
+  _self.setLocateAccessPoint = function(sites, mac, enable, cb)
   {
-    var json = { cmd: 'set-locate',
+    var json = { cmd: enable === true ? 'set-locate' : 'unset-locate',
                  mac: mac.toLowerCase() };
 
     _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
   };
 
   /**
-   * Stop flashing LED of an access point for locating purposes - unset_locate_ap()
-   * -----------------------------------------------------------
+   * Toggle LEDs of all the access points ON or OFF - site_leds()
+   * ----------------------------------------------
    *
-   * required parameter <mac> = device MAC address
+   * required parameter <enable> = boolean; true will switch LEDs of all the access points ON, false will switch them OFF
    */
-  _self.unsetLocateAccessPoint = function(sites, mac, cb)
+  _self.setSiteLEDs = function(sites, enable, cb)
   {
-    var json = { cmd: 'unset-locate',
-                 mac: mac.toLowerCase() };
-
-    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
-  };
-
-  /**
-   * Switch LEDs of all the access points ON - site_ledson()
-   * ---------------------------------------
-   *
-   */
-  _self.enableSiteLEDs = function(sites, cb)
-  {
-    _self._request('/api/s/<SITE>/set/setting/mgmt', { led_enabled: 1 }, sites, cb);
-  };
-
-  /**
-   * Switch LEDs of all the access points OFF - site_ledson()
-   * ----------------------------------------
-   *
-   */
-  _self.disableSiteLEDs = function(sites, cb)
-  {
-    _self._request('/api/s/<SITE>/set/setting/mgmt', { led_enabled: 0 }, sites, cb);
+    _self._request('/api/s/<SITE>/set/setting/mgmt', { led_enabled: enable }, sites, cb);
   };
 
   /**
@@ -917,7 +1019,7 @@ var Controller = function(hostname, port)
                  tx_power_mode: tx_power_mode,
                  tx_power: tx_power }] };
 
-    _self._request('/api/s/<SITE>/upd/device/' + ap_id, json, sites, cb);
+    _self._request('/api/s/<SITE>/upd/device/' + ap_id.trim(), json, sites, cb);
   };
 
   /**
@@ -961,7 +1063,63 @@ var Controller = function(hostname, port)
    */
   _self.renameAccessPoint = function(sites, ap_id, apname, cb)
   {
-    _self._request('/api/s/<SITE>/upd/device/' + ap_id, { name: apname }, sites, cb);
+    _self._request('/api/s/<SITE>/upd/device/' + ap_id.trim(), { name: apname }, sites, cb);
+  };
+
+  /**
+   * Add a wlan - create_wlan()
+   * ----------
+   *
+   * required parameter <name>             = string; SSID
+   * required parameter <x_passphrase>     = string; new pre-shared key, minimal length is 8 characters, maximum length is 63
+   * required parameter <usergroup_id>     = string; user group id that can be found using the list_usergroups() function
+   * required parameter <wlangroup_id>     = string; wlan group id that can be found using the list_wlan_groups() function
+   * optional parameter <enabled>          = boolean; enable/disable wlan
+   * optional parameter <hide_ssid>        = boolean; hide/unhide wlan SSID
+   * optional parameter <is_guest>         = boolean; apply guest policies or not
+   * optional parameter <security>         = string; security type
+   * optional parameter <wpa_mode>         = string; wpa mode (wpa, wpa2, ..)
+   * optional parameter <wpa_enc>          = string; encryption (auto, ccmp)
+   * optional parameter <vlan_enabled>     = boolean; enable/disable vlan for this wlan
+   * optional parameter <vlan>             = string; vlan id
+   * optional parameter <uapsd_enabled>    = boolean; enable/disable Unscheduled Automatic Power Save Delivery
+   * optional parameter <schedule_enabled> = boolean; enable/disable wlan schedule
+   * optional parameter <schedule>         = string; schedule rules
+   */
+  _self.createWLan = function(sites, name, x_passphrase, usergroup_id, wlangroup_id, cb,
+                              enabled, hide_ssid, is_guest, security, wpa_mode, wpa_enc, vlan_enabled, vlan, uapsd_enabled, schedule_enabled, schedule)
+  {
+    var json = { name: name,
+                 x_passphrase:     x_passphrase,
+                 usergroup_id:     usergroup_id,
+                 wlangroup_id:     wlangroup_id,
+                 enabled:          typeof(enabled) !== 'undefined' ? enabled : true,
+                 hide_ssid:        typeof(hide_ssid) !== 'undefined' ? hide_ssid : false,
+                 is_guest:         typeof(is_guest) !== 'undefined' ? is_guest : false,
+                 security:         typeof(security) !== 'undefined' ? security : 'open',
+                 wpa_mode:         typeof(wpa_mode) !== 'undefined' ? wpa_mode : 'wpa2',
+                 wpa_enc:          typeof(wpa_enc) !== 'undefined' ? wpa_enc : 'ccmp',
+                 vlan_enabled:     typeof(vlan_enabled) !== 'undefined' ? vlan_enabled : false,
+                 uapsd_enabled:    typeof(uapsd_enabled) !== 'undefined' ? uapsd_enabled : false,
+                 schedule_enabled: typeof(schedule_enabled) !== 'undefined' ? schedule_enabled : false,
+                 schedule:         typeof(schedule) !== 'undefined' ? schedule : {}
+               };
+
+    if(typeof(vlan) !== 'undefined' && typeof(vlan_enabled) !== 'undefined')
+      json.vlan = vlan;
+
+    _self._request('/api/s/<SITE>/add/wlanconf/', json, sites, cb);
+  };
+
+  /**
+   * Delete wlan - delete_wlan()
+   * -----------
+   *
+   * required parameter <wlan_id> = 24 char string; _id of the wlan that can be found with the list_wlanconf() function
+   */
+  _self.deleteWLan = function(sites, wlan_id, cb)
+  {
+    _self._request('/api/s/<SITE>/del/wlanconf/' + wlan_id.trim(), {}, sites, cb);
   };
 
   /**
@@ -969,18 +1127,37 @@ var Controller = function(hostname, port)
    * -----------------
    *
    * required parameter <wlan_id>
-   * required parameter <x_passphrase> = new pre-shared key, minimal length is 8 characters, maximum length is 63
+   * optional parameter <x_passphrase> = new pre-shared key, minimal length is 8 characters, maximum length is 63,
+   *                                     will be ignored if set to null
    * optional parameter <name>
    *
    */
-  _self.setWLanSettings = function(sites, wlan_id, x_passphrase, cb, name)
+  _self.setWLanSettings = function(sites, wlan_id, cb, x_passphrase, name)
   {
-    var json = { x_passphrase: x_passphrase };
+    var json = { };
+
+    if(typeof(x_passphrase) !== 'undefined')
+      json.x_passphrase = x_passphrase.trim();
 
     if(typeof(name) !== 'undefined')
-      json.name = name;
+      json.name = name.trim();
 
-    _self._request('/api/s/<SITE>/upd/wlanconf/' + wlan_id, json, sites, cb);
+    _self._request('/api/s/<SITE>/upd/wlanconf/' + wlan_id.trim(), json, sites, cb);
+  };
+
+  /**
+   * Disable/Enable wlan - disable_wlan()
+   * -------------------
+   *
+   * required parameter <wlan_id>
+   * required parameter <disable> = boolean; true disables the wlan, false enables it
+   *
+   */
+  _self.disableWLan = function(sites, wlan_id, disable, cb)
+  {
+    var json = { enabled: disable == true ? false : true };
+
+    _self._request('/api/s/<SITE>/upd/wlanconf/' + wlan_id.trim(), json, sites, cb);
   };
 
   /**
@@ -988,10 +1165,31 @@ var Controller = function(hostname, port)
    * -----------
    *
    * required paramater <sites>   = name or array of site names
+   * optional parameter <historyhours> = hours to go back, default value is 720 hours
+   * optional parameter <start>        = which event number to start with (useful for paging of results), default value is 0
+   * optional parameter <limit>        = number of events to return, default value is 3000
    */
-  _self.getEvents = function(sites, cb)
+  _self.getEvents = function(sites, cb, historyhours, start, limit)
   {
-    _self._request('/api/s/<SITE>/stat/event', null, sites, cb);
+    var json = { _sort: '-time',
+                 type: null };
+
+    if(typeof(historyhours) !== 'undefined')
+      json.within = historyhours;
+    else
+      json.within = 720;
+
+    if(typeof(start) !== 'undefined')
+      json._start = start;
+    else
+      json._start = 0;
+
+    if(typeof(limit) !== 'undefined')
+      json._limit = limit;
+    else
+      json._limit = 3000;
+
+    _self._request('/api/s/<SITE>/stat/event', json, sites, cb);
   };
 
   /**
@@ -1014,6 +1212,70 @@ var Controller = function(hostname, port)
   _self.getAlarms = function(sites, cb)
   {
     _self._request('/api/s/<SITE>/list/alarm', null, sites, cb);
+  };
+
+  /**
+   * Count alarms - count_alarms()
+   * ------------
+   * returns an array containing the alarm count
+   * required paramater <sites>   = name or array of site names
+   * optional parameter <archived> = boolean; if true all alarms will be counted, if false only non-archived (active) alarms will be counted
+   */
+  _self.getAlarms = function(sites, cb, archived)
+  {
+    _self._request('/api/s/<SITE>/cnt/alarm' + archived === false ? '?archived=false' : '', null, sites, cb);
+  };
+
+  /**
+   * Upgrade a device to the latest firmware - upgrade_device()
+   * ---------------------------------------
+   * return true on success
+   * required parameter <device_mac> = MAC address of the device to upgrade
+   *
+   * NOTES:
+   * - updates the device to the latest firmware known to the controller
+   */
+  _self.upgradeDevice = function(sites, device_mac, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/devmgr/upgrade', { mac: device_mac.toLowerCase() }, sites, cb);
+  };
+
+  /**
+   * Upgrade a device to a specific firmware file
+   * ---------------------------------------
+   * return true on success
+   * required parameter <firmware_url> = URL for the firmware file to upgrade the device to
+   * required parameter <device_mac>   = MAC address of the device to upgrade
+   *
+   * NOTES:
+   * - updates the device to the firmware file at the given URL
+   * - please take great care to select a valid firmware file for the device!
+   */
+  _self.upgradeDeviceExternal = function(sites, firmware_url, device_mac, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', { url: firmware_url, mac: device_mac.toLowerCase() }, sites, cb);
+  };
+
+  /**
+   * Trigger an RF scan by an AP
+   * ---------------------------
+   * return true on success
+   * required parameter <ap_mac> = MAC address of the AP
+   */
+  _self.runSpectrumScan = function(sites, ap_mac, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/devmgr', { cmd: 'spectrum-scan', mac: ap_mac.toLowerCase() }, sites, cb);
+  };
+
+  /**
+   * Check the RF scanning state of an AP
+   * ------------------------------------
+   * returns an object with relevant information (results if available) regarding the RF scanning state of the AP
+   * required parameter <ap_mac> = MAC address of the AP
+   */
+  _self.getSpectrumScanState = function(sites, ap_mac, cb)
+  {
+    _self._request('/api/s/<SITE>/stat/spectrum-scan/' + ap_mac.trim().toLowerCase(), null, sites, cb);
   };
 
   /**
@@ -1052,7 +1314,7 @@ var Controller = function(hostname, port)
    * Private function to send out a generic URL request to a UniFi-Controller
    * for multiple sites (if wanted) and returning data via the callback function
    */
-  _self._request = function(url, json, sites, cb)
+  _self._request = function(url, json, sites, cb, method)
   {
     var proc_sites;
 
@@ -1068,17 +1330,25 @@ var Controller = function(hostname, port)
     async.whilst(
       function() { return count < proc_sites.length; },
       function(callback) {
-        var reqfunc = request.get;
+        var reqfunc;
         var reqjson = {url: _self._baseurl + url.replace('<SITE>', proc_sites[count])};
         var req;
 
-        // if the user specified json data we assume a
-        // POST request instead.
+        // identify which request method we are using (GET, POST, DELETE) based
+        // on the json data supplied and the overriding method
         if(json !== null)
         {
           reqfunc = request.post;
           reqjson.json = json;
         }
+        else if(typeof(method) === 'undefined')
+          reqfunc = request.get;
+        else if(method === 'DELETE')
+          reqfunc = request.del;
+        else if(method === 'POST')
+          reqfunc = request.post;
+        else
+          reqfunc = request.get;
 
         req = reqfunc(reqjson, function(error, response, body)
                       {
