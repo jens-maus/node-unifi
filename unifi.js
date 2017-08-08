@@ -1352,7 +1352,11 @@ var Controller = function(hostname, port)
 
         req = reqfunc(reqjson, function(error, response, body)
                       {
-                        if(!error && body && response.statusCode >= 200 && response.statusCode < 400 &&
+                        if (error) {
+                          return callback(error);
+                        }
+
+                        if(body && response.statusCode >= 200 && response.statusCode < 400 &&
                            (typeof(body) !== 'undefined' && typeof(body.meta) !== 'undefined' && body.meta.rc === "ok"))
                         {
                           results.push(body.data);
@@ -1363,11 +1367,6 @@ var Controller = function(hostname, port)
                         else
                           callback('ERROR: ' + reqjson);
                       });
-
-        req.on('error', function(err)
-        {
-          callback(err.message);
-        });
 
         count++;
       },
