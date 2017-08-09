@@ -10,7 +10,7 @@
  *   UniFi-API sh client: https://www.ubnt.com/downloads/unifi/5.4.16/unifi_sh_api
  *
  * The majority of the functions in here are actually based on the PHP UniFi-API-browser class
- * version 1.1.6 which defines compatibility to UniFi-Controller versions v4+
+ * version 1.1.8 which defines compatibility to UniFi-Controller versions v4+
  *
  * Copyright (c) 2017 Jens Maus <mail@jens-maus.de>
  *
@@ -778,7 +778,7 @@ var Controller = function(hostname, port)
    * -----------------
    * returns an array of voucher codes (without the dash "-" in the middle) by calling the stat_voucher method
    *
-   * required parameter <minutes> = minutes the voucher is valid after activation
+   * required parameter <minutes> = minutes the voucher is valid after activation (expiration time)
    * optional parameter <count>   = number of vouchers to create, default value is 1
    * optional parameter <quota>   = single-use or multi-use vouchers, string value '0' is for multi-use, '1' is for single-use, "n" is for multi-use n times
    * optional parameter <note>    = note text to add to voucher when printing
@@ -1277,6 +1277,19 @@ var Controller = function(hostname, port)
   {
     _self._request('/api/s/<SITE>/stat/spectrum-scan/' + ap_mac.trim().toLowerCase(), null, sites, cb);
   };
+
+  /**
+   * List Radius user accounts (5.5.19+)
+   * -------------------------
+   * returns an array of objects containing all Radius accounts for the current site
+	 *
+   * NOTES:
+   * - this function/method is only supported on controller versions 5.5.19 and later
+   */
+  _self.listRadiusAccounts() = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/account', null, sites, cb);
+  }
 
   /**
    * Create backup (5.4.9+)
