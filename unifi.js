@@ -401,6 +401,27 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * List all blocked client devices ever connected to the site
+   * --------------------------------------------------
+   * optional parameter <historyhours> = hours to go back (default is 8760 hours or 1 year)
+   *
+   * NOTES:
+   * - <historyhours> is only used to select clients that were online within that period,
+   *    the returned stats per client are all-time totals, irrespective of the value of <historyhours>
+   */
+  _self.getBlockedUsers = function(sites, cb, within)
+  {
+    if(typeof(within) === 'undefined')
+      within = 8760;
+
+    var json = { type: 'blocked',
+                 conn: 'all',
+                 within: within };
+
+    _self._request('/api/s/<SITE>/stat/alluser', json, sites, cb);
+  };
+
+  /**
    * List guest devices - list_guests()
    * ------------------
    *
