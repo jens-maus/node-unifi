@@ -1308,10 +1308,10 @@ var Controller = function(hostname, port)
    * NOTES:
    * - this function/method is only supported on controller versions 5.5.19 and later
    */
-  _self.listRadiusAccounts() = function(sites, cb)
+  _self.listRadiusAccounts = function(sites, cb)
   {
     _self._request('/api/s/<SITE>/rest/account', null, sites, cb);
-  }
+  };
 
   /**
    * Create backup (5.4.9+)
