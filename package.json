@@ -1,6 +1,6 @@
 {
   "name": "node-unifi",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "NodeJS class for querying UniFi-Controller (www.ubnt.com)",
   "author": "Jens Maus <mail@jens-maus.de>",
   "homepage": "https://github.com/jens-maus/node-unifi",
