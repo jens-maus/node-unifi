@@ -617,7 +617,10 @@ var Controller = function(hostname, port)
 
   _self.updateAccessDevice = function(sites, accessDevice)
   {
-    _self.setDeviceSettingsBase(sites, accessDevice._device._id, { port_overrides: accessDevice._device.port_overrides });
+    var changes = accessDevice.getChanges();
+    if (Object.keys(changes).length > 0) {
+        _self.setDeviceSettingsBase(sites, accessDevice._device._id, accessDevice.getChanges());
+    }
   };
 
   /**

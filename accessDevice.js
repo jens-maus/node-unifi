@@ -1,6 +1,7 @@
 
 var accessDevice = function(device) {
     this._poemodes = ['off', 'passv24', 'auto'];
+    this._dirty = [ ];
 
     this.constructor = function(device) {
         this._device = this._dropArray(device);
@@ -8,6 +9,20 @@ var accessDevice = function(device) {
             throw `validation failed`;
     };
 
+    this.getChanges = function() {
+        var result = { };
+        for (key in this._dirty) {
+            var value = this._dirty[key]
+            result[value] = this._device[value];
+        }
+        return result;
+    }
+
+    this._markDirty = function(field) {
+        if (this._dirty.indexOf(field) === -1) {
+            this._dirty.push(field);
+        }
+    };
 
     this.setPoe = function(port, mode) {
         var port_overrides = this._device.port_overrides;
@@ -21,6 +36,8 @@ var accessDevice = function(device) {
         if (this._device.port_table[port-1].port_poe === false) {
             throw `port '${port}' does not support poe`;
         }
+
+        this._markDirty('port_overrides');
 
         for (var key in port_overrides) {
             if (port_overrides[key].port_idx === port) {
