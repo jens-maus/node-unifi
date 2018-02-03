@@ -1385,6 +1385,8 @@ var Controller = function(hostname, port)
           reqfunc = request.del;
         else if(method === 'POST')
           reqfunc = request.post;
+        else if(method === 'PUT')
+          reqfunc = request.put;
         else
           reqfunc = request.get;
 
