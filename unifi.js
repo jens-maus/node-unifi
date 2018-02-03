@@ -602,6 +602,11 @@ var Controller = function(hostname, port)
     _self._request('/api/s/<SITE>/stat/device/' + device_mac.trim().toLowerCase(), null, sites, cb);
   };
 
+  _self.updateAccessDevice = function(sites, accessDevice)
+  {
+    _self._request('/api/s/<SITE>/rest/device/' + accessDevice._device._id, { port_overrides: accessDevice._device.port_overrides }, sites, null, 'PUT');
+  };
+
   /**
    * List rogue access points - list_rogueaps()
    * ------------------------
