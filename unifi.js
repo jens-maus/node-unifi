@@ -593,10 +593,11 @@ var Controller = function(hostname, port)
    * required parameter <device_id>       = 24 char string; _id of the device which can be found with the getAccessDevices() function
    * required parameter <device_settings> = object containing the configuration to apply to the device, must be a
    *                                        (partial) object structured in the same manner as is returned by getAccessDevices() for the devic$
+   * optional paramater <cb>              = the callback function that is called with the results
    */
-  _self.setDeviceSettingsBase = function(sites, device_id, deviceSettings)
+  _self.setDeviceSettingsBase = function(sites, device_id, deviceSettings, cb)
   {
-    _self._request('/api/s/<SITE>/rest/device/' + device_id, deviceSettings, sites, null, 'PUT');
+    _self._request('/api/s/<SITE>/rest/device/' + device_id, deviceSettings, sites, cb, 'PUT');
   };
 
   /**
