@@ -19,6 +19,7 @@
  */
 var request = require('request');
 var async = require('async');
+var accessDevice = require('./accessDevice');
 
 // make sure we setup request correctly for our
 // processing
@@ -1420,6 +1421,8 @@ var Controller = function(hostname, port)
       }
     );
   };
+
+  _self.accessDevice = accessDevice;
 };
 
 exports.Controller = Controller;
