@@ -1373,7 +1373,10 @@ var Controller = function(hostname, port)
         // on the json data supplied and the overriding method
         if(json !== null)
         {
-          reqfunc = request.post;
+          if(method === 'PUT')
+            reqfunc = request.put;
+          else
+            reqfunc = request.post;
           reqjson.json = json;
         }
         else if(typeof(method) === 'undefined')
@@ -1382,6 +1385,8 @@ var Controller = function(hostname, port)
           reqfunc = request.del;
         else if(method === 'POST')
           reqfunc = request.post;
+        else if(method === 'PUT')
+          reqfunc = request.put;
         else
           reqfunc = request.get;
 
