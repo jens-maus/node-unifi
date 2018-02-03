@@ -19,6 +19,7 @@
  */
 var request = require('request');
 var async = require('async');
+var accessDevice = require('./accessDevice');
 
 // make sure we setup request correctly for our
 // processing
@@ -587,6 +588,19 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Update device settings, base (using REST)
+   * -----------------------------------------
+   * required paramater <sites>           = name or array of site names
+   * required parameter <device_id>       = 24 char string; _id of the device which can be found with the getAccessDevices() function
+   * required parameter <device_settings> = object containing the configuration to apply to the device, must be a
+   *                                        (partial) object structured in the same manner as is returned by getAccessDevices() for the devic$
+   */
+  _self.setDeviceSettingsBase = function(sites, device_id, deviceSettings)
+  {
+    _self._request('/api/s/<SITE>/rest/device/' + device_id, deviceSettings, sites, null, 'PUT');
+  };
+
+  /**
    * List access points and other devices under management of the controller (USW and/or USG devices) - list_devices()
    * ------------------------------------------------------------------------------------------------
    *
@@ -599,6 +613,14 @@ var Controller = function(hostname, port)
       device_mac = '';
 
     _self._request('/api/s/<SITE>/stat/device/' + device_mac.trim().toLowerCase(), null, sites, cb);
+  };
+
+  _self.updateAccessDevice = function(sites, accessDevice)
+  {
+    var changes = accessDevice.getChanges();
+    if (Object.keys(changes).length > 0) {
+        _self.setDeviceSettingsBase(sites, accessDevice._device._id, accessDevice.getChanges());
+    }
   };
 
   /**
@@ -1420,6 +1442,8 @@ var Controller = function(hostname, port)
       }
     );
   };
+
+  _self.accessDevice = accessDevice;
 };
 
 exports.Controller = Controller;
