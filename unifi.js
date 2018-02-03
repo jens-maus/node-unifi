@@ -617,7 +617,7 @@ var Controller = function(hostname, port)
 
   _self.updateAccessDevice = function(sites, accessDevice)
   {
-    _self._request('/api/s/<SITE>/rest/device/' + accessDevice._device._id, { port_overrides: accessDevice._device.port_overrides }, sites, null, 'PUT');
+    _self.setDeviceSettingsBase(sites, accessDevice._device._id, { port_overrides: accessDevice._device.port_overrides });
   };
 
   /**
