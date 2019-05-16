@@ -891,6 +891,18 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * clear DPI stats 
+   * --------------
+   * clears stats of DPI
+   */
+  _self.ClearDPIStatus = function (sites, cb) {
+    var json = {
+      cmd: 'clear-dpi'
+    }
+    _self._request('/api/s/<SITE>/cmd/stat', json, sites, cb);
+  };
+
+  /**
    * List current channels - list_current_channels()
    * ---------------------
    * returns an array of currently allowed channels
