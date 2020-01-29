@@ -977,6 +977,17 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Start speedtest of the gateway - speedtest()
+   * -----------------------------------
+   */
+  _self.speedtest = function(sites, cb)
+  {
+    var json = { cmd: 'speedtest' };
+
+    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
+  };
+
+  /**
    * Reboot an access point - restart_ap()
    * ----------------------
    *
