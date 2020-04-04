@@ -46,7 +46,24 @@ var Controller = function(hostname, port)
    */
   _self.login = function(username, password, cb)
   {
-    _self._request('/api/login', { username: username, password: password }, null, cb);
+    async.series([
+      function(cb) {
+        //We have to use a custom cookie jar for this request - otherwise the login will fail on Unifi
+        const j = request.jar()
+        request({ method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: j }, (err, res, body) => {
+          if (res.statusCode == 200) {
+            _self._unifios = true
+          }
+          return cb()
+        });
+      },
+      function(cb) {
+        _self._request(_self._unifios ? '/api/auth/login' : '/api/login', {
+          username: username,
+          password: password
+        }, null, cb);
+      }
+    ], cb)
   };
 
   /**
@@ -54,7 +71,7 @@ var Controller = function(hostname, port)
    */
   _self.logout = function(cb)
   {
-    _self._request('/api/logout', {}, null, cb);
+    _self._request(_self._unifios ? '/api/auth/logout' : '/api/logout', {}, null, cb);
   };
 
   /**
@@ -1377,6 +1394,12 @@ var Controller = function(hostname, port)
    */
   _self._request = function(url, json, sites, cb, method)
   {
+
+    function getbaseurl() {
+      if (url.indexOf('login') > -1 || url.indexOf('logout') > -1 || !_self._unifios) return _self._baseurl;
+      return _self._baseurl + '/proxy/network'
+    }
+
     var proc_sites;
 
     if(sites === null)
@@ -1392,7 +1415,7 @@ var Controller = function(hostname, port)
       function() { return count < proc_sites.length; },
       function(callback) {
         var reqfunc;
-        var reqjson = {url: _self._baseurl + url.replace('<SITE>', proc_sites[count])};
+        var reqjson = {url: getbaseurl() + url.replace('<SITE>', proc_sites[count])};
         var req;
 
         // identify which request method we are using (GET, POST, DELETE) based
