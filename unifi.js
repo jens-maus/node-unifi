@@ -44,7 +44,7 @@ var Controller = function(hostname, port)
   /**
    * Login to UniFi Controller - login()
    */
-  _self.login = function(username, password, cb)
+  _self.login = function(username, password, final)
   {
     async.series([
       function(cb) {
@@ -61,9 +61,9 @@ var Controller = function(hostname, port)
         _self._request(_self._unifios ? '/api/auth/login' : '/api/login', {
           username: username,
           password: password
-        }, null, cb);
+        }, null, final);
       }
-    ], cb)
+    ])
   };
 
   /**
@@ -1412,7 +1412,7 @@ var Controller = function(hostname, port)
     var count = 0;
     var results = [];
     async.whilst(
-      function() { return count < proc_sites.length; },
+      function(callback) { return callback(null, (count < proc_sites.length)) },
       function(callback) {
         var reqfunc;
         var reqjson = {url: getbaseurl() + url.replace('<SITE>', proc_sites[count])};
