@@ -1803,6 +1803,20 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Upgrade a device to the latest firmware - upgrade_device()
+   * ---------------------------------------
+   * return true on success
+   * required parameter <device_mac> = MAC address of the device to upgrade
+   *
+   * NOTES:
+   * - updates the device to the latest firmware known to the controller
+   */
+  _self.upgradeDevice = function(sites, device_mac, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/devmgr/upgrade', { mac: device_mac.toLowerCase() }, sites, cb);
+  };
+
+  /**
    * Upgrade a device to a specific firmware file - upgrade_device_external()
    * --------------------------------------------
    * return true on success
