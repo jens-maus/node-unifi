@@ -6,13 +6,15 @@
  * its Web-API. The functionality implemented here had been gathered through different
  * souces, namely:
  *
- *   UniFi-API-browser class: https://github.com/malle-pietje/UniFi-API-browser/blob/master/phpapi/class.unifi.php
- *   UniFi-API sh client: https://www.ubnt.com/downloads/unifi/5.4.16/unifi_sh_api
+ *   UniFi-API-client: https://github.com/Art-of-WiFi/UniFi-API-client/blob/master/src/Client.php
+ *   UniFi-API sh: https://dl.ui.com/unifi/5.12.35/unifi_sh_api
  *
- * The majority of the functions in here are actually based on the PHP UniFi-API-browser class
- * version 1.1.8 which defines compatibility to UniFi-Controller versions v4+
+ * The majority of the functions in here are actually based on the PHP UniFi-API-client class
+ * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Copyright (c) 2017 Jens Maus <mail@jens-maus.de>
+ * Based/Compatible to UniFi-API-client class: v1.1.9
+ *
+ * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
  * The source code is distributed under the MIT license
  *
@@ -249,18 +251,19 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Hourly stats method for all access points - stat_hourly_aps()
-   * -----------------------------------------
+   * Hourly stats method for a single access point or all access points - stat_hourly_aps()
+   * ------------------------------------------------------------------
    *
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
+   * optional parameter <mac>   = AP MAC address to return stats for
    *
    * NOTES:
    * - defaults to the past 7*24 hours
    * - UniFi controller does not keep these stats longer than 5 hours with versions < 4.6.6
    */
-  _self.getHourlyApStats = function(sites, cb, start, end)
+  _self.getHourlyApStats = function(sites, cb, start, end, mac)
   {
     if(typeof(end) === 'undefined')
       end = Math.floor(Date.now() / 1000);
@@ -273,23 +276,27 @@ var Controller = function(hostname, port)
                           'time' ],
                  start: start,
                  end: end };
+
+    if(typeof(mac) !== 'undefined')
+      json.mac = mac.toLowerCase();
 
     _self._request('/api/s/<SITE>/stat/report/hourly.ap', json, sites, cb);
   };
 
   /**
-   * Daily stats method for all access points - stat_daily_aps()
-   * ----------------------------------------
+   * Daily stats method for a single access point or all access points - stat_daily_aps()
+   * -----------------------------------------------------------------
    *
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
+   * optional parameter <mac>   = AP MAC address to return stats for
    *
    * NOTES:
    * - defaults to the past 7*24 hours
    * - UniFi controller does not keep these stats longer than 5 hours with versions < 4.6.6
    */
-  _self.getDailyApStats = function(sites, cb, start, end)
+  _self.getDailyApStats = function(sites, cb, start, end, mac)
   {
     if(typeof(end) === 'undefined')
       end = Math.floor(Date.now() / 1000);
@@ -302,6 +309,9 @@ var Controller = function(hostname, port)
                           'time' ],
                  start: start,
                  end: end };
+
+    if(typeof(mac) !== 'undefined')
+      json.mac = mac.toLowerCase();
 
     _self._request('/api/s/<SITE>/stat/report/daily.ap', json, sites, cb);
   };
@@ -614,6 +624,18 @@ var Controller = function(hostname, port)
 
     _self._request('/api/s/<SITE>/stat/device/' + device_mac.trim().toLowerCase(), null, sites, cb);
   };
+
+  /**
+   * List (device) tags - list_tags()
+   * ------------------
+   * returns an array of known device tag objects
+   *
+   * NOTES: this endpoint was introduced with controller versions 5.5.X
+   */
+  _self.listTags = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/tag', null, sites, cb);
+  }
 
   /**
    * List rogue access points - list_rogueaps()
