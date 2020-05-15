@@ -934,6 +934,84 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Invite a new admin for access to the current site - invite_admin()
+   * -------------------------------------------------
+   * returns true on success
+   * required parameter <name>           = string, name to assign to the new admin user
+   * required parameter <email>          = email address to assign to the new admin user
+   * optional parameter <enable_sso>     = boolean, whether or not SSO will be allowed for the new admin
+   *                                       default value is true which enables the SSO capability
+   * optional parameter <readonly>       = boolean, whether or not the new admin will have readonly
+   *                                       permissions, default value is true which gives the new admin
+   *                                       administrator permissions
+   * optional parameter <device_adopt>   = boolean, whether or not the new admin will have permissions to
+   *                                       adopt devices, default value is false. Only applies when readonly
+   *                                       is true.
+   * optional parameter <device_restart> = boolean, whether or not the new admin will have permissions to
+   *                                       restart devices, default value is false. Only applies when readonly
+   *                                       is true.
+   *
+   * NOTES:
+   * after issuing a valid request, an invite will be sent to the email address provided
+   */
+  _self.inviteAdmin = function(sites, name, email, cb, enable_sso, readonly, device_adopt, device_restart)
+  {
+    if(typeof(enable_sso) === 'undefined')
+      enable_sso = true;
+
+    if(typeof(readonly) === 'undefined')
+      readonly = false;
+
+    if(typeof(device_adopt) === 'undefined')
+      device_adopt = false;
+
+    if(typeof(device_restart) === 'undefined')
+      device_restart = false;
+
+    var json = { name: name.trim(),
+                 email: email.trim(),
+                 for_sso: enable_sso,
+                 cmd: 'invite-admin'
+               };
+
+    if(readonly === true)
+    {
+      json.role = 'readonly';
+
+      var permissions = [ ];
+      if(device_adopt === true)
+        permissions.push('API_DEVICE_ADOPT');
+
+      if(device_restart === true)
+        permissions.push('API_DEVICE_RESTART');
+
+      if(permissions.length > 0)
+        json.permissions = permissions;
+    }
+
+    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  };
+
+  /**
+   * Revoke an admin - revoke_admin()
+   * ---------------
+   * returns true on success
+   * required parameter <admin_id> = id of the admin to revoke which can be obtained using the
+   *                                 list_all_admins() method/function
+   *
+   * NOTES:
+   * only non-superadmins account can be revoked
+   */
+  _self.revokeAdmin = function(sites, admin_id, cb)
+  {
+    var json = { admin: admin_id,
+                 cmd: 'revoke-admin'
+               };
+
+    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  };
+
+  /**
    * List wlan_groups - list_wlan_groups()
    * ----------------
    *
@@ -1147,6 +1225,10 @@ var Controller = function(hostname, port)
    * List country codes - list_country_codes()
    * ------------------
    * returns an array of available country codes
+   *
+   * NOTES:
+   * these codes following the ISO standard:
+   * https://en.wikipedia.org/wiki/ISO_3166-1_numeric
    */
   _self.getCountryCodes = function(sites, cb)
   {
@@ -1174,8 +1256,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * List port configuration - list_portconf()
-   * -----------------------
+   * List port configurations - list_portconf()
+   * ------------------------
    * returns an array of port configurations
    */
   _self.getPortConfig = function(sites, cb)
