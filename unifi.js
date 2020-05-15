@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.36
+ * Based/Compatible to UniFi-API-client class: v1.1.37
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -1028,11 +1028,15 @@ var Controller = function(hostname, port)
   /**
    * List firewall groups (using REST) - list_firewallgroups()
    * ---------------------------------
-   * returns an array containing the current firewall groups on success
+   * returns an array containing the current firewall groups or the selected firewall group on success
+   * optional parameter <group_id> = id of the single firewall group to list
    */
-  _self.getFirewallGroups = function(sites, cb)
+  _self.getFirewallGroups = function(sites, cb, group_id)
   {
-    _self._request('/api/s/<SITE>/rest/firewallgroup', null, sites, cb);
+    if(typeof(group_id) === 'undefined')
+      group_id = '';
+
+    _self._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), null, sites, cb);
   };
 
   /**
@@ -1093,6 +1097,16 @@ var Controller = function(hostname, port)
   _self.deleteFirewallGroup = function(sites, group_id, cb)
   {
     _self._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), json, sites, cb, 'DELETE');
+  };
+
+  /**
+   * List firewall rules (using REST) - list_firewallrules()
+   * ----------------------------------
+   * returns an array containing the current firewall rules on success
+   */
+  _self.getFirewallRules = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/firewallrule', null, sites, cb);
   };
 
   /**
@@ -2478,6 +2492,23 @@ var Controller = function(hostname, port)
   _self.deleteRadiusAccount = function(sites, account_id, cb)
   {
     _self._request('/api/s/<SITE>/rest/account/' + account_id.trim(), json, sites, cb, 'DELETE');
+  };
+
+  /**
+   * Execute specific command
+   * ------------------------
+   * return true on success
+   * required parameter <command>  = string; command to execute, known valid values
+   *                                 'reset-dpi': reset all DPI counters for the current site
+   *
+   * NOTE:
+   * the provided <command> parameter isn't validated so make sure you're using a correct value
+   */
+  _self.cmdStat = function(sites, command, cb)
+  {
+    var json = { cmd: command.trim() };
+
+    _self._request('/api/s/<SITE>/cmd/stat', json, sites, cb);
   };
 
   /**
