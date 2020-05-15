@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.30
+ * Based/Compatible to UniFi-API-client class: v1.1.31
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -238,8 +238,8 @@ var Controller = function(hostname, port)
    * ---------------------------
    * returns an array of 5-minute stats objects for the current site
    * required paramater <sites> = name or array of site names
-   * optional parameter <start> = Unix timestamp in seconds
-   * optional parameter <end>   = Unix timestamp in seconds
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
    *
    * NOTES:
    * - defaults to the past 12 hours
@@ -250,10 +250,10 @@ var Controller = function(hostname, port)
   _self.get5minSiteStats = function(sites, cb, start, end)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(Date.now() / 1000);
+      end = Date.now();
 
     if(typeof(start) === 'undefined')
-      start = end - (12*3600);
+      start = end - (12*3600*1000);
 
     var json = { attrs: [ 'bytes',
                           'wan-tx_bytes',
@@ -274,8 +274,8 @@ var Controller = function(hostname, port)
    * ------------------------
    *
    * required paramater <sites> = name or array of site names
-   * optional parameter <start> = Unix timestamp in seconds
-   * optional parameter <end>   = Unix timestamp in seconds
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
    *
    * NOTES:
    * - defaults to the past 7*24 hours
@@ -284,10 +284,10 @@ var Controller = function(hostname, port)
   _self.getHourlySiteStats = function(sites, cb, start, end)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(Date.now() / 1000);
+      end = Date.now();
 
     if(typeof(start) === 'undefined')
-      start = end - (7*24*3600);
+      start = end - (7*24*3600*1000);
 
     var json = { attrs: [ 'bytes',
                           'wan-tx_bytes',
@@ -308,8 +308,8 @@ var Controller = function(hostname, port)
    * -----------------------
    *
    * required paramater <sites> = name or array of site names
-   * optional parameter <start> = Unix timestamp in seconds
-   * optional parameter <end>   = Unix timestamp in seconds
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
    *
    * NOTES:
    * - defaults to the past 52*7*24 hours
@@ -318,10 +318,10 @@ var Controller = function(hostname, port)
   _self.getDailySiteStats = function(sites, cb, start, end)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(Date.now() / 1000);
+      end = Date.now();
 
     if(typeof(start) === 'undefined')
-      start = end - (52*7*24*3600);
+      start = end - (52*7*24*3600*1000);
 
     var json = { attrs: [ 'bytes',
                           'wan-tx_bytes',
@@ -342,8 +342,8 @@ var Controller = function(hostname, port)
    * ---------------------------------------------------------------------
    * returns an array of 5-minute stats objects
    * required paramater <sites> = name or array of site names
-   * optional parameter <start> = Unix timestamp in seconds
-   * optional parameter <end>   = Unix timestamp in seconds
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
    * optional parameter <mac>   = AP MAC address to return stats for
    *
    * NOTES:
@@ -355,10 +355,10 @@ var Controller = function(hostname, port)
   _self.get5minApStats = function(sites, cb, start, end, mac)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(Date.now() / 1000);
+      end = Date.now();
 
     if(typeof(start) === 'undefined')
-      start = end - (12*3600);
+      start = end - (12*3600*1000);
 
     var json = { attrs: [ 'bytes',
                           'num_sta',
@@ -377,8 +377,8 @@ var Controller = function(hostname, port)
    * ------------------------------------------------------------------
    *
    * required paramater <sites> = name or array of site names
-   * optional parameter <start> = Unix timestamp in seconds
-   * optional parameter <end>   = Unix timestamp in seconds
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
    * optional parameter <mac>   = AP MAC address to return stats for
    *
    * NOTES:
@@ -388,10 +388,10 @@ var Controller = function(hostname, port)
   _self.getHourlyApStats = function(sites, cb, start, end, mac)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(Date.now() / 1000);
+      end = Date.now();
 
     if(typeof(start) === 'undefined')
-      start = end - (7*24*3600);
+      start = end - (7*24*3600*1000);
 
     var json = { attrs: [ 'bytes',
                           'num_sta',
@@ -410,8 +410,8 @@ var Controller = function(hostname, port)
    * -----------------------------------------------------------------
    *
    * required paramater <sites> = name or array of site names
-   * optional parameter <start> = Unix timestamp in seconds
-   * optional parameter <end>   = Unix timestamp in seconds
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
    * optional parameter <mac>   = AP MAC address to return stats for
    *
    * NOTES:
@@ -421,10 +421,10 @@ var Controller = function(hostname, port)
   _self.getDailyApStats = function(sites, cb, start, end, mac)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(Date.now() / 1000);
+      end = Date.now();
 
     if(typeof(start) === 'undefined')
-      start = end - (7*24*3600);
+      start = end - (7*24*3600*1000);
 
     var json = { attrs: [ 'bytes',
                           'num_sta',
@@ -443,8 +443,8 @@ var Controller = function(hostname, port)
    * ------------------------------------------------------
    * returns an array of 5-minute stats objects
    * required parameter <mac>     = MAC address of user/client device to return stats for
-   * optional parameter <start>   = Unix timestamp in seconds
-   * optional parameter <end>     = Unix timestamp in seconds
+   * optional parameter <start>   = Unix timestamp in milliseconds
+   * optional parameter <end>     = Unix timestamp in milliseconds
    * optional parameter <attribs> = array containing attributes (strings) to be returned, valid values are:
    *                                rx_bytes, tx_bytes, signal, rx_rate, tx_rate, rx_retries, tx_retries, rx_packets, tx_packets
    *                                default is ['rx_bytes', 'tx_bytes']
@@ -459,10 +459,10 @@ var Controller = function(hostname, port)
   _self.get5minUserStats = function(sites, mac, cb, start, end, attribs)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(Date.now() / 1000);
+      end = Date.now();
 
     if(typeof(start) === 'undefined')
-      start = end - (12*3600);
+      start = end - (12*3600*1000);
 
     if(typeof(attribs) === 'undefined')
     {
@@ -486,8 +486,8 @@ var Controller = function(hostname, port)
    * -----------------------------------------------------
    * returns an array of hourly stats objects
    * required parameter <mac>     = MAC address of user/client device to return stats for
-   * optional parameter <start>   = Unix timestamp in seconds
-   * optional parameter <end>     = Unix timestamp in seconds
+   * optional parameter <start>   = Unix timestamp in milliseconds
+   * optional parameter <end>     = Unix timestamp in milliseconds
    * optional parameter <attribs> = array containing attributes (strings) to be returned, valid values are:
    *                                rx_bytes, tx_bytes, signal, rx_rate, tx_rate, rx_retries, tx_retries, rx_packets, tx_packets
    *                                default is ['rx_bytes', 'tx_bytes']
@@ -500,10 +500,10 @@ var Controller = function(hostname, port)
   _self.getHourlyUserStats = function(sites, mac, cb, start, end, attribs)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(Date.now() / 1000);
+      end = Date.now();
 
     if(typeof(start) === 'undefined')
-      start = end - (7*24*3600);
+      start = end - (7*24*3600*1000);
 
     if(typeof(attribs) === 'undefined')
     {
@@ -527,8 +527,8 @@ var Controller = function(hostname, port)
    * --------------------------------------------------
    * returns an array of daily stats objects
    * required parameter <mac>     = MAC address of user/client device to return stats for
-   * optional parameter <start>   = Unix timestamp in seconds
-   * optional parameter <end>     = Unix timestamp in seconds
+   * optional parameter <start>   = Unix timestamp in milliseconds
+   * optional parameter <end>     = Unix timestamp in milliseconds
    * optional parameter <attribs> = array containing attributes (strings) to be returned, valid values are:
    *                                rx_bytes, tx_bytes, signal, rx_rate, tx_rate, rx_retries, tx_retries, rx_packets, tx_packets
    *                                default is ['rx_bytes', 'tx_bytes']
@@ -541,10 +541,10 @@ var Controller = function(hostname, port)
   _self.getDailyUserStats = function(sites, mac, cb, start, end, attribs)
   {
     if(typeof(end) === 'undefined')
-      end = Math.floor(Date.now() / 1000);
+      end = Date.now();
 
     if(typeof(start) === 'undefined')
-      start = end - (7*24*3600);
+      start = end - (7*24*3600*1000);
 
     if(typeof(attribs) === 'undefined')
     {
@@ -730,17 +730,6 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * List user groups - list_usergroups()
-   * ----------------
-   *
-   * required paramater <sites>   = name or array of site names
-   */
-  _self.getUserGroups = function(sites, cb)
-  {
-    _self._request('/api/s/<SITE>/list/usergroup', null, sites, cb);
-  };
-
-  /**
    * Assign client device to another group - set_usergroup()
    * -------------------------------------
    *
@@ -755,7 +744,66 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Update user group (using REST) - edit_usergroup()
+   * Update client fixedip (using REST) - edit_client_fixedip()
+   * ----------------------------------
+   * returns an array containing a single object with attributes of the updated client on success
+   * required parameter <client_id>   = id of the client
+   * required parameter <use_fixedip> = boolean defining whether if use_fixedip is true or false
+   * optional parameter <network_id>  = network id where the ip belongs to
+   * optional parameter <fixed_ip>    = value of client's fixed_ip field
+   *
+   */
+  _self.editClientFixedIP = function(sites, client_id, use_fixedip, cb, network_id, fixed_ip)
+  {
+    var json = { _id: client_id,
+                 use_fixedip: use_fixedip };
+
+    if(use_fixedip === true)
+    {
+      if(typeof(network_id) !== 'undefined')
+        json.network_id = network_id;
+
+      if(typeof(fixed_ip) !== 'undefined')
+        json.fixed_ip = fixed_ip;
+    }
+
+    _self._request('/api/s/<SITE>/rest/user/' + client_id.trim(), json, sites, cb);
+  };
+
+  /**
+   * List user groups - list_usergroups()
+   * ----------------
+   *
+   * required paramater <sites>   = name or array of site names
+   */
+  _self.getUserGroups = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/list/usergroup', null, sites, cb);
+  };
+
+  /**
+   * Create user group (using REST) - create_usergroup()
+   * ------------------------------
+   * returns an array containing a single object with attributes of the new usergroup ("_id", "name", "qos_rate_max_down", "qos_rate_max_up", "site_id") on success
+   *
+   * required paramater <sites>      = name or array of site names
+   * required parameter <group_name> = name of the user group
+   * optional parameter <group_dn>   = limit download bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
+   * optional parameter <group_up>   = limit upload bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
+   *
+   */
+  _self.createUserGroup = function(sites, group_name, cb,
+                                   group_dn, group_up)
+  {
+    var json = { name: group_name,
+                 qos_rate_max_down: typeof(group_dn) !== 'undefined' ? group_dn : -1,
+                 qos_rate_max_up:   typeof(group_up) !== 'undefined' ? group_up : -1 };
+
+    _self._request('/api/s/<SITE>/rest/usergroup', json, sites, cb, 'POST');
+  };
+
+  /**
+   * Modify user group (using REST) - edit_usergroup()
    * ------------------------------
    * returns an array containing a single object with attributes of the updated usergroup on success
    *
@@ -780,27 +828,6 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Create user group (using REST) - create_usergroup()
-   * ------------------------------
-   * returns an array containing a single object with attributes of the new usergroup ("_id", "name", "qos_rate_max_down", "qos_rate_max_up", "site_id") on success
-   *
-   * required paramater <sites>      = name or array of site names
-   * required parameter <group_name> = name of the user group
-   * optional parameter <group_dn>   = limit download bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
-   * optional parameter <group_up>   = limit upload bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
-   *
-   */
-  _self.createUserGroup = function(sites, group_name, cb,
-                                   group_dn, group_up)
-  {
-    var json = { name: group_name,
-                 qos_rate_max_down: typeof(group_dn) !== 'undefined' ? group_dn : -1,
-                 qos_rate_max_up:   typeof(group_up) !== 'undefined' ? group_up : -1 };
-
-    _self._request('/api/s/<SITE>/rest/usergroup', json, sites, cb);
-  };
-
-  /**
    * Delete user group (using REST) - delete_usergroup()
    * ------------------------------
    * returns true on success
@@ -812,6 +839,76 @@ var Controller = function(hostname, port)
   _self.deleteUserGroup = function(sites, group_id, cb)
   {
     _self._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), null, sites, cb, 'DELETE');
+  };
+
+  /**
+   * List firewall groups (using REST) - list_firewallgroups()
+   * ---------------------------------
+   * returns an array containing the current firewall groups on success
+   */
+  _self.getFirewallGroups = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/firewallgroup', null, sites, cb);
+  };
+
+  /**
+   * Create firewall group (using REST) - create_firewallgroup()
+   * ----------------------------------
+   * returns an array containing a single object with attributes of the new firewall group on succe  ss
+   * required parameter <group_name>    = name to assign to the firewall group
+   * required parameter <group_type>    = firewall group type; valid values are address-group, ipv6  -address-group, port-group
+   * optional parameter <group_members> = array containing the members of the new group (IPv4 addre  sses, IPv6 addresses or port numbers)
+   *                                      (default is an empty array)
+   */
+  _self.createFirewallGroup = function(sites, group_name, group_type, cb, group_members)
+  {
+    if(typeof(group_members) === 'undefined')
+      group_members = [];
+
+    var json = { name: group_name,
+                 group_type: group_type,
+                 group_members: group_members };
+
+    _self._request('/api/s/<SITE>/rest/firewallgroup', json, sites, cb, 'POST');
+  };
+
+  /**
+   * Modify firewall group (using REST) - edit_firewallgroup
+   * ----------------------------------
+   * returns an array containing a single object with attributes of the updated firewall group on s  uccess
+   * required parameter <group_id>      = _id value of the firewall group
+   * required parameter <site_id>       = site_id value of the firewall group
+   * required parameter <group_name>    = name of the firewall group
+   * required parameter <group_type>    = firewall group type; valid values are address-group, ipv6  -address-group, port-group,
+   *                                      group_type cannot be changed for an existing firewall gro  up!
+   * optional parameter <group_members> = array containing the members of the group (IPv4 addresses  , IPv6 addresses or port numbers)
+   *                                      which will overwrite the existing group_members (default   is an empty array)
+   *
+   *
+   */
+  _self.editFirewallGroup = function(sites, group_id, site_id, group_name, group_type, cb, group_members)
+  {
+    if(typeof(group_members) === 'undefined')
+      group_members = [];
+
+    var json = { _id: group_id,
+                 name: group_name,
+                 group_type: group_type,
+                 group_members: group_members,
+                 site_id: site_id };
+
+    _self._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), json, sites, cb, 'PUT');
+  };
+
+  /**
+   * Delete firewall group (using REST) - delete_firewallgroup()
+   * ----------------------------------
+   * returns true on success
+   * required parameter <group_id> = id of the firewall group
+   */
+  _self.deleteFirewallGroup = function(sites, group_id, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), json, sites, cb, 'DELETE');
   };
 
   /**
@@ -1272,7 +1369,7 @@ var Controller = function(hostname, port)
     if(typeof(note) !== 'undefined')
       json.note = note;
 
-    _self._request('/api/s/<SITE>/rest/hotspotop', json, sites, cb);
+    _self._request('/api/s/<SITE>/rest/hotspotop', json, sites, cb, 'POST');
   };
 
   /**
@@ -1679,11 +1776,15 @@ var Controller = function(hostname, port)
   /**
    * List network settings (using REST) - list_networkconf()
    * ----------------------------------
-   * returns an array of network configuration data
+   * returns an array of (non-wireless) networks and their settings
+   * optional parameter <network_id> = string; network id to get specific network data for
    */
-  _self.getNetworkConf = function(sites, cb)
+  _self.getNetworkConf = function(sites, cb, network_id)
   {
-    _self._request('/api/s/<SITE>/rest/networkconf', null, sites, cb);
+    if(typeof(network_id) === 'undefined')
+      network_id = '';
+
+    _self._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), null, sites, cb);
   };
 
   /**
@@ -1790,39 +1891,17 @@ var Controller = function(hostname, port)
   /**
    * Update wlan settings, base (using REST) - set_wlansettings_base()
    * ---------------------------------------
-   *
+   * return true on success
    * required paramater <sites>   = name or array of site names
-   * optional parameter <wlan_id> = 24 char string; _id of the wlan to fetch the settings for
+   * required parameter <wlan_id> = 24 char string; _id of the wlan to fetch the settings for
    * required parameter <wlan_settings> = stdClass object or associative array containing the configuration to apply to the wlan, must be a
    *                                      (partial) object/array structured in the same manner as is returned by list_wlanconf() for the wlan.
    *
    */
   _self.setWLanSettingsBase = function(sites, wlan_id, wlan_settings, cb)
   {
-    if(typeof(wlan_id) === 'undefined')
-      wlan_id = '';
-
     _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), wlan_settings, sites, cb, 'PUT');
   };
-
-  /**
-   * Update basic wlan settings - set_wlansettings()
-   * --------------------------
-   *
-   * required paramater <sites>   = name or array of site names
-   * optional parameter <wlan_id> = 24 char string; _id of the wlan to fetch the settings for
-   * required parameter <wlan_settings> = stdClass object or associative array containing the configuration to apply to the wlan, must be a
-   *                                      (partial) object/array structured in the same manner as is returned by list_wlanconf() for the wlan.
-   *
-   */
-  _self.setWLanSettingsBase = function(sites, wlan_id, wlan_settings, cb)
-  {
-    if(typeof(wlan_id) === 'undefined')
-      wlan_id = '';
-
-    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), wlan_settings, sites, cb);
-  };
-
 
   /**
    * Update basic wlan settings - set_wlansettings()
