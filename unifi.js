@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.23
+ * Based/Compatible to UniFi-API-client class: v1.1.24
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -816,6 +816,16 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * List all admins - list_all_admins()
+   * ---------------
+   * returns an array containing administrator objects for all sites
+   */
+  _self.listAllAdmins = function(cb)
+  {
+    _self._request('/api/s/admin', {}, null, cb);
+  };
+
+  /**
    * List wlan_groups - list_wlan_groups()
    * ----------------
    *
@@ -1171,6 +1181,8 @@ var Controller = function(hostname, port)
    * required parameter <tx_power_mode>
    * required parameter <tx_power>= (default=0)
    *
+   * NOTES:
+   * - only supported on pre-5.X.X controller versions
    */
   _self.setAccessPointRadioSettings = function(sites, ap_id, radio, channel, ht, tx_power_mode, tx_power, cb)
   {
