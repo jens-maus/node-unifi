@@ -60,7 +60,7 @@ var Controller = function(hostname, port)
    */
   _self.logout = function(cb)
   {
-    _self._request('/api/logout', {}, null, cb);
+    _self._request('/logout', {}, null, cb);
   };
 
   /**
@@ -682,20 +682,6 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Update device settings, base (using REST)
-   * -----------------------------------------
-   * required paramater <sites>           = name or array of site names
-   * required parameter <device_id>       = 24 char string; _id of the device which can be found with the getAccessDevices() function
-   * required parameter <device_settings> = object containing the configuration to apply to the device, must be a
-   *                                        (partial) object structured in the same manner as is returned by getAccessDevices() for the devic$
-   * optional paramater <cb>              = the callback function that is called with the results
-   */
-  _self.setDeviceSettingsBase = function(sites, device_id, deviceSettings, cb)
-  {
-    _self._request('/api/s/<SITE>/rest/device/' + device_id, deviceSettings, sites, cb, 'PUT');
-  };
-
-  /**
    * List access points and other devices under management of the controller (USW and/or USG devices) - list_devices()
    * ------------------------------------------------------------------------------------------------
    *
@@ -723,9 +709,9 @@ var Controller = function(hostname, port)
   }
 
   /**
-   * List rogue access points - list_rogueaps()
-   * ------------------------
-   *
+   * List rogue/neighboring access points - list_rogueaps()
+   * ------------------------------------
+   * returns an array of rogue/neighboring access point objects
    * optional parameter <within> = hours to go back to list discovered "rogue" access points (default = 24 hours)
    *
    */
@@ -735,6 +721,16 @@ var Controller = function(hostname, port)
       within = 24;
 
     _self._request('/api/s/<SITE>/stat/rogueap', { within: within }, sites, cb);
+  };
+
+  /**
+   * List known rogue access points - list_known_rogueaps()
+   * ------------------------------
+   * returns an array of known rogue access point objects
+   */
+  _self.getKnownRogueAccessPoints = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/stat/rogueknown', null, sites, cb);
   };
 
   /**
@@ -835,6 +831,16 @@ var Controller = function(hostname, port)
   _self.getSiteSysinfo = function(sites, cb)
   {
     _self._request('/api/s/<SITE>/stat/sysinfo', null, sites, cb);
+  };
+
+  /**
+   * List controller status - stat_status()
+   * ----------------------
+   * returns an array containing general controller status info
+   */
+  _self.getStatus = function(cb)
+  {
+    _self._request('/status', {}, null, cb);
   };
 
   /**
@@ -1542,6 +1548,26 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Power-cycle the PoE output of a switch port - power_cycle_switch_port()
+   * -------------------------------------------
+   * return true on success
+   * required parameter <switch_mac> = string; main MAC address of the switch
+   * required parameter <port_idx>   = integer; port number/index of the port to be affected
+   *
+   * NOTES:
+   * - only applies to switches and their PoE ports...
+   */
+  _self.powerCycleSwitchPort = function(sites, switch_mac, port_idx, cb)
+  {
+    var json = { mac: switch_mac.toLowerCase(),
+                 port_idx: port_idx,
+                 cmd: 'power-cycle'
+               };
+
+    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
+  };
+
+  /**
    * Trigger an RF scan by an AP
    * ---------------------------
    * return true on success
@@ -1553,7 +1579,7 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Check the RF scanning state of an AP
+   * Check the RF scanning state of an AP - spectrum_scan_state()
    * ------------------------------------
    * returns an object with relevant information (results if available) regarding the RF scanning state of the AP
    * required parameter <ap_mac> = MAC address of the AP
@@ -1561,6 +1587,20 @@ var Controller = function(hostname, port)
   _self.getSpectrumScanState = function(sites, ap_mac, cb)
   {
     _self._request('/api/s/<SITE>/stat/spectrum-scan/' + ap_mac.trim().toLowerCase(), null, sites, cb);
+  };
+
+  /**
+   * Update device settings, base (using REST) - set_device_settings_base()
+   * -----------------------------------------
+   * required paramater <sites>           = name or array of site names
+   * required parameter <device_id>       = 24 char string; _id of the device which can be found with the list_devices() function
+   * required parameter <device_settings> = stdClass object or associative array containing the configuration to apply to the device, must be a
+   *                                        (partial) object/array structured in the same manner as is returned by list_devices() for the device.
+   * optional paramater <cb>              = the callback function that is called with the results
+   */
+  _self.setDeviceSettingsBase = function(sites, device_id, device_settings, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/device/' + device_id.trim(), device_settings, sites, cb, 'PUT');
   };
 
   /**
