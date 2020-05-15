@@ -45,6 +45,8 @@ var Controller = function(hostname, port)
 
   /**
    * Login to UniFi Controller - login()
+   * -------------------------
+   * returns true upon success
    */
   _self.login = function(username, password, cb)
   {
@@ -53,6 +55,8 @@ var Controller = function(hostname, port)
 
   /**
    * Logout from UniFi Controller - logout()
+   * ----------------------------
+   * returns true upon success
    */
   _self.logout = function(cb)
   {
@@ -909,7 +913,8 @@ var Controller = function(hostname, port)
    *
    * required parameter <minutes> = minutes the voucher is valid after activation (expiration time)
    * optional parameter <count>   = number of vouchers to create, default value is 1
-   * optional parameter <quota>   = single-use or multi-use vouchers, string value '0' is for multi-use, '1' is for single-use, "n" is for multi-use n times
+   * optional parameter <quota>   = single-use or multi-use vouchers, value '0' is for multi-use, '1' is for single-use,
+   *                                'n' is for multi-use n times
    * optional parameter <note>    = note text to add to voucher when printing
    * optional parameter <up>      = upload speed limit in kbps
    * optional parameter <down>    = download speed limit in kbps
@@ -1163,6 +1168,29 @@ var Controller = function(hostname, port)
                  tx_power: tx_power }] };
 
     _self._request('/api/s/<SITE>/upd/device/' + ap_id.trim(), json, sites, cb);
+  };
+
+  /**
+   * Assign access point to another WLAN group - set_ap_wlangroup()
+   * -----------------------------------------
+   * return true on success
+   * required parameter <wlantype_id>  = string; WLAN type, can be either 'ng' (for WLANs 2G (11n/b/g)) or 'na' (WLANs 5G (11n/a/ac))
+   * required parameter <device_id>    = string; id of the access point to be modified
+   * required parameter <wlangroup_id> = string; id of the WLAN group to assign device to
+   *
+   * NOTES:
+   * - can for example be used to turn WiFi off
+   */
+  _self.setAccessPointWLanGroup = function(sites, wlantype_id, device_id, wlangroup_id, cb)
+  {
+    var json = { wlan_overrides: '' };
+
+    if(wlantype_id === 'ng')
+      json.wlangroup_id_ng = wlangroup_id;
+    else if(wlantype_id === 'na')
+      json.wlangroup_id_na = wlangroup_id;
+
+    _self._request('/api/s/<SITE>/upd/device/' + device_id.trim(), json, sites, cb);
   };
 
   /**
@@ -1498,8 +1526,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Upgrade a device to a specific firmware file
-   * ---------------------------------------
+   * Upgrade a device to a specific firmware file - upgrade_device_external()
+   * --------------------------------------------
    * return true on success
    * required parameter <firmware_url> = URL for the firmware file to upgrade the device to
    * required parameter <device_mac>   = MAC address of the device to upgrade
@@ -1622,7 +1650,7 @@ var Controller = function(hostname, port)
    * return true on success
    * required parameter <account_id>      = 24 char string; _id of the account which can be found with the list_radius_accounts() function
    * required parameter <account_details> = stdClass object or associative array containing the new profile to apply to the account, must be a (partial)
-   *                                         object/array structured in the same manner as is returned by list_radius_accounts() for the account.
+   *                                        object/array structured in the same manner as is returned by list_radius_accounts() for the account.
    *
    * NOTES:
    * - this function/method is only supported on controller versions 5.5.19 and later
