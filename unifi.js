@@ -952,7 +952,8 @@ var Controller = function(hostname, port)
    *                                       is true.
    *
    * NOTES:
-   * after issuing a valid request, an invite will be sent to the email address provided
+   * - after issuing a valid request, an invite will be sent to the email address provided
+   * - issuing this command against an existing admin will trigger a "re-invite"
    */
   _self.inviteAdmin = function(sites, name, email, cb, enable_sso, readonly, device_adopt, device_restart)
   {
@@ -1802,20 +1803,6 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Upgrade a device to the latest firmware - upgrade_device()
-   * ---------------------------------------
-   * return true on success
-   * required parameter <device_mac> = MAC address of the device to upgrade
-   *
-   * NOTES:
-   * - updates the device to the latest firmware known to the controller
-   */
-  _self.upgradeDevice = function(sites, device_mac, cb)
-  {
-    _self._request('/api/s/<SITE>/cmd/devmgr/upgrade', { mac: device_mac.toLowerCase() }, sites, cb);
-  };
-
-  /**
    * Upgrade a device to a specific firmware file - upgrade_device_external()
    * --------------------------------------------
    * return true on success
@@ -1829,6 +1816,30 @@ var Controller = function(hostname, port)
   _self.upgradeDeviceExternal = function(sites, firmware_url, device_mac, cb)
   {
     _self._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', { url: firmware_url, mac: device_mac.toLowerCase() }, sites, cb);
+  };
+
+  /**
+   * Start rolling upgrade - start_rolling_upgrade()
+   * ---------------------
+   * return true on success
+   *
+   * NOTES:
+   * - updates all access points to the latest firmware known to the controller in a
+   *   staggered/rolling fashion
+   */
+  _self.startRollingUpgrade = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/devmgr', { cmd: 'set-rollupgrade' }, sites, cb);
+  };
+
+  /**
+   * Cancel rolling upgrade - cancel_rolling_upgrade()
+   * ----------------------
+   * return true on success
+   */
+  _self.cancelRollingUpgrade = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/devmgr', { cmd: 'unset-rollupgrade' }, sites, cb);
   };
 
   /**
