@@ -824,7 +824,7 @@ var Controller = function(hostname, port)
   /**
    * Create voucher(s) - create_voucher()
    * -----------------
-   * returns an array of voucher codes (without the dash "-" in the middle) by calling the stat_voucher method
+   * returns an array containing a single object which contains the create_time(stamp) of the voucher(s) created
    *
    * required parameter <minutes> = minutes the voucher is valid after activation (expiration time)
    * optional parameter <count>   = number of vouchers to create, default value is 1
@@ -833,6 +833,8 @@ var Controller = function(hostname, port)
    * optional parameter <up>      = upload speed limit in kbps
    * optional parameter <down>    = download speed limit in kbps
    * optional parameter <mbytes>  = data transfer limit in MB
+   *
+   * NOTES: please use the stat_voucher() method/function to retrieve the newly created voucher(s) by create_time
    */
   _self.createVouchers = function(sites, minutes, cb, count, quota, note, up, down, mbytes)
   {
