@@ -823,8 +823,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * List site sysinfo
-   * -----------------
+   * Show sysinfo - stat_sysinfo()
+   * ------------
    * returns an array of known sysinfo data via callback function(err, result)
    * for all sites specified as a function parameter
    */
@@ -834,9 +834,12 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * List controller status - stat_status()
-   * ----------------------
-   * returns an array containing general controller status info
+   * Get controller status - stat_status()
+   * ---------------------
+   * returns true upon success (controller is online)
+   *
+   * NOTES: in order to get useful results (e.g. controller version) you can call get_last_results_raw()
+   * immediately after this method
    */
   _self.getStatus = function(cb)
   {
@@ -1264,7 +1267,7 @@ var Controller = function(hostname, port)
    */
   _self.createNetwork = function(sites, network_settings, cb)
   {
-    _self._request('/api/s/<SITE>/rest/networkconf/', network_settings, sites, cb, 'POST');
+    _self._request('/api/s/<SITE>/rest/networkconf', network_settings, sites, cb, 'POST');
   };
 
   /**
@@ -1515,6 +1518,27 @@ var Controller = function(hostname, port)
   _self.getAlarms = function(sites, cb, archived)
   {
     _self._request('/api/s/<SITE>/cnt/alarm' + archived === false ? '?archived=false' : '', null, sites, cb);
+  };
+
+  /**
+   * Archive alarms(s) - archive_alarm()
+   * -----------------
+   * return true on success
+   * optional parameter <alarm_id> = 24 char string; _id of the alarm to archive which can be found with the list_alarms() function,
+   *                                 if not provided, *all* un-archived alarms for the current site will be archived!
+   */
+  _self.archiveAlarms = function(sites, cb, alarm_id)
+  {
+    var json = { };
+    if(typeof(alarm_id) === 'undefined')
+      json.cmd = 'archive-all-alarms';
+    else
+    {
+      json.cmd = 'archive-alarm';
+      json._id = alarm_id;
+    }
+
+    _self._request('/api/s/<SITE>/cmd/evtmgr', json, sites, cb);
   };
 
   /**
