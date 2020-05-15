@@ -783,7 +783,7 @@ var Controller = function(hostname, port)
   /**
    * Delete a site - delete_site()
    * -------------
-   *
+   * return true on success
    * required parameter <site_id> = 24 char string; _id of the site to delete
    *
    */
@@ -801,6 +801,114 @@ var Controller = function(hostname, port)
         }
       }
     });
+  };
+
+  /**
+   * Change a site's name - set_site_name()
+   * --------------------
+   * return true on success
+   * required parameter <site_name> = string; the long name for the site
+   *
+   * NOTES: immediately after being changed, the site will be available in the output of the list_sites() function
+   */
+  _self.setSiteName = function(site, site_name, cb)
+  {
+    var json = { desc: site_name,
+                 cmd: 'update-site' };
+
+    _self._request('/api/s/<SITE>/cmd/sitemgr', json, site, cb);
+  };
+
+  /**
+   * Set site country - set_site_country()
+   * ----------------
+   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                object structured in the same manner as is returned by list_settings() for the "country" key.
+   *                                Valid country codes can be obtained using the list_country_codes() function/method.
+   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   * return true on success
+   */
+  _self.setSiteCountry = function(site, country_id, setting, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/setting/country/' + country_id.trim(), setting, site, cb, 'PUT');
+  };
+
+  /**
+   * Set site locale - set_site_locale()
+   * ---------------
+   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                object structured in the same manner as is returned by list_settings() for the "locale" key.
+   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   * return true on success
+   */
+  _self.setSiteLocale = function(site, locale_id, setting, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/setting/locale/' + locale_id.trim(), setting, site, cb, 'PUT');
+  };
+
+  /**
+   * Set site snmp - set_site_snmp()
+   * -------------
+   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                object structured in the same manner as is returned by list_settings() for the "snmp" key.
+   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   * return true on success
+   */
+  _self.setSiteSNMP = function(site, snmp_id, setting, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/setting/snmp/' + snmp_id.trim(), setting, site, cb, 'PUT');
+  };
+
+  /**
+   * Set site mgmt - set_site_mgmt()
+   * -------------
+   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                object structured in the same manner as is returned by list_settings() for the "mgmt" key.
+   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   * return true on success
+   */
+  _self.setSiteMgmt = function(site, mgmt_id, setting, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/setting/mgmt/' + mgmt_id.trim(), setting, site, cb, 'PUT');
+  };
+
+  /**
+   * Set site guest access - set_site_guest_access()
+   * ---------------------
+   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                object structured in the same manner as is returned by list_settings() for the "guest_access" key.
+   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   * return true on success
+   */
+  _self.setSiteGuestAccess = function(site, guest_access_id, setting, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/setting/guest_access/' + guest_access_id.trim(), setting, site, cb, 'PUT');
+  };
+
+  /**
+   * Set site ntp - set_site_ntp()
+   * ------------
+   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+     *                                object structured in the same manner as is returned by list_settings() for the "ntp" key.
+     *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   * return true on success
+   */
+  _self.setSiteNTP = function(site, ntp_id, setting, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/setting/ntp/' + ntp_id.trim(), setting, site, cb, 'PUT');
+  };
+
+  /**
+   * Set site connectivity - set_site_connectivity()
+   * ---------------------
+   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+     *                                object structured in the same manner as is returned by list_settings() for the "connectivity" key.
+     *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   * return true on success
+   */
+  _self.setSiteConnectivity = function(site, connectivity_id, setting, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/setting/connectivity/' + connectivity_id.trim(), setting, site, cb, 'PUT');
   };
 
   /**
@@ -1036,6 +1144,16 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * List country codes - list_country_codes()
+   * ------------------
+   * returns an array of available country codes
+   */
+  _self.getCountryCodes = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/stat/ccode', null, sites, cb);
+  };
+
+  /**
    * List port forwarding settings - list_portforwarding()
    * -----------------------------
    * returns an array of port forwarding settings
@@ -1247,6 +1365,18 @@ var Controller = function(hostname, port)
                  site_id: site_id };
 
     _self._request('/api/s/<SITE>/set/setting/guest_access/', json, sites, cb);
+  };
+
+  /**
+   * Update guestlogin settings, base - set_guestlogin_settings_base()
+   * --------------------------------
+   * return true on success
+   * required parameter <network_settings> = stdClass object or associative array containing the configuration to apply to the guestlogin, must be a (partial)
+   *                                         object/array structured in the same manner as is returned by list_settings() for the guest_access.
+   */
+  _self.setGuestLoginSettingsBase = function(sites, guestlogin_settings, cb)
+  {
+    _self._request('/api/s/<SITE>/set/setting/guest_access', guestlogin_settings, sites, cb);
   };
 
   /**
