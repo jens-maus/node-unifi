@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.15
+ * Based/Compatible to UniFi-API-client class: v1.1.23
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -402,11 +402,12 @@ var Controller = function(hostname, port)
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
    * optional parameter <mac>   = client MAC address to return sessions for (can only be used when start and end are also provided)
+   * optional parameter <type>  = client type to return sessions for, can be 'all', 'guest' or 'user'; default value is 'all'
    *
    * NOTES:
    * - defaults to the past 7*24 hours
    */
-  _self.getSessions = function(sites, cb, start, end, mac)
+  _self.getSessions = function(sites, cb, start, end, mac, type)
   {
     if(typeof(end) === 'undefined')
       end = Math.floor(Date.now() / 1000);
@@ -414,7 +415,10 @@ var Controller = function(hostname, port)
     if(typeof(start) === 'undefined')
       start = end - (7*24*3600);
 
-    var json = { type: 'all',
+    if(typeof(type) === 'undefined')
+      type = 'all';
+
+    var json = { type: type,
                  start: start,
                  end: end };
 
@@ -1247,6 +1251,38 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Move a device to another site - move_device()
+   * -----------------------------
+   * return true on success
+   * required parameter <mac>     = string; MAC address of the device to move
+   * required parameter <site_id> = 24 char string; _id of the site to move the device to
+   */
+  _self.moveDevice = function(sites, mac, site_id, cb)
+  {
+    var json = { site: site_id,
+                 mac: mac.toLowerCase(),
+                 cmd: 'move-device'
+               };
+
+    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  };
+
+  /**
+   * Delete a device from the current site - delete_device()
+   * -------------------------------------
+   * return true on success
+   * required parameter <mac>     = string; MAC address of the device to move
+   */
+  _self.deleteDevice = function(sites, mac, cb)
+  {
+    var json = { mac: mac.toLowerCase(),
+                 cmd: 'delete-device'
+               };
+
+    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  };
+
+  /**
    * List network settings (using REST) - list_networkconf()
    * ----------------------------------
    * returns an array of network configuration data
@@ -1450,7 +1486,7 @@ var Controller = function(hostname, port)
    * required parameter <wlan_id>
    * required parameter <mac_filter_policy>  = string, "allow" or "deny"; default MAC policy to apply
    * required parameter <mac_filter_enabled> = boolean; true enables the policy, false disables it
-   * required parameter <macs>               = array; must contain MAC strings to be placed in the MAC filter list,
+   * required parameter <macs>               = array; must contain valid MAC strings to be placed in the MAC filter list,
    *                                           replacing existing values. Existing MAC filter list can be obtained
    *                                           through list_wlanconf().
    *
