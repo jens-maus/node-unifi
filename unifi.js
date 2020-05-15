@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.32
+ * Based/Compatible to UniFi-API-client class: v1.1.36
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -714,6 +714,38 @@ var Controller = function(hostname, port)
 
     _self._request('/api/s/<SITE>/stat/report/archive.speedtest', json, sites, cb);
   };
+
+  /**
+   * Method to fetch IPS/IDS event - stat_ips_events
+   * ----------------------------------
+   * returns an array of IPS/IDS event objects
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
+   * optional parameter <limit> = Maximum number of events to return, defaults to 10000
+   *
+   * NOTES:
+   * - defaults to the past 24 hours
+   * - requires a USG
+   * - supported in UniFi controller versions 5.9.X and higher
+   */
+  _self.getIPSEvents = function(sites, cb, start, end, limit)
+  {
+    if(typeof(end) === 'undefined')
+      end = Date.now();
+
+    if(typeof(start) === 'undefined')
+      start = end - (24*3600*1000);
+
+    if(typeof(limit) === 'undefined'(
+      limit = 10000;
+
+    var json = { start: start,
+                 end: end,
+                 _limit: limit };
+
+    _self._request('/api/s/<SITE>/stat/ips/event', json, sites, cb);
+  };
+
 
   /**
    * Show all login sessions - stat_sessions()
@@ -1883,11 +1915,23 @@ var Controller = function(hostname, port)
    * --------------------------------
    * return true on success
    * required parameter <network_settings> = stdClass object or associative array containing the configuration to apply to the guestlogin, must be a (partial)
-   *                                         object/array structured in the same manner as is returned by list_settings() for the guest_access.
+   *                                         object/array structured in the same manner as is returned by list_settings() for the "guest_access" section.
    */
   _self.setGuestLoginSettingsBase = function(sites, guestlogin_settings, cb)
   {
     _self._request('/api/s/<SITE>/set/setting/guest_access', guestlogin_settings, sites, cb);
+  };
+
+  /**
+   * Update IPS/IDS settings, base
+   * ------------------------------------------
+   * return true on success
+   * required parameter <ips_settings> = stdClass object or associative array containing the IPS/ID  S settings to apply, must be a (partial)
+   *                                     object/array structured in the same manner as is returned   by list_settings() for the "ips" section.
+   */
+  _self.setIPSSettingsBase = function(sites, ips_settings, cb)
+  {
+    _self._request('/api/s/<SITE>/set/setting/ips', ips_settings, sites, cb);
   };
 
   /**
