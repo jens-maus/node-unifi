@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.29
+ * Based/Compatible to UniFi-API-client class: v1.1.30
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -236,7 +236,7 @@ var Controller = function(hostname, port)
   /**
    * 5 minutes site stats method - stat_5minutes_site()
    * ---------------------------
-   * returns an array of 5 minutes stats objects for the current site
+   * returns an array of 5-minute stats objects for the current site
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
@@ -340,7 +340,7 @@ var Controller = function(hostname, port)
   /**
    * 5 minutes stats method for a single access point or all access points - stat_5minutes_aps()
    * ---------------------------------------------------------------------
-   * returns an array of 5 minutes stats objects
+   * returns an array of 5-minute stats objects
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
@@ -436,6 +436,131 @@ var Controller = function(hostname, port)
       json.mac = mac.toLowerCase();
 
     _self._request('/api/s/<SITE>/stat/report/daily.ap', json, sites, cb);
+  };
+
+  /**
+   * 5 minutes stats method for a single user/client device - stat_5minutes_user()
+   * ------------------------------------------------------
+   * returns an array of 5-minute stats objects
+   * required parameter <mac>     = MAC address of user/client device to return stats for
+   * optional parameter <start>   = Unix timestamp in seconds
+   * optional parameter <end>     = Unix timestamp in seconds
+   * optional parameter <attribs> = array containing attributes (strings) to be returned, valid values are:
+   *                                rx_bytes, tx_bytes, signal, rx_rate, tx_rate, rx_retries, tx_retries, rx_packets, tx_packets
+   *                                default is ['rx_bytes', 'tx_bytes']
+   *
+   * NOTES:
+   * - defaults to the past 12 hours
+   * - only supported with UniFi controller versions 5.8.X and higher
+   * - make sure that the retention policy for 5 minutes stats is set to the correct value in
+   *   the controller settings
+   * - make sure that "Clients Historical Data" has been enabled in the UniFi controller settings in the Maintenance section
+   */
+  _self.get5minUserStats = function(sites, mac, cb, start, end, attribs)
+  {
+    if(typeof(end) === 'undefined')
+      end = Math.floor(Date.now() / 1000);
+
+    if(typeof(start) === 'undefined')
+      start = end - (12*3600);
+
+    if(typeof(attribs) === 'undefined')
+    {
+      attribs = [ 'time',
+                  'rx_bytes',
+                  'tx_bytes' ];
+    }
+    else
+      attribs = [ 'time' ].concat(attribs);
+
+    var json = { attrs: attribs,
+                 start: start,
+                 end: end,
+                 mac: mac.toLowerCase() };
+
+    _self._request('/api/s/<SITE>/stat/report/5minutes.user', json, sites, cb);
+  };
+
+  /**
+   * Hourly stats method for a a single user/client device - stat_hourly_user()
+   * -----------------------------------------------------
+   * returns an array of hourly stats objects
+   * required parameter <mac>     = MAC address of user/client device to return stats for
+   * optional parameter <start>   = Unix timestamp in seconds
+   * optional parameter <end>     = Unix timestamp in seconds
+   * optional parameter <attribs> = array containing attributes (strings) to be returned, valid values are:
+   *                                rx_bytes, tx_bytes, signal, rx_rate, tx_rate, rx_retries, tx_retries, rx_packets, tx_packets
+   *                                default is ['rx_bytes', 'tx_bytes']
+   *
+   * NOTES:
+   * - defaults to the past 7*24 hours
+   * - only supported with UniFi controller versions 5.8.X and higher
+   * - make sure that "Clients Historical Data" has been enabled in the UniFi controller settings in the Maintenance section
+   */
+  _self.getHourlyUserStats = function(sites, mac, cb, start, end, attribs)
+  {
+    if(typeof(end) === 'undefined')
+      end = Math.floor(Date.now() / 1000);
+
+    if(typeof(start) === 'undefined')
+      start = end - (7*24*3600);
+
+    if(typeof(attribs) === 'undefined')
+    {
+      attribs = [ 'time',
+                  'rx_bytes',
+                  'tx_bytes' ];
+    }
+    else
+      attribs = [ 'time' ].concat(attribs);
+
+    var json = { attrs: attribs,
+                 start: start,
+                 end: end,
+                 mac: mac.toLowerCase() };
+
+    _self._request('/api/s/<SITE>/stat/report/hourly.user', json, sites, cb);
+  };
+
+  /**
+   * Daily stats method for a single user/client device
+   * --------------------------------------------------
+   * returns an array of daily stats objects
+   * required parameter <mac>     = MAC address of user/client device to return stats for
+   * optional parameter <start>   = Unix timestamp in seconds
+   * optional parameter <end>     = Unix timestamp in seconds
+   * optional parameter <attribs> = array containing attributes (strings) to be returned, valid values are:
+   *                                rx_bytes, tx_bytes, signal, rx_rate, tx_rate, rx_retries, tx_retries, rx_packets, tx_packets
+   *                                default is ['rx_bytes', 'tx_bytes']
+   *
+   * NOTES:
+   * - defaults to the past 7*24 hours
+   * - only supported with UniFi controller versions 5.8.X and higher
+   * - make sure that "Clients Historical Data" has been enabled in the UniFi controller settings in the Maintenance section
+   */
+  _self.getDailyUserStats = function(sites, mac, cb, start, end, attribs)
+  {
+    if(typeof(end) === 'undefined')
+      end = Math.floor(Date.now() / 1000);
+
+    if(typeof(start) === 'undefined')
+      start = end - (7*24*3600);
+
+    if(typeof(attribs) === 'undefined')
+    {
+      attribs = [ 'time',
+                  'rx_bytes',
+                  'tx_bytes' ];
+    }
+    else
+      attribs = [ 'time' ].concat(attribs);
+
+    var json = { attrs: attribs,
+                 start: start,
+                 end: end,
+                 mac: mac.toLowerCase() };
+
+    _self._request('/api/s/<SITE>/stat/report/daily.user', json, sites, cb);
   };
 
   /**
