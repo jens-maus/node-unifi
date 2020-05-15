@@ -523,7 +523,7 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Daily stats method for a single user/client device
+   * Daily stats method for a single user/client device - stat_daily_user()
    * --------------------------------------------------
    * returns an array of daily stats objects
    * required parameter <mac>     = MAC address of user/client device to return stats for
@@ -561,6 +561,129 @@ var Controller = function(hostname, port)
                  mac: mac.toLowerCase() };
 
     _self._request('/api/s/<SITE>/stat/report/daily.user', json, sites, cb);
+  };
+
+  /**
+   * 5 minutes gateway stats method - stat_5minutes_gateway()
+   * -------------------------------
+   * returns an array of 5-minute stats objects for the gateway belonging to the current site
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
+   * optional parameter <attribs> = array containing attributes (strings) to be returned, valid val  ues are:
+   *                                mem, cpu, loadavg_5, lan-rx_errors, lan-tx_errors, lan-rx_bytes  ,
+   *                                lan-tx_bytes, lan-rx_packets, lan-tx_packets, lan-rx_dropped, l  an-tx_dropped
+   *                                default is ['time', 'mem', 'cpu', 'loadavg_5']
+   *
+   * NOTES:
+   * - defaults to the past 12 hours
+   * - this function/method is only supported on controller versions 5.5.* and later
+   * - make sure that the retention policy for 5 minutes stats is set to the correct value in
+   *   the controller settings
+   * - requires a USG
+   */
+  _self.get5minGatewayStats = function(sites, cb, start, end, attribs)
+  {
+    if(typeof(end) === 'undefined')
+      end = Date.now();
+
+    if(typeof(start) === 'undefined')
+      start = end - (12*3600*1000);
+
+    if(typeof(attribs) === 'undefined')
+    {
+      attribs = [ 'time',
+                  'mem',
+                  'cpu',
+                  'loadavg_5' ];
+    }
+    else
+      attribs = [ 'time' ].concat(attribs);
+
+    var json = { attrs: attribs,
+                 start: start,
+                 end: end };
+
+    _self._request('/api/s/<SITE>/stat/report/5minutes.gw', json, sites, cb);
+  };
+
+  /**
+   * Hourly gateway stats method - stat_hourly_gateway()
+   * ----------------------------
+   * returns an array of hourly stats objects for the gateway belonging to the current site
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
+   * optional parameter <attribs> = array containing attributes (strings) to be returned, valid val  ues are:
+   *                                mem, cpu, loadavg_5, lan-rx_errors, lan-tx_errors, lan-rx_bytes  ,
+   *                                lan-tx_bytes, lan-rx_packets, lan-tx_packets, lan-rx_dropped, l  an-tx_dropped
+   *                                default is ['time', 'mem', 'cpu', 'loadavg_5']
+   *
+   * NOTES:
+   * - defaults to the past 7*24 hours
+   * - requires a USG
+   */
+  _self.getHourlyGatewayStats = function(sites, cb, start, end, attribs)
+  {
+    if(typeof(end) === 'undefined')
+      end = Date.now();
+
+    if(typeof(start) === 'undefined')
+      start = end - (7*24*3600*1000);
+
+    if(typeof(attribs) === 'undefined')
+    {
+      attribs = [ 'time',
+                  'mem',
+                  'cpu',
+                  'loadavg_5' ];
+    }
+    else
+      attribs = [ 'time' ].concat(attribs);
+
+    var json = { attrs: attribs,
+                 start: start,
+                 end: end };
+
+    _self._request('/api/s/<SITE>/stat/report/hourly.gw', json, sites, cb);
+  };
+
+  /**
+   * Daily gateway stats method - stat_daily_gateway()
+   * ---------------------------
+   * returns an array of daily stats objects for the gateway belonging to the current site
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
+   * optional parameter <attribs> = array containing attributes (strings) to be returned, valid val  ues are:
+   *                                mem, cpu, loadavg_5, lan-rx_errors, lan-tx_errors, lan-rx_bytes  ,
+   *                                lan-tx_bytes, lan-rx_packets, lan-tx_packets, lan-rx_dropped, l  an-tx_dropped
+   *                                default is ['time', 'mem', 'cpu', 'loadavg_5']
+   *
+   * NOTES:
+   * - defaults to the past 52*7*24 hours
+   * - requires a USG
+   */
+  _self.getDailyGatewayStats = function(sites, cb, start, end, attribs)
+  {
+    if(typeof(end) === 'undefined')
+      end = Date.now();
+
+    if(typeof(start) === 'undefined')
+      start = end - (52*7*24*3600*1000);
+
+    if(typeof(attribs) === 'undefined')
+    {
+      attribs = [ 'time',
+                  'mem',
+                  'cpu',
+                  'loadavg_5' ];
+    }
+    else
+      attribs = [ 'time' ].concat(attribs);
+
+    var json = { attrs: attribs,
+                 start: start,
+                 end: end };
+
+    _self._request('/api/s/<SITE>/stat/report/daily.gw', json, sites, cb);
   };
 
   /**
