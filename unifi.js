@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.9
+ * Based/Compatible to UniFi-API-client class: v1.1.15
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -464,8 +464,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Get data for a single client device - stat_client()
-   * -----------------------------------
+   * Get details for a single client device - stat_client()
+   * --------------------------------------
    *
    * required paramater <sites>   = name or array of site names
    * optional parameter <client_mac> = the MAC address of a single online client device for which the call must be made
@@ -504,8 +504,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Edit user group - edit_usergroup()
-   * ---------------
+   * Update user group (using REST) - edit_usergroup()
+   * ------------------------------
    * returns an array containing a single object with attributes of the updated usergroup on success
    *
    * required paramater <sites>      = name or array of site names
@@ -525,12 +525,12 @@ var Controller = function(hostname, port)
                  qos_rate_max_down: typeof(group_dn) !== 'undefined' ? group_dn : -1,
                  qos_rate_max_up:   typeof(group_up) !== 'undefined' ? group_up : -1 };
 
-    _self._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), json, sites, cb);
+    _self._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), json, sites, cb, 'PUT');
   };
 
   /**
-   * Add user group - add_usergroup()
-   * --------------
+   * Create user group (using REST) - create_usergroup()
+   * ------------------------------
    * returns an array containing a single object with attributes of the new usergroup ("_id", "name", "qos_rate_max_down", "qos_rate_max_up", "site_id") on success
    *
    * required paramater <sites>      = name or array of site names
@@ -539,8 +539,8 @@ var Controller = function(hostname, port)
    * optional parameter <group_up>   = limit upload bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
    *
    */
-  _self.addUserGroup = function(sites, group_name, cb,
-                                group_dn, group_up)
+  _self.createUserGroup = function(sites, group_name, cb,
+                                   group_dn, group_up)
   {
     var json = { name: group_name,
                  qos_rate_max_down: typeof(group_dn) !== 'undefined' ? group_dn : -1,
@@ -550,8 +550,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Delete user group - delete_usergroup()
-   * -----------------
+   * Delete user group (using REST) - delete_usergroup()
+   * ------------------------------
    * returns true on success
    *
    * required paramater <sites>    = name or array of site names
@@ -626,8 +626,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * List (device) tags - list_tags()
-   * ------------------
+   * List (device) tags (using REST) - list_tags()
+   * -------------------------------
    * returns an array of known device tag objects
    *
    * NOTES: this endpoint was introduced with controller versions 5.5.X
@@ -677,14 +677,14 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Add a site - add_site()
-   * ----------
+   * Create a site - create_site()
+   * -------------
    *
    * required parameter <description> = the long name for the new site
    *
    * NOTES: immediately after being added, the new site will be available in the output of the "list_sites" function
    */
-  _self.addSite = function(site, cb, description)
+  _self.createSite = function(site, cb, description)
   {
     if(typeof(description) === 'undefined')
       description = '';
@@ -763,16 +763,6 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * List networkconf - list_networkconf()
-   * ----------------
-   * returns an array of network configuration data
-   */
-  _self.getNetworkConf = function(sites, cb)
-  {
-    _self._request('/api/s/<SITE>/list/networkconf', null, sites, cb);
-  };
-
-  /**
    * List vouchers - stat_voucher()
    * -------------
    *
@@ -803,8 +793,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Create hotspot operator - create_hotspotop()
-   * -----------------------
+   * Create hotspot operator (using REST) - create_hotspotop()
+   * ------------------------------------
    *
    * required parameter <name>       = name for the hotspot operator
    * required parameter <x_password> = clear text password for the hotspot operator
@@ -822,13 +812,13 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * List hotspot operators - list_hotspotop()
-   * ----------------------
+   * List hotspot operators (using REST) - list_hotspotop()
+   * -----------------------------------
    * returns an array of hotspot operators
    */
   _self.getHotspotOperators = function(sites, cb)
   {
-    _self._request('/api/s/<SITE>/list/hotspotop', null, sites, cb);
+    _self._request('/api/s/<SITE>/rest/hotspotop', null, sites, cb);
   };
 
   /**
@@ -1013,8 +1003,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Disable/enable an access point - disable_ap()
-   * ------------------------------
+   * Disable/enable an access point (using REST) - disable_ap()
+   * -------------------------------------------
    *
    * required parameter <ap_id>   = 24 char string; value of _id for the access point which can be obtained from the device list
    * required parameter <disable> = boolean; TRUE will disable the device, FALSE will enable the device
@@ -1026,12 +1016,12 @@ var Controller = function(hostname, port)
    */
   _self.disableAccessPoint = function(sites, ap_id, disable, cb)
   {
-    _self._request('/api/s/<SITE>/rest/device/' + ap_id.trim(), { disabled: disabled }, sites, cb);
+    _self._request('/api/s/<SITE>/rest/device/' + ap_id.trim(), { disabled: disabled }, sites, cb, 'PUT');
   };
 
   /**
-   * Override LED mode for a device - led_override()
-   * ------------------------------
+   * Override LED mode for a device (using REST) - led_override()
+   * -------------------------------------------
    *
    * required parameter <device_id>     = 24 char string; value of _id for the device which can be obtained from the device list
    * required parameter <override_mode> = string, off/on/default; "off" will disable the LED of the device,
@@ -1040,7 +1030,7 @@ var Controller = function(hostname, port)
    */
   _self.setLEDOverride = function(sites, device_id, override_mode, cb)
   {
-    _self._request('/api/s/<SITE>/rest/device/' + device_id.trim(), { led_override: override_mode }, sites, cb);
+    _self._request('/api/s/<SITE>/rest/device/' + device_id.trim(), { led_override: override_mode }, sites, cb, 'PUT');
   };
 
   /**
@@ -1070,8 +1060,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Set access point radio settings - set_ap_radiosettings()
-   * ------------------------------
+   * Update access point radio settings - set_ap_radiosettings()
+   * ----------------------------------
    *
    * required parameter <ap_id>   = value of _id for the access point which can be obtained from the device list
    * required parameter <radio>   = (default=ng)
@@ -1093,8 +1083,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Set guest login settings - set_guestlogin_settings()
-   * ------------------------
+   * Update guest login settings - set_guestlogin_settings()
+   * ---------------------------
    *
    * required parameter <portal_enabled>
    * required parameter <portal_customized>
@@ -1137,8 +1127,74 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Add a wlan - create_wlan()
-   * ----------
+   * List network settings (using REST) - list_networkconf()
+   * ----------------------------------
+   * returns an array of network configuration data
+   */
+  _self.getNetworkConf = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/networkconf', null, sites, cb);
+  };
+
+  /**
+   * Create a network (using REST) - create_network()
+   * -----------------------------
+   *
+   * required parameter <network_settings> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                         object structured in the same manner as is returned by list_networkconf() for the specific network type.
+   *                                         Do not include the _id property, it will be assigned by the controller and returned upon success.
+   *
+   */
+  _self.createNetwork = function(sites, network_settings, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/networkconf/', network_settings, sites, cb, 'POST');
+  };
+
+  /**
+   * Update network settings, base (using REST) - set_networksettings_base()
+   * ------------------------------------------
+   * return true on success
+   * required parameter <network_id>
+   * required parameter <network_settings> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                         object structured in the same manner as is returned by list_networkconf() for the specific network type.
+   *
+   */
+  _self.createNetwork = function(sites, network_id, network_settings, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), network_settings, sites, cb, 'PUT');
+  };
+
+  /**
+   * Delete a network (using REST) - delete_network()
+   * -----------------------------
+   * return true on success
+   * required parameter <network_id> = 24 char string; _id of the network which can be found with the list_networkconf() function
+   *
+   */
+  _self.deleteNetwork = function(sites, network_id, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), null, sites, cb, 'DELETE');
+  };
+
+  /**
+   * List wlan settings (using REST) - list_wlanconf()
+   * -------------------------------
+   *
+   * required paramater <sites>   = name or array of site names
+   * optional parameter <wlan_id> = 24 char string; _id of the wlan to fetch the settings for
+   *
+   */
+  _self.getWLanSettings = function(sites, wlan_id, cb)
+  {
+    if(typeof(wlan_id) === 'undefined')
+      wlan_id = '';
+
+    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), null, sites, cb);
+  };
+
+  /**
+   * Create a wlan - create_wlan()
+   * -------------
    *
    * required parameter <name>             = string; SSID
    * required parameter <x_passphrase>     = string; new pre-shared key, minimal length is 8 characters, maximum length is 63
@@ -1182,19 +1238,45 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Delete wlan - delete_wlan()
-   * -----------
+   * Update wlan settings, base (using REST) - set_wlansettings_base()
+   * ---------------------------------------
    *
-   * required parameter <wlan_id> = 24 char string; _id of the wlan that can be found with the list_wlanconf() function
+   * required paramater <sites>   = name or array of site names
+   * optional parameter <wlan_id> = 24 char string; _id of the wlan to fetch the settings for
+   * required parameter <wlan_settings> = stdClass object or associative array containing the configuration to apply to the wlan, must be a
+   *                                      (partial) object/array structured in the same manner as is returned by list_wlanconf() for the wlan.
+   *
    */
-  _self.deleteWLan = function(sites, wlan_id, cb)
+  _self.setWLanSettingsBase = function(sites, wlan_id, wlan_settings, cb)
   {
-    _self._request('/api/s/<SITE>/del/wlanconf/' + wlan_id.trim(), {}, sites, cb);
+    if(typeof(wlan_id) === 'undefined')
+      wlan_id = '';
+
+    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), wlan_settings, sites, cb, 'PUT');
   };
 
   /**
-   * Set wlan settings - set_wlansettings()
-   * -----------------
+   * Update basic wlan settings - set_wlansettings()
+   * --------------------------
+   *
+   * required paramater <sites>   = name or array of site names
+   * optional parameter <wlan_id> = 24 char string; _id of the wlan to fetch the settings for
+   * required parameter <wlan_settings> = stdClass object or associative array containing the configuration to apply to the wlan, must be a
+   *                                      (partial) object/array structured in the same manner as is returned by list_wlanconf() for the wlan.
+   *
+   */
+  _self.setWLanSettingsBase = function(sites, wlan_id, wlan_settings, cb)
+  {
+    if(typeof(wlan_id) === 'undefined')
+      wlan_id = '';
+
+    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), wlan_settings, sites, cb);
+  };
+
+
+  /**
+   * Update basic wlan settings - set_wlansettings()
+   * --------------------------
    *
    * required parameter <wlan_id>
    * optional parameter <x_passphrase> = new pre-shared key, minimal length is 8 characters, maximum length is 63,
@@ -1212,7 +1294,7 @@ var Controller = function(hostname, port)
     if(typeof(name) !== 'undefined')
       json.name = name.trim();
 
-    _self._request('/api/s/<SITE>/upd/wlanconf/' + wlan_id.trim(), json, sites, cb);
+    _self.setWLanSettingsBase(sites, wlan_id, json, cb);
   };
 
   /**
@@ -1227,7 +1309,40 @@ var Controller = function(hostname, port)
   {
     var json = { enabled: disable == true ? false : true };
 
-    _self._request('/api/s/<SITE>/upd/wlanconf/' + wlan_id.trim(), json, sites, cb);
+    _self.setWLanSettingsBase(sites, wlan_id, json, sites, cb);
+  };
+
+  /**
+   * Delete a wlan (using REST) - delete_wlan()
+   * --------------------------
+   *
+   * required parameter <wlan_id> = 24 char string; _id of the wlan that can be found with the list_wlanconf() function
+   */
+  _self.deleteWLan = function(sites, wlan_id, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), {}, sites, cb, 'DELETE');
+  };
+
+  /**
+   * Update MAC filter for a wlan - set_wlan_mac_filter()
+   * ----------------------------
+   *
+   * required parameter <wlan_id>
+   * required parameter <mac_filter_policy>  = string, "allow" or "deny"; default MAC policy to apply
+   * required parameter <mac_filter_enabled> = boolean; true enables the policy, false disables it
+   * required parameter <macs>               = array; must contain MAC strings to be placed in the MAC filter list,
+   *                                           replacing existing values. Existing MAC filter list can be obtained
+   *                                           through list_wlanconf().
+   *
+   */
+  _self.setWLanMacFilter = function(sites, wlan_id, mac_filter_policy, mac_filter_enabled, macs, cb)
+  {
+    var json = { mac_filter_enabled: mac_filter_enabled,
+                 mac_filter_policy: mac_filter_policy,
+                 mac_filter_list: macs
+               };
+
+    _self.setWLanSettingsBase(sites, wlan_id, json, cb);
   };
 
   /**
@@ -1260,17 +1375,6 @@ var Controller = function(hostname, port)
       json._limit = 3000;
 
     _self._request('/api/s/<SITE>/stat/event', json, sites, cb);
-  };
-
-  /**
-   * List wireless settings - list_wlanconf()
-   * ----------------------
-   *
-   * required paramater <sites>   = name or array of site names
-   */
-  _self.getWLanSettings = function(sites, cb)
-  {
-    _self._request('/api/s/<SITE>/list/wlanconf', null, sites, cb);
   };
 
   /**
@@ -1349,8 +1453,21 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * List Radius user accounts (5.5.19+)
-   * -------------------------
+   * List Radius profiles (using REST) - list_radius_profiles()
+   * -----------------------------------
+   * returns an array of objects containing all Radius profiles for the current site
+	 *
+   * NOTES:
+   * - this function/method is only supported on controller versions 5.5.19 and later
+   */
+  _self.listRadiusProfiles = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/radiusprofile', null, sites, cb);
+  };
+
+  /**
+   * List Radius user accounts (using REST) - list_radius_accounts()
+   * --------------------------------------
    * returns an array of objects containing all Radius accounts for the current site
 	 *
    * NOTES:
@@ -1359,6 +1476,93 @@ var Controller = function(hostname, port)
   _self.listRadiusAccounts = function(sites, cb)
   {
     _self._request('/api/s/<SITE>/rest/account', null, sites, cb);
+  };
+
+  /**
+   * Create a Radius user account (using REST) - create_radius_account()
+   * -----------------------------------------
+   * returns an array containing a single object for the newly created account upon success, else returns false
+   * required parameter <name>               = string; name for the new account
+   * required parameter <x_password>         = string; password for the new account
+   * required parameter <tunnel_type>        = integer; must be one of the following values:
+   *                                              1      Point-to-Point Tunneling Protocol (PPTP)
+   *                                              2      Layer Two Forwarding (L2F)
+   *                                              3      Layer Two Tunneling Protocol (L2TP)
+   *                                              4      Ascend Tunnel Management Protocol (ATMP)
+   *                                              5      Virtual Tunneling Protocol (VTP)
+   *                                              6      IP Authentication Header in the Tunnel-mode (AH)
+   *                                              7      IP-in-IP Encapsulation (IP-IP)
+   *                                              8      Minimal IP-in-IP Encapsulation (MIN-IP-IP)
+   *                                              9      IP Encapsulating Security Payload in the Tunnel-mode (ESP)
+   *                                              10     Generic Route Encapsulation (GRE)
+   *                                              11     Bay Dial Virtual Services (DVS)
+   *                                              12     IP-in-IP Tunneling
+   *                                              13     Virtual LANs (VLAN)
+   * required parameter <tunnel_medium_type> = integer; must be one of the following values:
+   *                                              1      IPv4 (IP version 4)
+   *                                              2      IPv6 (IP version 6)
+   *                                              3      NSAP
+   *                                              4      HDLC (8-bit multidrop)
+   *                                              5      BBN 1822
+   *                                              6      802 (includes all 802 media plus Ethernet "canonical format")
+   *                                              7      E.163 (POTS)
+   *                                              8      E.164 (SMDS, Frame Relay, ATM)
+   *                                              9      F.69 (Telex)
+   *                                              10     X.121 (X.25, Frame Relay)
+   *                                              11     IPX
+   *                                              12     Appletalk
+   *                                              13     Decnet IV
+   *                                              14     Banyan Vines
+   *                                              15     E.164 with NSAP format subaddress
+   * optional parameter <vlan>               = integer; VLAN to assign to the account
+   *
+   * NOTES:
+   * - this function/method is only supported on controller versions 5.5.19 and later
+   */
+  _self.createRadiusAccount = function(sites, name, x_password, tunnel_type, tunnel_medium_type, cb, vlan)
+  {
+    var json = { name: name,
+                 x_password: x_password,
+                 tunnel_type: tunnel_type,
+                 tunnel_medium_type: tunnel_medium_type
+               };
+
+    if(typeof(vlan) !== 'undefined')
+      json.vlan = vlan;
+
+    _self._request('/api/s/<SITE>/rest/account', json, sites, cb, 'POST');
+  };
+
+  /**
+   * Update Radius account, base (using REST) - set_radius_account_base()
+   * ----------------------------------------
+   * return true on success
+   * required parameter <account_id>      = 24 char string; _id of the account which can be found with the list_radius_accounts() function
+   * required parameter <account_details> = stdClass object or associative array containing the new profile to apply to the account, must be a (partial)
+   *                                         object/array structured in the same manner as is returned by list_radius_accounts() for the account.
+   *
+   * NOTES:
+   * - this function/method is only supported on controller versions 5.5.19 and later
+   */
+  _self.setRadiusAccountBase = function(sites, account_id, account_details, cb)
+  {
+    var json = { account_details: account_details };
+
+    _self._request('/api/s/<SITE>/rest/account/' + account_id.trim(), json, sites, cb, 'PUT');
+  };
+
+  /**
+   * Delete a Radius account (using REST) - delete_radius_account()
+   * ------------------------------------
+   * return true on success
+   * required parameter <account_id> = 24 char string; _id of the account which can be found with the list_radius_accounts() function
+   *
+   * NOTES:
+   * - this function/method is only supported on controller versions 5.5.19 and later
+   */
+  _self.deleteRadiusAccount = function(sites, account_id, cb)
+  {
+    _self._request('/api/s/<SITE>/rest/account/' + account_id.trim(), json, sites, cb, 'DELETE');
   };
 
   /**
