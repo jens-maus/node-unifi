@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.24
+ * Based/Compatible to UniFi-API-client class: v1.1.29
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -148,15 +148,59 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Forget one or more client devices - forget_sta()
+   * ---------------------------------
+   * return true on success
+   * required parameter <macs> = array of client MAC addresses
+   *
+   * NOTE:
+   * only supported with controller versions 5.9.X and higher
+   */
+  _self.forgetClient = function(sites, macs, cb)
+  {
+    var json = { cmd: 'forget-sta', macs: macs };
+
+    _self._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
+  };
+
+  /**
+   * Create a new user/client-device - create_user()
+   * -------------------------------
+   * return an array with a single object containing details of the new user/client-device on success, else return false
+   * required parameter <mac>           = client MAC address
+   * required parameter <user_group_id> = _id value for the user group the new user/client-device should belong to which
+   *                                      can be obtained from the output of list_usergroups()
+   * optional parameter <name>          = name to be given to the new user/client-device
+   * optional parameter <note>          = note to be applied to the new user/client-device
+   */
+  _self.createUser = function(sites, mac, user_group_id, cb, name, note)
+  {
+    var new_user = { mac: mac.toLowerCase(),
+                     user_group_id: user_group_id
+                   };
+
+    if(typeof(name) !== 'undefined')
+      new_user.name = name;
+
+    if(typeof(note) !== 'undefined')
+    {
+      new_user.note = note;
+      new_user.noted = true;
+    }
+
+    _self._request('/api/s/<SITE>/group/user', { objects: { data: new_user }}, sites, cb);
+  };
+
+  /**
    * Add/modify/remove a client device note - set_sta_note()
    * --------------------------------------
    *
    * required paramater <sites>   = name or array of site names
-   * required parameter <user_id> = id of the user device to be modified
-   * optional parameter <note>    = note to be applied to the user device
+   * required parameter <user_id> = id of the client-device to be modified
+   * optional parameter <note>    = note to be applied to the client-device
    *
    * NOTES:
-   * - when note is empty or not set, the existing note for the user will be removed and "noted" attribute set to FALSE
+   * - when note is empty or not set, the existing note for the client-device will be removed and "noted" attribute set to false
    */
   _self.setClientNote = function(sites, user_id, cb, note)
   {
@@ -1865,6 +1909,7 @@ var Controller = function(hostname, port)
    *
    * NOTES:
    * - only applies to switches and their PoE ports...
+   * - port must be actually providing power
    */
   _self.powerCycleSwitchPort = function(sites, switch_mac, port_idx, cb)
   {
