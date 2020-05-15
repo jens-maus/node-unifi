@@ -80,18 +80,18 @@ Please note that with every `controller.XXXXX()` function a callback function ha
 ## References
 This nodejs package/class uses functionality/Know-How gathered from different third-party projects:
 
-* [UniFi-API-browser](https://github.com/malle-pietje/UniFi-API-browser)
-* [unifi_sh_api](https://dl.ubnt.com/unifi/5.4.9/unifi_sh_api)
+* [UniFi-API-client](https://github.com/Art-of-WiFi/UniFi-API-client)
+* [unifi_sh_api](https://dl.ui.com/unifi/5.12.35/unifi_sh_api)
 
 ## Use-Cases
 The following projects are known to use this nodejs class for query/control UniFi devices:
 
-* [ioBroker.unifi](https://github.com/jens-maus/ioBroker.unifi)
+* [ioBroker.unifi](https://github.com/iobroker-community-adapters/ioBroker.unifi)
 
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2017 Jens Maus &lt;mail@jens-maus.de&gt;
+Copyright (c) 2017-2020 Jens Maus &lt;mail@jens-maus.de&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
