@@ -730,7 +730,7 @@ var Controller = function(hostname, port)
    */
   _self.getKnownRogueAccessPoints = function(sites, cb)
   {
-    _self._request('/api/s/<SITE>/stat/rogueknown', null, sites, cb);
+    _self._request('/api/s/<SITE>/rest/rogueknown', null, sites, cb);
   };
 
   /**
