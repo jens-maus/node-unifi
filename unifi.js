@@ -76,10 +76,13 @@ var Controller = function(hostname, port)
   {
     var json = { cmd: 'authorize-guest', mac: mac.toLowerCase() };
     if(typeof(minutes) !== 'undefined') json.minutes = minutes;
+    /**
+     * if we have received values for up/down/MBytes/ap_mac we append them to the payload array to be submitted
+     */
     if(typeof(up) !== 'undefined')      json.up = up;
     if(typeof(down) !== 'undefined')    json.down = down;
     if(typeof(mbytes) !== 'undefined')  json.bytes = mbytes;
-    if(typeof(ap_mac) !== 'undefined')  json.ap_mac = ap_mac;
+    if(typeof(ap_mac) !== 'undefined')  json.ap_mac = ap_mac.toLowerCase();
 
     _self._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
   };
@@ -141,8 +144,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Add/modify a client device note - set_sta_note()
-   * -------------------------------
+   * Add/modify/remove a client device note - set_sta_note()
+   * --------------------------------------
    *
    * required paramater <sites>   = name or array of site names
    * required parameter <user_id> = id of the user device to be modified
@@ -164,15 +167,15 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Add/modify a client device name - set_sta_name()
-   * -------------------------------
+   * Add/modify/remove a client device name - set_sta_name()
+   * --------------------------------------
    *
    * required paramater <sites>   = name or array of site names
-   * required parameter <user_id> = id of the user device to be modified
-   * optional parameter <name>    = name to be applied to the user device
+   * required parameter <user_id> = id of the client device to be modified
+   * optional parameter <name>    = name to be applied to the client device
    *
    * NOTES:
-   * - when name is empty or not set, the existing name for the user will be removed
+   * - when name is empty or not set, the existing name for the client device will be removed
    */
   _self.setClientName = function(sites, user_id, cb, name)
   {
@@ -180,6 +183,76 @@ var Controller = function(hostname, port)
       name = '';
 
     _self._request('/api/s/<SITE>/upd/user/' + user_id.trim(), { name: name }, sites, cb);
+  };
+
+  /**
+   * 5 minutes site stats method - stat_5minutes_site()
+   * ---------------------------
+   * returns an array of 5 minutes stats objects for the current site
+   * required paramater <sites> = name or array of site names
+   * optional parameter <start> = Unix timestamp in seconds
+   * optional parameter <end>   = Unix timestamp in seconds
+   *
+   * NOTES:
+   * - defaults to the past 12 hours
+   * - this function/method is only supported on controller versions 5.5.* and later
+   * - make sure that the retention policy for 5 minutes stats is set to the correct value in
+   *   the controller settings
+   */
+  _self.get5minSiteStats = function(sites, cb, start, end)
+  {
+    if(typeof(end) === 'undefined')
+      end = Math.floor(Date.now() / 1000);
+
+    if(typeof(start) === 'undefined')
+      start = end - (12*3600);
+
+    var json = { attrs: [ 'bytes',
+                          'wan-tx_bytes',
+                          'wan-rx_bytes',
+                          'wlan_bytes',
+                          'num_sta',
+                          'lan-num_sta',
+                          'wlan-num_sta',
+                          'time' ],
+                start: start,
+                end: end };
+
+    _self._request('/api/s/<SITE>/stat/report/5minutes.site', json, sites, cb);
+  };
+
+  /**
+   * Hourly site stats method - stat_hourly_site()
+   * ------------------------
+   *
+   * required paramater <sites> = name or array of site names
+   * optional parameter <start> = Unix timestamp in seconds
+   * optional parameter <end>   = Unix timestamp in seconds
+   *
+   * NOTES:
+   * - defaults to the past 7*24 hours
+   * - "bytes" are no longer returned with controller version 4.9.1 and later
+   */
+  _self.getHourlySiteStats = function(sites, cb, start, end)
+  {
+    if(typeof(end) === 'undefined')
+      end = Math.floor(Date.now() / 1000);
+
+    if(typeof(start) === 'undefined')
+      start = end - (7*24*3600);
+
+    var json = { attrs: [ 'bytes',
+                          'wan-tx_bytes',
+                          'wan-rx_bytes',
+                          'wlan_bytes',
+                          'num_sta',
+                          'lan-num_sta',
+                          'wlan-num_sta',
+                          'time' ],
+                 start: start,
+                 end: end };
+
+    _self._request('/api/s/<SITE>/stat/report/hourly.site', json, sites, cb);
   };
 
   /**
@@ -217,37 +290,38 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Hourly site stats method - stat_hourly_site()
-   * ------------------------
-   *
+   * 5 minutes stats method for a single access point or all access points - stat_5minutes_aps()
+   * ---------------------------------------------------------------------
+   * returns an array of 5 minutes stats objects
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
+   * optional parameter <mac>   = AP MAC address to return stats for
    *
    * NOTES:
-   * - defaults to the past 7*24 hours
-   * - "bytes" are no longer returned with controller version 4.9.1 and later
+   * - defaults to the past 12 hours
+   * - this function/method is only supported on controller versions 5.5.* and later
+   * - make sure that the retention policy for 5 minutes stats is set to the correct value in
+   *   the controller settings
    */
-  _self.getHourlySiteStats = function(sites, cb, start, end)
+  _self.get5minApStats = function(sites, cb, start, end, mac)
   {
     if(typeof(end) === 'undefined')
       end = Math.floor(Date.now() / 1000);
 
     if(typeof(start) === 'undefined')
-      start = end - (7*24*3600);
+      start = end - (12*3600);
 
     var json = { attrs: [ 'bytes',
-                          'wan-tx_bytes',
-                          'wan-rx_bytes',
-                          'wlan_bytes',
                           'num_sta',
-                          'lan-num_sta',
-                          'wlan-num_sta',
                           'time' ],
                  start: start,
                  end: end };
 
-    _self._request('/api/s/<SITE>/stat/report/hourly.site', json, sites, cb);
+    if(typeof(mac) !== 'undefined')
+      json.mac = mac.toLowerCase();
+
+    _self._request('/api/s/<SITE>/stat/report/5minutes.ap', json, sites, cb);
   };
 
   /**
@@ -319,7 +393,7 @@ var Controller = function(hostname, port)
   /**
    * Show all login sessions - stat_sessions()
    * -----------------------
-   *
+   * returns an array of login session objects for all devices or a single device
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
@@ -490,8 +564,8 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Assign user device to another group - set_usergroup()
-   * -----------------------------------
+   * Assign client device to another group - set_usergroup()
+   * -------------------------------------
    *
    * required paramater <sites>    = name or array of site names
    * required parameter <user_id>  = id of the user device to be modified
@@ -568,6 +642,7 @@ var Controller = function(hostname, port)
    * -------------------
    *
    * required paramater <sites> = name or array of site names
+   *
    */
   _self.getHealth = function(sites, cb)
   {
@@ -577,18 +652,24 @@ var Controller = function(hostname, port)
   /**
    * List dashboard metrics - list_dashboard()
    * ----------------------
-   *
+   * returns an array of dashboard metric objects (available since controller version 4.9.1.alpha)
    * required paramater <sites> = name or array of site names
+   * optional parameter <five_minutes> = boolean; if true, return stats based on 5 minute intervals,
+   *                                     returns hourly stats by default (supported on controller versions 5.5.* and higher)
    */
-  _self.getDashboard = function(sites, cb)
+  _self.getDashboard = function(sites, cb, five_minutes)
   {
-    _self._request('/api/s/<SITE>/stat/dashboard', null, sites, cb);
+    var url_suffix = '';
+    if(typeof(five_minutes) !== 'undefined' && five_minutes === true)
+      url_suffix = '?scale=5minutes';
+
+    _self._request('/api/s/<SITE>/stat/dashboard' + url_suffix, null, sites, cb);
   };
 
   /**
-   * List user devices - list_users()
-   * -----------------
-   *
+   * List client devices - list_users()
+   * -------------------
+   * returns an array of known client device objects
    * required paramater <sites> = name or array of site names
    */
   _self.getUsers = function(sites, cb)
