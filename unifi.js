@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.31
+ * Based/Compatible to UniFi-API-client class: v1.1.32
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -564,6 +564,35 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Method to fetch speed test results - stat_speedtest_results()
+   * ----------------------------------
+   * returns an array of speed test result objects
+   * optional parameter <start> = Unix timestamp in milliseconds
+   * optional parameter <end>   = Unix timestamp in milliseconds
+   *
+   * NOTES:
+   * - defaults to the past 24 hours
+   * - requires a USG
+   */
+  _self.getSpeedTestResults = function(sites, cb, start, end)
+  {
+    if(typeof(end) === 'undefined')
+      end = Date.now();
+
+    if(typeof(start) === 'undefined')
+      start = end - (24*3600*1000);
+
+    var json = { attrs: [ 'xput_download',
+                          'xput_upload',
+                          'latency'
+                          'time' ],
+                 start: start,
+                 end: end };
+
+    _self._request('/api/s/<SITE>/stat/report/archive.speedtest', json, sites, cb);
+  };
+
+  /**
    * Show all login sessions - stat_sessions()
    * -----------------------
    * returns an array of login session objects for all devices or a single device
@@ -1001,6 +1030,16 @@ var Controller = function(hostname, port)
   _self.getKnownRogueAccessPoints = function(sites, cb)
   {
     _self._request('/api/s/<SITE>/rest/rogueknown', null, sites, cb);
+  };
+
+  /**
+   * List auto backups - list_backups()
+   * -----------------
+   * return an array containing objects with backup details on success
+   */
+  _self.getBackups = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/backup', { cmd: 'list-backups' }, sites, cb);
   };
 
   /**
