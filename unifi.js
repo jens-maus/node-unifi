@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.43
+ * Based/Compatible to UniFi-API-client class: v1.1.45
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -1202,6 +1202,20 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Generate backup
+   * ---------------------------
+   * returns a URL from where the backup file can be downloaded once generated
+   *
+   * NOTES:
+   * this is an experimental function, please do not use unless you know exactly
+   * what you're doing
+   */
+  _self.generateBackup = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/backup', { cmd: 'backup' }, sites, cb);
+  };
+
+  /**
    * List auto backups - list_backups()
    * -----------------
    * return an array containing objects with backup details on success
@@ -1837,6 +1851,20 @@ var Controller = function(hostname, port)
 
     if(typeof(type) !== 'undefined')
       json.type = type.toLowerCase();
+
+    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
+  };
+
+  /**
+   * Force provision of a device - force_provision()
+   * ---------------------------
+   * return true on success
+   * required parameter <mac> = device MAC address
+   */
+  _self.forceProvision = function(sites, mac, cb)
+  {
+    var json = { cmd: 'force-provision',
+                 mac: mac.toLowerCase() };
 
     _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
   };
@@ -2596,14 +2624,11 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Execute specific command
-   * ------------------------
+   * Execute specific stats command - cmd_stat()
+   * ------------------------------
    * return true on success
    * required parameter <command>  = string; command to execute, known valid values
    *                                 'reset-dpi': reset all DPI counters for the current site
-   *
-   * NOTE:
-   * the provided <command> parameter isn't validated so make sure you're using a correct value
    */
   _self.cmdStat = function(sites, command, cb)
   {
