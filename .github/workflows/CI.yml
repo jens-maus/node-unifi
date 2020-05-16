@@ -48,6 +48,7 @@ jobs:
       run: |
         tar xf $GITHUB_WORKSPACE/.github/workflows/db-demo-dump.tar.bz2
         mongorestore --port 27117 --drop db-demo-dump
+        systemctl restart unifi
 
     # run npm tests
     - name: run npm tests
