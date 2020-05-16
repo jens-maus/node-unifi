@@ -39,6 +39,8 @@ jobs:
         docker start unifi-controller
         docker exec unifi-controller apt update
         docker exec unifi-controller apt install mongodb-org-tools
+        tar -C unifi-storage -xf $GITHUB_WORKSPACE/.github/workflows/db-demo-dump.tar.bz2 
+        #docker exec unifi-controller mongorestore --port 27117 --drop
 
       ## install required dependencies
       #- name: install dependencies
