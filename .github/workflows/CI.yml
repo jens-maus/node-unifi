@@ -25,7 +25,7 @@ jobs:
     # try to perform a nodejs setup
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'
+        node-version: '12.x'
 
     # try to install node-unifi using npm
     - name: install node-unifi
@@ -33,11 +33,19 @@ jobs:
 
     # install required dependencies
     - name: install dependencies
-      run: sudo apt update && sudo apt install ca-certificates apt-transport-https
+      run: |
+        sudo apt -qq update || true
+        sudo apt install ca-certificates apt-transport-https
 
     # install UniFi controller
     - name: install UniFi controller using EUS
       run: |
         export TERM=vt100
         sudo $GITHUB_WORKSPACE/.github/workflows/unifi-install.sh --skip --server-ip 127.0.0.1
-        netstat -tulpn
+
+    # run npm tests
+    - name: run npm tests
+      run: npm test
+
+    - name: remote debug tmate session
+      uses: mxschmitt/action-tmate@v1

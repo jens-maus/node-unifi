@@ -6,6 +6,3 @@ node_modules
 .github
 /node_modules
 test
-.travis.yml
-.codeclimate.yml
-appveyor.yml

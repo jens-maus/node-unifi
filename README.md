@@ -1,7 +1,7 @@
 ![Logo](unifi.png)
 # node-unifi
 
-[![Build](https://travis-ci.org/jens-maus/node-unifi.svg?branch=master)](https://travis-ci.org/jens-maus/node-unifi)
+[![Build](https://github.com/jens-maus/node-unifi/workflows/CI/badge.svg)](https://github.com/jens-maus/node-unifi/actions)
 [![NPM version](http://img.shields.io/npm/v/node-unifi.svg)](https://www.npmjs.com/package/node-unifi)
 [![Downloads](https://img.shields.io/npm/dm/node-unifi.svg)](https://www.npmjs.com/package/node-unifi)
 [![License](https://img.shields.io/github/license/jens-maus/node-unifi.svg)](https://github.com/jens-maus/node-unifi/blob/master/LICENSE)
