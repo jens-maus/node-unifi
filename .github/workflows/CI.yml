@@ -34,7 +34,6 @@ jobs:
     # docker test
     - name: install+run docker-unifi-controller
       run: |
-        mkdir unifi-storage
         docker create --name=unifi-controller -e PUID=1001 -e PGID=116 -e MEM_LIMIT=1024M -p 8443:8443 -v $GITHUB_WORKSPACE/unifi-storage:/config linuxserver/unifi-controller
         docker start unifi-controller
         docker exec unifi-controller apt update
