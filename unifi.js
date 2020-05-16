@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.40
+ * Based/Compatible to UniFi-API-client class: v1.1.41
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -931,9 +931,9 @@ var Controller = function(hostname, port)
    * Update client fixedip (using REST) - edit_client_fixedip()
    * ----------------------------------
    * returns an array containing a single object with attributes of the updated client on success
-   * required parameter <client_id>   = id of the client
+   * required parameter <client_id>   = _id of the client
    * required parameter <use_fixedip> = boolean defining whether if use_fixedip is true or false
-   * optional parameter <network_id>  = network id where the ip belongs to
+   * optional parameter <network_id>  = _id value for the network where the ip belongs to
    * optional parameter <fixed_ip>    = value of client's fixed_ip field
    *
    */
@@ -992,8 +992,8 @@ var Controller = function(hostname, port)
    * returns an array containing a single object with attributes of the updated usergroup on success
    *
    * required paramater <sites>      = name or array of site names
-   * required parameter <group_id>   = id of the user group
-   * required parameter <site_id>    = id of the site
+   * required parameter <group_id>   = _id of the user group
+   * required parameter <site_id>    = _id of the site
    * required parameter <group_name> = name of the user group
    * optional parameter <group_dn>   = limit download bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
    * optional parameter <group_up>   = limit upload bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
@@ -1017,7 +1017,7 @@ var Controller = function(hostname, port)
    * returns true on success
    *
    * required paramater <sites>    = name or array of site names
-   * required parameter <group_id> = id of the user group
+   * required parameter <group_id> = _id value of the user group
    *
    */
   _self.deleteUserGroup = function(sites, group_id, cb)
@@ -1029,7 +1029,7 @@ var Controller = function(hostname, port)
    * List firewall groups (using REST) - list_firewallgroups()
    * ---------------------------------
    * returns an array containing the current firewall groups or the selected firewall group on success
-   * optional parameter <group_id> = id of the single firewall group to list
+   * optional parameter <group_id> = _id value of the single firewall group to list
    */
   _self.getFirewallGroups = function(sites, cb, group_id)
   {
@@ -1064,8 +1064,8 @@ var Controller = function(hostname, port)
    * Modify firewall group (using REST) - edit_firewallgroup
    * ----------------------------------
    * returns an array containing a single object with attributes of the updated firewall group on s  uccess
-   * required parameter <group_id>      = _id value of the firewall group
-   * required parameter <site_id>       = site_id value of the firewall group
+   * required parameter <group_id>      = _id value of the firewall group to modify
+   * required parameter <site_id>       = site_id value of the firewall group to modify
    * required parameter <group_name>    = name of the firewall group
    * required parameter <group_type>    = firewall group type; valid values are address-group, ipv6  -address-group, port-group,
    *                                      group_type cannot be changed for an existing firewall gro  up!
@@ -1092,7 +1092,7 @@ var Controller = function(hostname, port)
    * Delete firewall group (using REST) - delete_firewallgroup()
    * ----------------------------------
    * returns true on success
-   * required parameter <group_id> = id of the firewall group
+   * required parameter <group_id> = _id value of the firewall group to delete
    */
   _self.deleteFirewallGroup = function(sites, group_id, cb)
   {
@@ -1258,7 +1258,7 @@ var Controller = function(hostname, port)
    * Delete a site - delete_site()
    * -------------
    * return true on success
-   * required parameter <site_id> = 24 char string; _id of the site to delete
+   * required parameter <site_id> = 24 char string; _id value of the site to delete
    *
    */
   _self.deleteSite = function(site_id, cb)
@@ -1278,10 +1278,10 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Change a site's name - set_site_name()
-   * --------------------
+   * Change the current site's name - set_site_name()
+   * ------------------------------
    * return true on success
-   * required parameter <site_name> = string; the long name for the site
+   * required parameter <site_name> = string; the new long name for the current site
    *
    * NOTES: immediately after being changed, the site will be available in the output of the list_sites() function
    */
@@ -1296,93 +1296,93 @@ var Controller = function(hostname, port)
   /**
    * Set site country - set_site_country()
    * ----------------
-   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "country" key.
    *                                Valid country codes can be obtained using the list_country_codes() function/method.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteCountry = function(site, country_id, setting, cb)
+  _self.setSiteCountry = function(site, country_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/setting/country/' + country_id.trim(), setting, site, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/setting/country/' + country_id.trim(), payload, site, cb, 'PUT');
   };
 
   /**
    * Set site locale - set_site_locale()
    * ---------------
-   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "locale" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteLocale = function(site, locale_id, setting, cb)
+  _self.setSiteLocale = function(site, locale_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/setting/locale/' + locale_id.trim(), setting, site, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/setting/locale/' + locale_id.trim(), payload, site, cb, 'PUT');
   };
 
   /**
    * Set site snmp - set_site_snmp()
    * -------------
-   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "snmp" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteSNMP = function(site, snmp_id, setting, cb)
+  _self.setSiteSNMP = function(site, snmp_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/setting/snmp/' + snmp_id.trim(), setting, site, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/setting/snmp/' + snmp_id.trim(), payload, site, cb, 'PUT');
   };
 
   /**
    * Set site mgmt - set_site_mgmt()
    * -------------
-   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "mgmt" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteMgmt = function(site, mgmt_id, setting, cb)
+  _self.setSiteMgmt = function(site, mgmt_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/setting/mgmt/' + mgmt_id.trim(), setting, site, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/setting/mgmt/' + mgmt_id.trim(), payload, site, cb, 'PUT');
   };
 
   /**
    * Set site guest access - set_site_guest_access()
    * ---------------------
-   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "guest_access" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteGuestAccess = function(site, guest_access_id, setting, cb)
+  _self.setSiteGuestAccess = function(site, guest_access_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/setting/guest_access/' + guest_access_id.trim(), setting, site, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/setting/guest_access/' + guest_access_id.trim(), payload, site, cb, 'PUT');
   };
 
   /**
    * Set site ntp - set_site_ntp()
    * ------------
-   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
-     *                                object structured in the same manner as is returned by list_settings() for the "ntp" key.
-     *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                object structured in the same manner as is returned by list_settings() for the "ntp" key.
+   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteNTP = function(site, ntp_id, setting, cb)
+  _self.setSiteNTP = function(site, ntp_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/setting/ntp/' + ntp_id.trim(), setting, site, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/setting/ntp/' + ntp_id.trim(), payload, site, cb, 'PUT');
   };
 
   /**
    * Set site connectivity - set_site_connectivity()
    * ---------------------
-   * required parameter <setting> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
-     *                                object structured in the same manner as is returned by list_settings() for the "connectivity" key.
-     *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                object structured in the same manner as is returned by list_settings() for the "connectivity" key.
+   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteConnectivity = function(site, connectivity_id, setting, cb)
+  _self.setSiteConnectivity = function(site, connectivity_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/setting/connectivity/' + connectivity_id.trim(), setting, site, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/setting/connectivity/' + connectivity_id.trim(), payload, site, cb, 'PUT');
   };
 
   /**
@@ -1469,7 +1469,7 @@ var Controller = function(hostname, port)
    * Assign an existing admin to the current site - assign_existing_admin()
    * --------------------------------------------
    * returns true on success
-   * required parameter <admin_id>       = 24 char string; _id of the admin user to assign, can be obtained using the
+   * required parameter <admin_id>       = 24 char string; _id value of the admin user to assign, can be obtained using the
    *                                       list_all_admins() method/function
    * optional parameter <readonly>       = boolean, whether or not the new admin will have readonly
    *                                       permissions, default value is false which gives the new admin
@@ -1516,7 +1516,7 @@ var Controller = function(hostname, port)
    * Revoke an admin - revoke_admin()
    * ---------------
    * returns true on success
-   * required parameter <admin_id> = id of the admin to revoke, can be obtained using the
+   * required parameter <admin_id> = _id value of the admin to revoke, can be obtained using the
    *                                 list_all_admins() method/function
    *
    * NOTES:
@@ -1674,7 +1674,7 @@ var Controller = function(hostname, port)
    *---------------
    * return TRUE on success
    *
-   * required parameter <voucher_id> = 24 char string; _id of the voucher to revoke
+   * required parameter <voucher_id> = 24 char string; _id value of the voucher to revoke
    */
   _self.revokeVoucher = function(sites, voucher_id, cb)
   {
@@ -1689,7 +1689,7 @@ var Controller = function(hostname, port)
    * ---------------------
    * return TRUE on success
    *
-   * required parameter <guest_id> = 24 char string; _id of the guest to extend validity
+   * required parameter <guest_id> = 24 char string; _id value of the guest to extend validity
    */
   _self.extendGuestValidity = function(sites, guest_id, cb)
   {
@@ -1920,8 +1920,8 @@ var Controller = function(hostname, port)
    * -----------------------------------------
    * return true on success
    * required parameter <wlantype_id>  = string; WLAN type, can be either 'ng' (for WLANs 2G (11n/b/g)) or 'na' (WLANs 5G (11n/a/ac))
-   * required parameter <device_id>    = string; id of the access point to be modified
-   * required parameter <wlangroup_id> = string; id of the WLAN group to assign device to
+   * required parameter <device_id>    = string; _id value of the access point to be modified
+   * required parameter <wlangroup_id> = string; _id value of the WLAN group to assign device to
    *
    * NOTES:
    * - can for example be used to turn WiFi off
@@ -1973,24 +1973,24 @@ var Controller = function(hostname, port)
    * Update guestlogin settings, base - set_guestlogin_settings_base()
    * --------------------------------
    * return true on success
-   * required parameter <network_settings> = stdClass object or associative array containing the configuration to apply to the guestlogin, must be a (partial)
-   *                                         object/array structured in the same manner as is returned by list_settings() for the "guest_access" section.
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the guestlogin, must be a (partial)
+   *                                object/array structured in the same manner as is returned by list_settings() for the "guest_access" section.
    */
-  _self.setGuestLoginSettingsBase = function(sites, guestlogin_settings, cb)
+  _self.setGuestLoginSettingsBase = function(sites, payload, cb)
   {
-    _self._request('/api/s/<SITE>/set/setting/guest_access', guestlogin_settings, sites, cb);
+    _self._request('/api/s/<SITE>/set/setting/guest_access', payload, sites, cb);
   };
 
   /**
-   * Update IPS/IDS settings, base
-   * ------------------------------------------
+   * Update IPS/IDS settings, base - set_ips_settings_base()
+   * -----------------------------
    * return true on success
-   * required parameter <ips_settings> = stdClass object or associative array containing the IPS/ID  S settings to apply, must be a (partial)
-   *                                     object/array structured in the same manner as is returned   by list_settings() for the "ips" section.
+   * required parameter <payload> = stdClass object or associative array containing the IPS/IDS settings to apply, must be a (partial)
+   *                                object/array structured in the same manner as is returned by list_settings() for the "ips" section.
    */
-  _self.setIPSSettingsBase = function(sites, ips_settings, cb)
+  _self.setIPSSettingsBase = function(sites, payload, cb)
   {
-    _self._request('/api/s/<SITE>/set/setting/ips', ips_settings, sites, cb);
+    _self._request('/api/s/<SITE>/set/setting/ips', payload, sites, cb);
   };
 
   /**
@@ -2042,7 +2042,7 @@ var Controller = function(hostname, port)
    * List network settings (using REST) - list_networkconf()
    * ----------------------------------
    * returns an array of (non-wireless) networks and their settings
-   * optional parameter <network_id> = string; network id to get specific network data for
+   * optional parameter <network_id> = string; _id value of the network to get settings for
    */
   _self.getNetworkConf = function(sites, cb, network_id)
   {
@@ -2055,37 +2055,34 @@ var Controller = function(hostname, port)
   /**
    * Create a network (using REST) - create_network()
    * -----------------------------
-   *
-   * required parameter <network_settings> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
-   *                                         object structured in the same manner as is returned by list_networkconf() for the specific network type.
-   *                                         Do not include the _id property, it will be assigned by the controller and returned upon success.
-   *
+   * return an array with a single object containing details of the new network on success, else return false
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                object structured in the same manner as is returned by list_networkconf() for the specific network type.
+   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    */
-  _self.createNetwork = function(sites, network_settings, cb)
+  _self.createNetwork = function(sites, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/networkconf', network_settings, sites, cb, 'POST');
+    _self._request('/api/s/<SITE>/rest/networkconf', payload, sites, cb, 'POST');
   };
 
   /**
    * Update network settings, base (using REST) - set_networksettings_base()
    * ------------------------------------------
    * return true on success
-   * required parameter <network_id>
-   * required parameter <network_settings> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
-   *                                         object structured in the same manner as is returned by list_networkconf() for the specific network type.
-   *
+   * required parameter <network_id> = the "_id" value for the network you wish to update
+   * required parameter <payload>    = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
+   *                                   object/array structured in the same manner as is returned by list_networkconf() for the network.
    */
-  _self.createNetwork = function(sites, network_id, network_settings, cb)
+  _self.setNetworkSettingsBase = function(sites, network_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), network_settings, sites, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), payload, sites, cb, 'PUT');
   };
 
   /**
    * Delete a network (using REST) - delete_network()
    * -----------------------------
    * return true on success
-   * required parameter <network_id> = 24 char string; _id of the network which can be found with the list_networkconf() function
-   *
+   * required parameter <network_id> = 24 char string; _id value of the network which can be found with the list_networkconf() function
    */
   _self.deleteNetwork = function(sites, network_id, cb)
   {
@@ -2095,10 +2092,10 @@ var Controller = function(hostname, port)
   /**
    * List wlan settings (using REST) - list_wlanconf()
    * -------------------------------
-   *
+   * returns an array of wireless networks and their settings, or an array containing a single wireless network when using
+   * the <wlan_id> parameter
    * required paramater <sites>   = name or array of site names
-   * optional parameter <wlan_id> = 24 char string; _id of the wlan to fetch the settings for
-   *
+   * optional parameter <wlan_id> = 24 char string; _id value of the wlan to fetch the settings for
    */
   _self.getWLanSettings = function(sites, wlan_id, cb)
   {
@@ -2113,13 +2110,14 @@ var Controller = function(hostname, port)
    * -------------
    *
    * required parameter <name>             = string; SSID
-   * required parameter <x_passphrase>     = string; new pre-shared key, minimal length is 8 characters, maximum length is 63
+   * required parameter <x_passphrase>     = string; new pre-shared key, minimal length is 8 characters, maximum length is 63,
+   *                                         assign a value of null when security = 'open'
    * required parameter <usergroup_id>     = string; user group id that can be found using the list_usergroups() function
    * required parameter <wlangroup_id>     = string; wlan group id that can be found using the list_wlan_groups() function
    * optional parameter <enabled>          = boolean; enable/disable wlan
    * optional parameter <hide_ssid>        = boolean; hide/unhide wlan SSID
    * optional parameter <is_guest>         = boolean; apply guest policies or not
-   * optional parameter <security>         = string; security type
+   * optional parameter <security>         = string; security type (open, wep, wpapsk, wpaeap)
    * optional parameter <wpa_mode>         = string; wpa mode (wpa, wpa2, ..)
    * optional parameter <wpa_enc>          = string; encryption (auto, ccmp)
    * optional parameter <vlan_enabled>     = boolean; enable/disable vlan for this wlan
@@ -2132,7 +2130,6 @@ var Controller = function(hostname, port)
                               enabled, hide_ssid, is_guest, security, wpa_mode, wpa_enc, vlan_enabled, vlan, uapsd_enabled, schedule_enabled, schedule)
   {
     var json = { name: name,
-                 x_passphrase:     x_passphrase,
                  usergroup_id:     usergroup_id,
                  wlangroup_id:     wlangroup_id,
                  enabled:          typeof(enabled) !== 'undefined' ? enabled : true,
@@ -2150,6 +2147,9 @@ var Controller = function(hostname, port)
     if(typeof(vlan) !== 'undefined' && typeof(vlan_enabled) !== 'undefined')
       json.vlan = vlan;
 
+    if(x_passphrase !== '' && security !== 'open')
+      json.x_passphrase = x_passphrase;
+
     _self._request('/api/s/<SITE>/add/wlanconf/', json, sites, cb);
   };
 
@@ -2158,14 +2158,13 @@ var Controller = function(hostname, port)
    * ---------------------------------------
    * return true on success
    * required paramater <sites>   = name or array of site names
-   * required parameter <wlan_id> = 24 char string; _id of the wlan to fetch the settings for
-   * required parameter <wlan_settings> = stdClass object or associative array containing the configuration to apply to the wlan, must be a
-   *                                      (partial) object/array structured in the same manner as is returned by list_wlanconf() for the wlan.
-   *
+   * required parameter <wlan_id> = the "_id" value for the WLAN you wish to update
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the wlan, must be a
+   *                                (partial) object/array structured in the same manner as is returned by list_wlanconf() for the wlan.
    */
-  _self.setWLanSettingsBase = function(sites, wlan_id, wlan_settings, cb)
+  _self.setWLanSettingsBase = function(sites, wlan_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), wlan_settings, sites, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), payload, sites, cb, 'PUT');
   };
 
   /**
@@ -2221,7 +2220,7 @@ var Controller = function(hostname, port)
    * Update MAC filter for a wlan - set_wlan_mac_filter()
    * ----------------------------
    *
-   * required parameter <wlan_id>
+   * required parameter <wlan_id>            = the "_id" value for the WLAN you wish to update
    * required parameter <mac_filter_policy>  = string, "allow" or "deny"; default MAC policy to apply
    * required parameter <mac_filter_enabled> = boolean; true enables the policy, false disables it
    * required parameter <macs>               = array; must contain valid MAC strings to be placed in the MAC filter list,
@@ -2415,15 +2414,14 @@ var Controller = function(hostname, port)
   /**
    * Update device settings, base (using REST) - set_device_settings_base()
    * -----------------------------------------
-   * required paramater <sites>           = name or array of site names
-   * required parameter <device_id>       = 24 char string; _id of the device which can be found with the list_devices() function
-   * required parameter <device_settings> = stdClass object or associative array containing the configuration to apply to the device, must be a
-   *                                        (partial) object/array structured in the same manner as is returned by list_devices() for the device.
-   * optional paramater <cb>              = the callback function that is called with the results
+   * required paramater <sites>     = name or array of site names
+   * required parameter <device_id> = 24 char string; _id of the device which can be found with the list_devices() function
+   * required parameter <payload>   = stdClass object or associative array containing the configuration to apply to the device, must be a
+   *                                  (partial) object/array structured in the same manner as is returned by list_devices() for the device.
    */
-  _self.setDeviceSettingsBase = function(sites, device_id, device_settings, cb)
+  _self.setDeviceSettingsBase = function(sites, device_id, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/device/' + device_id.trim(), device_settings, sites, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/device/' + device_id.trim(), payload, sites, cb, 'PUT');
   };
 
   /**
@@ -2511,18 +2509,16 @@ var Controller = function(hostname, port)
    * Update Radius account, base (using REST) - set_radius_account_base()
    * ----------------------------------------
    * return true on success
-   * required parameter <account_id>      = 24 char string; _id of the account which can be found with the list_radius_accounts() function
-   * required parameter <account_details> = stdClass object or associative array containing the new profile to apply to the account, must be a (partial)
-   *                                        object/array structured in the same manner as is returned by list_radius_accounts() for the account.
+   * required parameter <account_id> = 24 char string; _id of the account which can be found with the list_radius_accounts() function
+   * required parameter <payload>    = stdClass object or associative array containing the new profile to apply to the account, must be a (partial)
+   *                                   object/array structured in the same manner as is returned by list_radius_accounts() for the account.
    *
    * NOTES:
    * - this function/method is only supported on controller versions 5.5.19 and later
    */
-  _self.setRadiusAccountBase = function(sites, account_id, account_details, cb)
+  _self.setRadiusAccountBase = function(sites, account_id, payload, cb)
   {
-    var json = { account_details: account_details };
-
-    _self._request('/api/s/<SITE>/rest/account/' + account_id.trim(), json, sites, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/account/' + account_id.trim(), payload, sites, cb, 'PUT');
   };
 
   /**
@@ -2585,6 +2581,28 @@ var Controller = function(hostname, port)
     _self._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', json, sites, cb);
   };
 
+  /**
+   * Custom API request - custom_api_request()
+   * ------------------
+   * return results as requested
+   * required parameter <url>          = string; suffix of the URL (following the port number) to pa
+request to, *must* start with a "/" character
+   * optional parameter <request_type> = string; HTTP request type, can be GET (default), POST, PUT, or DELETE
+   * optional parameter <payload>      = stdClass object or associative array containing the payload to pass
+   *
+   * NOTE:
+   * Only use this method when you fully understand the behavior of the UniFi controller API. No input validation is performed, to be used with care!
+   */
+  _self.customApiRequest = function(sites, url, cb, request_type, payload)
+  {
+    if(typeof(request_type) === 'undefined')
+      request_type = 'GET';
+
+    if(typeof(payload) === 'undefined')
+      payload = null;
+
+    _self._request(url, payload, sites, cb, request_type);
+  };
 
   /** PRIVATE FUNCTIONS **/
 
