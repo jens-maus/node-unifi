@@ -36,16 +36,10 @@ jobs:
       run: |
         docker create --name=unifi-controller -e PUID=1001 -e PGID=116 -e MEM_LIMIT=1024M -p 8443:8443 -v $GITHUB_WORKSPACE/unifi-storage:/config linuxserver/unifi-controller
         docker start unifi-controller
-        #docker exec unifi-controller apt update
-        #docker exec unifi-controller apt install mongodb-org-tools
-        #tar -C unifi-storage -xf $GITHUB_WORKSPACE/.github/workflows/db-demo-dump.tar.bz2 
-        #docker exec unifi-controller mongorestore --port 27117 --drop /config/db-demo-dump
         docker stop unifi-controller
-        #echo "is_default=false" >>unifi-storage/data/system.properties
         rm -rf unifi-storage/data
         tar -C unifi-storage -xf $GITHUB_WORKSPACE/.github/workflows/db-demo-dump.tar.bz2
         docker start unifi-controller
-
 
       ## install required dependencies
       #- name: install dependencies
@@ -68,9 +62,9 @@ jobs:
       #    sudo sh -c "echo is_default=false >>/usr/lib/unifi/data/system.properties"
       #    sudo systemctl start unifi
 
-      ## run npm tests
-      #- name: run npm tests
-      #  run: npm test
+      # run npm tests
+      - name: run npm tests
+        run: npm test
 
-    - name: remote debug tmate session
-      uses: mxschmitt/action-tmate@v1
+        #- name: remote debug tmate session
+        #uses: mxschmitt/action-tmate@v1
