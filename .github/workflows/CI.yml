@@ -41,6 +41,10 @@ jobs:
         tar -C unifi-storage -xf $GITHUB_WORKSPACE/.github/workflows/db-demo-dump.tar.bz2
         docker start unifi-controller
 
+    # run npm tests
+    - name: run npm tests
+      run: npm test
+ 
       ## install required dependencies
       #- name: install dependencies
       #  run: |
@@ -63,8 +67,8 @@ jobs:
       #    sudo systemctl start unifi
 
       # run npm tests
-      - name: run npm tests
-        run: npm test
+      #- name: run npm tests
+      #  run: npm test
 
         #- name: remote debug tmate session
         #uses: mxschmitt/action-tmate@v1
