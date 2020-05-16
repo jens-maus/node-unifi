@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.39
+ * Based/Compatible to UniFi-API-client class: v1.1.40
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -1419,11 +1419,11 @@ var Controller = function(hostname, port)
    *                                       permissions, default value is false which gives the new admin
    *                                       Administrator permissions
    * optional parameter <device_adopt>   = boolean, whether or not the new admin will have permissions to
-   *                                       adopt devices, default value is false. Only applies when readonly
-   *                                       is true.
+   *                                       adopt devices, default value is false. With versions < 5.9.X this only applies
+   *                                       when readonly is true.
    * optional parameter <device_restart> = boolean, whether or not the new admin will have permissions to
-   *                                       restart devices, default value is false. Only applies when readonly
-   *                                       is true.
+   *                                       restart devices, default value is false. With versions < 5.9.X this only applies
+   *                                       when readonly is true.
    *
    * NOTES:
    * - after issuing a valid request, an invite will be sent to the email address provided
@@ -1452,15 +1452,14 @@ var Controller = function(hostname, port)
 
     var permissions = [];
     if(readonly === true)
-    {
       json.role = 'readonly';
 
-      if(device_adopt === true)
-        permissions.push('API_DEVICE_ADOPT');
+    if(device_adopt === true)
+      permissions.push('API_DEVICE_ADOPT');
 
-      if(device_restart === true)
-        permissions.push('API_DEVICE_RESTART');
-    }
+    if(device_restart === true)
+      permissions.push('API_DEVICE_RESTART');
+
     json.permissions = permissions;
 
     _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
@@ -1476,11 +1475,11 @@ var Controller = function(hostname, port)
    *                                       permissions, default value is false which gives the new admin
    *                                       Administrator permissions
    * optional parameter <device_adopt>   = boolean, whether or not the new admin will have permissions to
-   *                                       adopt devices, default value is false. Only applies when readonly
-   *                                       is true.
+   *                                       adopt devices, default value is false. With versions < 5.9.X this only applies
+   *                                       when readonly is true.
    * optional parameter <device_restart> = boolean, whether or not the new admin will have permissions to
-   *                                       restart devices, default value is false. Only applies when readonly
-   *                                       is true.
+   *                                       restart devices, default value is false. With versions < 5.9.X this only applies
+   *                                       when readonly is true.
    */
  _self.assignExistingAdmin = function(sites, admin_id, cb, readonly, device_adopt, device_restart)
   {
@@ -1500,15 +1499,14 @@ var Controller = function(hostname, port)
 
     var permissions = [];
     if(readonly === true)
-    {
       json.role = 'readonly';
 
-      if(device_adopt === true)
-        permissions.push('API_DEVICE_ADOPT');
+    if(device_adopt === true)
+      permissions.push('API_DEVICE_ADOPT');
 
-      if(device_restart === true)
-        permissions.push('API_DEVICE_RESTART');
-    }
+    if(device_restart === true)
+      permissions.push('API_DEVICE_RESTART');
+
     json.permissions = permissions;
 
     _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
