@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.37
+ * Based/Compatible to UniFi-API-client class: v1.1.39
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -1416,8 +1416,8 @@ var Controller = function(hostname, port)
    * optional parameter <enable_sso>     = boolean, whether or not SSO will be allowed for the new admin
    *                                       default value is true which enables the SSO capability
    * optional parameter <readonly>       = boolean, whether or not the new admin will have readonly
-   *                                       permissions, default value is true which gives the new admin
-   *                                       administrator permissions
+   *                                       permissions, default value is false which gives the new admin
+   *                                       Administrator permissions
    * optional parameter <device_adopt>   = boolean, whether or not the new admin will have permissions to
    *                                       adopt devices, default value is false. Only applies when readonly
    *                                       is true.
@@ -1446,23 +1446,70 @@ var Controller = function(hostname, port)
     var json = { name: name.trim(),
                  email: email.trim(),
                  for_sso: enable_sso,
-                 cmd: 'invite-admin'
+                 cmd: 'invite-admin',
+                 role: 'admin'
                };
 
+    var permissions = [];
     if(readonly === true)
     {
       json.role = 'readonly';
 
-      var permissions = [ ];
       if(device_adopt === true)
         permissions.push('API_DEVICE_ADOPT');
 
       if(device_restart === true)
         permissions.push('API_DEVICE_RESTART');
-
-      if(permissions.length > 0)
-        json.permissions = permissions;
     }
+    json.permissions = permissions;
+
+    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  };
+
+  /**
+   * Assign an existing admin to the current site - assign_existing_admin()
+   * --------------------------------------------
+   * returns true on success
+   * required parameter <admin_id>       = 24 char string; _id of the admin user to assign, can be obtained using the
+   *                                       list_all_admins() method/function
+   * optional parameter <readonly>       = boolean, whether or not the new admin will have readonly
+   *                                       permissions, default value is false which gives the new admin
+   *                                       Administrator permissions
+   * optional parameter <device_adopt>   = boolean, whether or not the new admin will have permissions to
+   *                                       adopt devices, default value is false. Only applies when readonly
+   *                                       is true.
+   * optional parameter <device_restart> = boolean, whether or not the new admin will have permissions to
+   *                                       restart devices, default value is false. Only applies when readonly
+   *                                       is true.
+   */
+ _self.assignExistingAdmin = function(sites, admin_id, cb, readonly, device_adopt, device_restart)
+  {
+    if(typeof(readonly) === 'undefined')
+      readonly = false;
+
+    if(typeof(device_adopt) === 'undefined')
+      device_adopt = false;
+
+    if(typeof(device_restart) === 'undefined')
+      device_restart = false;
+
+    var json = { cmd: 'grant-admin',
+                 admin: admin_id.trim(),
+                 role: 'admin'
+               };
+
+    var permissions = [];
+    if(readonly === true)
+    {
+      json.role = 'readonly';
+
+      if(device_adopt === true)
+        permissions.push('API_DEVICE_ADOPT');
+
+      if(device_restart === true)
+        permissions.push('API_DEVICE_RESTART');
+    }
+    json.permissions = permissions;
 
     _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
   };
@@ -1471,7 +1518,7 @@ var Controller = function(hostname, port)
    * Revoke an admin - revoke_admin()
    * ---------------
    * returns true on success
-   * required parameter <admin_id> = id of the admin to revoke which can be obtained using the
+   * required parameter <admin_id> = id of the admin to revoke, can be obtained using the
    *                                 list_all_admins() method/function
    *
    * NOTES:
@@ -1479,8 +1526,8 @@ var Controller = function(hostname, port)
    */
   _self.revokeAdmin = function(sites, admin_id, cb)
   {
-    var json = { admin: admin_id,
-                 cmd: 'revoke-admin'
+    var json = { cmd: 'revoke-admin',
+                 admin: admin_id
                };
 
     _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
