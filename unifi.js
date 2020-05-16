@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.42
+ * Based/Compatible to UniFi-API-client class: v1.1.43
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -1820,15 +1820,23 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Reboot an access point - restart_ap()
-   * ----------------------
-   *
-   * required parameter <mac> = device MAC address
+   * Reboot a device - restart_device()
+   * ---------------
+   * return true on success
+   * required parameter <mac>  = device MAC address
+   * optional parameter <type> = string; two options: 'soft' or 'hard', defaults to soft
+   *                             soft can be used for all devices, requests a plain restart of that   device
+   *                             hard is special for PoE switches and besides the restart also requ  ests a
+   *                             power cycle on all PoE capable ports. Keep in mind that a 'hard' r  eboot
+   *                             does *NOT* trigger a factory-reset, as it somehow could suggest.
    */
-  _self.rebootAccessPoint = function(sites, mac, cb)
+  _self.restartDevice = function(sites, mac, cb, type)
   {
     var json = { cmd: 'restart',
                  mac: mac.toLowerCase() };
+
+    if(typeof(type) !== 'undefined')
+      json.type = type.toLowerCase();
 
     _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
   };
@@ -1922,9 +1930,6 @@ var Controller = function(hostname, port)
    * required parameter <wlantype_id>  = string; WLAN type, can be either 'ng' (for WLANs 2G (11n/b/g)) or 'na' (WLANs 5G (11n/a/ac))
    * required parameter <device_id>    = string; _id value of the access point to be modified
    * required parameter <wlangroup_id> = string; _id value of the WLAN group to assign device to
-   *
-   * NOTES:
-   * - can for example be used to turn WiFi off
    */
   _self.setAccessPointWLanGroup = function(sites, wlantype_id, device_id, wlangroup_id, cb)
   {
@@ -1941,21 +1946,22 @@ var Controller = function(hostname, port)
   /**
    * Update guest login settings - set_guestlogin_settings()
    * ---------------------------
-   *
-   * required parameter <portal_enabled>
-   * required parameter <portal_customized>
-   * required parameter <redirect_enabled>
-   * required parameter <redirect_url>
-   * required parameter <x_password>
-   * required parameter <expire_number>
-   * required parameter <expire_unit>
-   * required parameter <site_id>
+   * return true on success
+   * required parameter <portal_enabled>    = boolean; enable/disable the captive portal
+   * required parameter <portal_customized> = boolean; enable/disable captive portal customizations
+   * required parameter <redirect_enabled>  = boolean; enable/disable captive portal redirect
+   * required parameter <redirect_url>      = string; url to redirect to, must include the http/https prefix, no trailing slashes
+   * required parameter <x_password>        = string; the captive portal (simple) password
+   * required parameter <expire_number>     = numeric; number of units for the authorization expiry
+   * required parameter <expire_unit>       = numeric; number of minutes within a unit (a value 60 is required for hours)
+   * required parameter <section_id>        = 24 char string; value of _id for the site settings section where key = "guest_access", settings can be obtained
+   *                                          using the list_settings() function
    *
    * NOTES:
    * - both portal parameters are set to the same value!
    *
    */
-  _self.setGuestLoginSettings = function(sites, portal_enabled, portal_customized, redirect_enabled, redirect_url, x_password, expire_number, expire_unit, site_id, cb)
+  _self.setGuestLoginSettings = function(sites, portal_enabled, portal_customized, redirect_enabled, redirect_url, x_password, expire_number, expire_unit, section_id, cb)
   {
     var json = { portal_enabled: portal_enabled,
                  portal_customized: portal_customized,
@@ -1964,7 +1970,7 @@ var Controller = function(hostname, port)
                  x_password: x_password,
                  expire_number: expire_number,
                  expire_unit: expire_unit,
-                 site_id: site_id };
+                 _id: section_id };
 
     _self._request('/api/s/<SITE>/set/setting/guest_access/', json, sites, cb);
   };
