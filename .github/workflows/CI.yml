@@ -26,12 +26,9 @@ jobs:
     - name: install dependencies
       run: sudo apt update && sudo apt install ca-certificates apt-transport-https
 
-    # setup ubiquiti apt repository
-    - name: setup ubiquiti apt/ubuntu repository
+    # install UniFi controller
+    - name: install UniFi controller
       run: |
-        echo 'deb https://www.ui.com/downloads/unifi/debian stable ubiquiti' | sudo tee /etc/apt/sources.list.d/100-ubnt-unifi.list
-        sudo wget -O /etc/apt/trusted.gpg.d/unifi-repo.gpg https://dl.ui.com/unifi/unifi-repo.gpg 
-    
-    # install unifi controller
-    - name: install unifi controller
-      run: sudo apt update && sudo apt install unifi -y
+        wget -O ./unifi-install.sh https://get.glennr.nl/unifi/install/unifi-5.12.66.sh
+        chmod +x ./unifi-install.sh
+        sudo ./unifi-install.sh
