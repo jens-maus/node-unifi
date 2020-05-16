@@ -12,7 +12,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.41
+ * Based/Compatible to UniFi-API-client class: v1.1.42
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -1513,14 +1513,14 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Revoke an admin - revoke_admin()
-   * ---------------
+   * Revoke an admin from the current site - revoke_admin()
+   * -------------------------------------
    * returns true on success
    * required parameter <admin_id> = _id value of the admin to revoke, can be obtained using the
    *                                 list_all_admins() method/function
    *
    * NOTES:
-   * only non-superadmins account can be revoked
+   * only non-superadmin accounts can be revoked
    */
   _self.revokeAdmin = function(sites, admin_id, cb)
   {
@@ -1970,10 +1970,10 @@ var Controller = function(hostname, port)
   };
 
   /**
-   * Update guestlogin settings, base - set_guestlogin_settings_base()
-   * --------------------------------
+   * Update guest login settings, base - set_guestlogin_settings_base()
+   * ---------------------------------
    * return true on success
-   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the guestlogin, must be a (partial)
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the guest login, must be a (partial)
    *                                object/array structured in the same manner as is returned by list_settings() for the "guest_access" section.
    */
   _self.setGuestLoginSettingsBase = function(sites, payload, cb)
@@ -1991,6 +1991,48 @@ var Controller = function(hostname, port)
   _self.setIPSSettingsBase = function(sites, payload, cb)
   {
     _self._request('/api/s/<SITE>/set/setting/ips', payload, sites, cb);
+  };
+
+  /**
+   * Update "Super Management" settings, base - set_super_mgmt_settings_base()
+   * ----------------------------------------
+   * return true on success
+   * required parameter <settings_id> = 24 char string; value of _id for the site settings section where key = "super_mgmt", settings can be obtained
+   *                                    using the list_settings() function
+   * required parameter <payload>     = stdClass object or associative array containing the "Super Management" settings to apply, must be a (partial)
+   *                                    object/array structured in the same manner as is returned by list_settings() for the "super_mgmt" section.
+   */
+  _self.setSuperMgmtSettingsBase = function(sites, settings_id, payload, cb)
+  {
+    _self._request('/api/s/<SITE>/set/setting/super_mgmt/' + settings_id.trim(), payload, sites, cb);
+  };
+
+  /**
+   * Update "Super SMTP" settings, base - set_super_smtp_settings_base()
+   * ----------------------------------
+   * return true on success
+   * required parameter <settings_id> = 24 char string; value of _id for the site settings section where key = "super_smtp", settings can be obtained
+   *                                    using the list_settings() function
+   * required parameter <payload>     = stdClass object or associative array containing the "Super SMTP" settings to apply, must be a (partial)
+   *                                    object/array structured in the same manner as is returned by list_settings() for the "super_smtp" section.
+   */
+  _self.setSuperSMTPSettingsBase = function(sites, settings_id, payload, cb)
+  {
+    _self._request('/api/s/<SITE>/set/setting/super_smtp/' + settings_id.trim(), payload, sites, cb);
+  };
+
+  /**
+   * Update "Super Controller Identity" settings, base - set_super_identity_settings_base()
+   * -------------------------------------------------
+   * return true on success
+   * required parameter <settings_id> = 24 char string; value of _id for the site settings section where key = "super_identity", settings can be obtained
+   *                                    using the list_settings() function
+   * required parameter <payload>     = stdClass object or associative array containing the "Super Controller Identity" settings to apply, must be a (partial)
+   *                                    object/array structured in the same manner as is returned by list_settings() for the "super_identity" section.
+   */
+  _self.setSuperIdentitySettingsBase = function(sites, settings_id, payload, cb)
+  {
+    _self._request('/api/s/<SITE>/set/setting/super_identity/' + settings_id.trim(), payload, sites, cb);
   };
 
   /**
@@ -2584,8 +2626,8 @@ var Controller = function(hostname, port)
   /**
    * Custom API request - custom_api_request()
    * ------------------
-   * return results as requested
-   * required parameter <url>          = string; suffix of the URL (following the port number) to pa
+   * returns results as requested, returns false on incorrect parameters
+   * required parameter <path>         = string; suffix of the URL (following the port number) to pass request to, *must* start with a "/" character
 request to, *must* start with a "/" character
    * optional parameter <request_type> = string; HTTP request type, can be GET (default), POST, PUT, or DELETE
    * optional parameter <payload>      = stdClass object or associative array containing the payload to pass
@@ -2593,7 +2635,7 @@ request to, *must* start with a "/" character
    * NOTE:
    * Only use this method when you fully understand the behavior of the UniFi controller API. No input validation is performed, to be used with care!
    */
-  _self.customApiRequest = function(sites, url, cb, request_type, payload)
+  _self.customApiRequest = function(sites, path, cb, request_type, payload)
   {
     if(typeof(request_type) === 'undefined')
       request_type = 'GET';
@@ -2601,7 +2643,7 @@ request to, *must* start with a "/" character
     if(typeof(payload) === 'undefined')
       payload = null;
 
-    _self._request(url, payload, sites, cb, request_type);
+    _self._request(path, payload, sites, cb, request_type);
   };
 
   /** PRIVATE FUNCTIONS **/
