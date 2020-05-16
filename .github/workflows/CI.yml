@@ -34,8 +34,10 @@ jobs:
     # docker test
     - name: install+run docker-unifi-controller
       run: |
-        docker create --name=unifi-controller -e PUID=1000 -e PGID=1000 -e MEM_LIMIT=1024M -p 8443:8443 linuxserver/unifi-controller
+        mkdir unifi-storage
+        docker create --name=unifi-controller -e PUID=1000 -e PGID=1000 -e MEM_LIMIT=1024M -p 8443:8443 -v unifi-storage:/config linuxserver/unifi-controller
         docker start unifi-controller
+        docker exec -it unifi-controller apt install mongodb-org-tools
 
       ## install required dependencies
       #- name: install dependencies
