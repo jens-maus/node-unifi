@@ -14,7 +14,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.48
+ * Based/Compatible to UniFi-API-client class: v1.1.52
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
