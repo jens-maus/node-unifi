@@ -1842,6 +1842,18 @@ var Controller = function(hostname, port)
   };
 
   /**
+   * Reboot a UniFi CloudKey - reboot_cloudkey()
+   * -----------------------
+   * return true on success
+   *
+   * This API call does nothing on UniFi controllers *not* running on a UniFi CloudKey device
+   */
+   _self.rebootCloudKey = function(sites, cb)
+  {
+    _self._request('/api/s/<SITE>/cmd/system', { cmd: 'reboot' }, sites, cb);
+  };
+ 
+  /**
    * Disable/enable an access point (using REST) - disable_ap()
    * -------------------------------------------
    *
