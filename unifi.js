@@ -14,7 +14,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.47
+ * Based/Compatible to UniFi-API-client class: v1.1.48
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -195,8 +195,10 @@ var Controller = function(hostname, port)
    *                                      can be obtained from the output of list_usergroups()
    * optional parameter <name>          = name to be given to the new user/client-device
    * optional parameter <note>          = note to be applied to the new user/client-device
+   * optional parameter <is_guest>      = boolean; defines whether the new user/client-device is a   guest or not
+   * optional parameter <is_wired>      = boolean; defines whether the new user/client-device is wi  red or not
    */
-  _self.createUser = function(sites, mac, user_group_id, cb, name, note)
+  _self.createUser = function(sites, mac, user_group_id, cb, name, note, is_guest, is_wired)
   {
     var new_user = { mac: mac.toLowerCase(),
                      user_group_id: user_group_id
@@ -210,6 +212,12 @@ var Controller = function(hostname, port)
       new_user.note = note;
       new_user.noted = true;
     }
+
+    if(typeof(is_guest) !== 'undefined')
+      new_user.is_guest = is_guest;
+
+    if(typeof(is_wired) !== 'undefined')
+      new_user.is_wired = is_wired;
 
     _self._request('/api/s/<SITE>/group/user', { objects: { data: new_user }}, sites, cb);
   };
