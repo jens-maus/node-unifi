@@ -8,11 +8,13 @@
  *
  *   UniFi-API-client: https://github.com/Art-of-WiFi/UniFi-API-client/blob/master/src/Client.php
  *   UniFi-API sh: https://dl.ui.com/unifi/5.12.35/unifi_sh_api
+ *   domwo: http://community.ubnt.com/t5/UniFi-Wireless/little-php-class-for-unifi-api/m-p/603051
+ *   fbagnol: https://github.com/fbagnol/class.unifi.php
  *
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.45
+ * Based/Compatible to UniFi-API-client class: v1.1.47
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -36,6 +38,7 @@ var Controller = function(hostname, port)
   /** INIT CODE **/
 
   _self._baseurl = 'https://127.0.0.1:8443';
+  _self._unifios = false;
 
   // format a new baseurl based on the arguments
   if(typeof(hostname) !== 'undefined' && typeof(port) !== 'undefined')
@@ -44,23 +47,42 @@ var Controller = function(hostname, port)
   /** PUBLIC FUNCTIONS **/
 
   /**
-   * Login to UniFi Controller - login()
-   * -------------------------
+   * Login to the UniFi controller - login()
+   * -----------------------------
    * returns true upon success
    */
   _self.login = function(username, password, cb)
   {
-    _self._request('/api/login', { username: username, password: password }, null, cb);
+    // find out if this is a UnifiOS driven controller or not.
+    async.series([
+      function(callback) {
+        // We have to use a custom cookie jar for this request - otherwise the login will fail on Unifi
+        const j = request.jar()
+        request({ method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: j }, (err, res, body) => {
+          if (res.statusCode == 200) {
+            _self._unifios = true
+          }
+          return callback()
+        });
+      },
+      function(callback) {
+        // if this is a unifios system we use /api/auth instead
+        _self._request(_self._unifios ? '/api/auth/login' : '/api/login', {
+          username: username,
+          password: password
+        }, null, cb);
+      }
+    ]);
   };
 
   /**
-   * Logout from UniFi Controller - logout()
-   * ----------------------------
+   * Logout from the UniFi controller - logout()
+   * --------------------------------
    * returns true upon success
    */
   _self.logout = function(cb)
   {
-    _self._request('/logout', {}, null, cb);
+    _self._request(_self._unifios ? '/api/auth/logout' : '/logout', {}, null, cb);
   };
 
   /**
@@ -154,7 +176,8 @@ var Controller = function(hostname, port)
    * required parameter <macs> = array of client MAC addresses
    *
    * NOTE:
-   * only supported with controller versions 5.9.X and higher
+   * only supported with controller versions 5.9.X and higher, can be
+   * slow (up to 5 minutes) on larger controllers
    */
   _self.forgetClient = function(sites, macs, cb)
   {
@@ -983,7 +1006,7 @@ var Controller = function(hostname, port)
                  qos_rate_max_down: typeof(group_dn) !== 'undefined' ? group_dn : -1,
                  qos_rate_max_up:   typeof(group_up) !== 'undefined' ? group_up : -1 };
 
-    _self._request('/api/s/<SITE>/rest/usergroup', json, sites, cb, 'POST');
+    _self._request('/api/s/<SITE>/rest/usergroup', json, sites, cb);
   };
 
   /**
@@ -1057,7 +1080,7 @@ var Controller = function(hostname, port)
                  group_type: group_type,
                  group_members: group_members };
 
-    _self._request('/api/s/<SITE>/rest/firewallgroup', json, sites, cb, 'POST');
+    _self._request('/api/s/<SITE>/rest/firewallgroup', json, sites, cb);
   };
 
   /**
@@ -1636,7 +1659,7 @@ var Controller = function(hostname, port)
     if(typeof(note) !== 'undefined')
       json.note = note;
 
-    _self._request('/api/s/<SITE>/rest/hotspotop', json, sites, cb, 'POST');
+    _self._request('/api/s/<SITE>/rest/hotspotop', json, sites, cb);
   };
 
   /**
@@ -1731,6 +1754,28 @@ var Controller = function(hostname, port)
   _self.getDPIStats = function(sites, cb)
   {
     _self._request('/api/s/<SITE>/stat/dpi', null, sites, cb);
+  };
+
+  /**
+   * List filtered DPI stats
+   * -----------------------
+   * returns an array of fileterd DPI stats
+   * optional parameter <type>       = whether to returns stats by app or by category, valid values  :
+   *                                   'by_cat' or 'by_app'
+   * optional parameter <cat_filter> = an array containing numeric category ids to filter by,
+   *                                   only to be combined with a "by_app" value for $type
+   */
+  _self.getFilteredDPIStats = function(sites, cb, type, cat_filter)
+  {
+    if(typeof(type) === 'undefined')
+      type = 'by_cat'
+
+    var json = { type: type };
+
+    if(typeof(cat_filter) !== 'undefined' && type == 'by_app')
+      json.cats = cat_filter;
+
+    _self._request('/api/s/<SITE>/stat/sitedpi', json, sites, cb);
   };
 
   /**
@@ -1967,18 +2012,18 @@ var Controller = function(hostname, port)
    * Assign access point to another WLAN group - set_ap_wlangroup()
    * -----------------------------------------
    * return true on success
-   * required parameter <wlantype_id>  = string; WLAN type, can be either 'ng' (for WLANs 2G (11n/b/g)) or 'na' (WLANs 5G (11n/a/ac))
-   * required parameter <device_id>    = string; _id value of the access point to be modified
-   * required parameter <wlangroup_id> = string; _id value of the WLAN group to assign device to
+   * required parameter <type_id>   = string; WLAN type, can be either 'ng' (for WLANs 2G (11n/b/g)  ) or 'na' (WLANs 5G (11n/a/ac))
+   * required parameter <device_id> = string; _id value of the access point to be modified
+   * required parameter <group_id>  = string; _id value of the WLAN group to assign device to
    */
-  _self.setAccessPointWLanGroup = function(sites, wlantype_id, device_id, wlangroup_id, cb)
+  _self.setAccessPointWLanGroup = function(sites, type_id, device_id, group_id, cb)
   {
-    var json = { wlan_overrides: '' };
+    var json = { wlan_overrides: {} };
 
-    if(wlantype_id === 'ng')
-      json.wlangroup_id_ng = wlangroup_id;
-    else if(wlantype_id === 'na')
-      json.wlangroup_id_na = wlangroup_id;
+    if(type_id === 'ng')
+      json.wlangroup_id_ng = group_id;
+    else if(type_id === 'na')
+      json.wlangroup_id_na = group_id;
 
     _self._request('/api/s/<SITE>/upd/device/' + device_id.trim(), json, sites, cb);
   };
@@ -2150,7 +2195,7 @@ var Controller = function(hostname, port)
    */
   _self.createNetwork = function(sites, payload, cb)
   {
-    _self._request('/api/s/<SITE>/rest/networkconf', payload, sites, cb, 'POST');
+    _self._request('/api/s/<SITE>/rest/networkconf', payload, sites, cb);
   };
 
   /**
@@ -2590,7 +2635,7 @@ var Controller = function(hostname, port)
     if(typeof(vlan) !== 'undefined')
       json.vlan = vlan;
 
-    _self._request('/api/s/<SITE>/rest/account', json, sites, cb, 'POST');
+    _self._request('/api/s/<SITE>/rest/account', json, sites, cb);
   };
 
   /**
@@ -2697,6 +2742,13 @@ request to, *must* start with a "/" character
    */
   _self._request = function(url, json, sites, cb, method)
   {
+    function getbaseurl() {
+      if (_self._unifios === false || url.indexOf('login') > -1 || url.indexOf('logout') > -1)
+        return _self._baseurl;
+      else
+        return _self._baseurl + '/proxy/network';
+    };
+
     var proc_sites;
 
     if(sites === null)
@@ -2709,15 +2761,15 @@ request to, *must* start with a "/" character
     var count = 0;
     var results = [];
     async.whilst(
-      function() { return count < proc_sites.length; },
+      function(callback) { callback(null, return count < proc_sites.length); },
       function(callback) {
         var reqfunc;
-        var reqjson = {url: _self._baseurl + url.replace('<SITE>', proc_sites[count])};
+        var reqjson = {url: getbaseurl() + url.replace('<SITE>', proc_sites[count])};
         var req;
 
-        // identify which request method we are using (GET, POST, DELETE) based
+        // identify which request method we are using (GET, POST, PUT, DELETE) based
         // on the json data supplied and the overriding method
-        if(json !== null)
+        if(json !== null || typeof(json) !== 'undefined')
         {
           if(method === 'PUT')
             reqfunc = request.put;
