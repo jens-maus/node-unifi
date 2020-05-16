@@ -2769,7 +2769,7 @@ request to, *must* start with a "/" character
     var count = 0;
     var results = [];
     async.whilst(
-      function() { return count < proc_sites.length; },
+      function(callback) { return callback(null, (count < proc_sites.length)); },
       function(callback) {
         var reqfunc;
         var reqjson = {url: getbaseurl() + url.replace('<SITE>', proc_sites[count])};
@@ -2840,11 +2840,11 @@ exports.Controller = Controller;
  ********************
 */
 /*
-var controller = new Controller("192.168.5.66", 8443);
+var controller = new Controller("192.168.5.6", 8443);
 
 //////////////////////////////
 // LOGIN
-controller.login("admin", "XXXXXXXX", function(err) {
+controller.login("ubnt", "ubnt", function(err) {
 
   if(err)
   {
