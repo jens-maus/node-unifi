@@ -738,7 +738,7 @@ var Controller = function(hostname, port)
 
     var json = { attrs: [ 'xput_download',
                           'xput_upload',
-                          'latency'
+                          'latency',
                           'time' ],
                  start: start,
                  end: end };
@@ -767,7 +767,7 @@ var Controller = function(hostname, port)
     if(typeof(start) === 'undefined')
       start = end - (24*3600*1000);
 
-    if(typeof(limit) === 'undefined'(
+    if(typeof(limit) === 'undefined')
       limit = 10000;
 
     var json = { start: start,
@@ -2769,7 +2769,7 @@ request to, *must* start with a "/" character
     var count = 0;
     var results = [];
     async.whilst(
-      function(callback) { callback(null, return count < proc_sites.length); },
+      function() { return count < proc_sites.length; },
       function(callback) {
         var reqfunc;
         var reqjson = {url: getbaseurl() + url.replace('<SITE>', proc_sites[count])};
@@ -2777,7 +2777,7 @@ request to, *must* start with a "/" character
 
         // identify which request method we are using (GET, POST, PUT, DELETE) based
         // on the json data supplied and the overriding method
-        if(json !== null || typeof(json) !== 'undefined')
+        if(json !== null)
         {
           if(method === 'PUT')
             reqfunc = request.put;
@@ -2805,9 +2805,13 @@ request to, *must* start with a "/" character
                           callback(null);
                         }
                         else if(typeof(body) !== 'undefined' && typeof(body.meta) !== 'undefined' && body.meta.rc === 'error')
+                        {
                           callback(body.meta.msg);
+                        }
                         else
+                        {
                           callback(error);
+                        }
                       });
 
         count++;
@@ -2844,7 +2848,7 @@ controller.login("admin", "XXXXXXXX", function(err) {
 
   if(err)
   {
-    console.log.info('ERROR: ' + err);
+    console.log('ERROR: ' + err);
     return;
   }
 
