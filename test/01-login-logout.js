@@ -1,6 +1,6 @@
 /* global describe, it, step */
 
-const unifi = require('node-unifi');
+const unifi = require('../unifi.js');
 
 let IP = '127.0.0.1';
 if (process.env.IP) {
