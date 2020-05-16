@@ -22,6 +22,15 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
+    # try to perform a nodejs setup
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12'
+
+    # try to install node-unifi using npm
+    - name: install node-unifi
+      run: npm install
+
     # install required dependencies
     - name: install dependencies
       run: sudo apt update && sudo apt install ca-certificates apt-transport-https
@@ -29,8 +38,6 @@ jobs:
     # install UniFi controller
     - name: install UniFi controller using EUS
       run: |
-        wget -O ./unifi-install.sh https://get.glennr.nl/unifi/install/unifi-5.12.72.sh
-        chmod +x ./unifi-install.sh
         export TERM=vt100
-        sudo ./unifi-install.sh --skip
+        sudo $GITHUB_WORKSPACE/.github/workflows/unifi-install.sh --skip --server-ip 127.0.0.1
         netstat -tulpn
