@@ -61,7 +61,7 @@ const Controller = function (hostname, port) {
         // We have to use a custom cookie jar for this request - otherwise the login will fail on Unifi
         const j = request.jar();
         request({method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: j}, (err, res, body) => {
-          if (res.statusCode == 200) {
+          if (!err && body && res.statusCode == 200) {
             _self._unifios = true;
           }
           return callback();

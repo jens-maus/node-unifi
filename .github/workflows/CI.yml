@@ -40,6 +40,7 @@ jobs:
         rm -rf unifi-storage/data
         tar -C unifi-storage -xf $GITHUB_WORKSPACE/.github/workflows/db-demo-dump.tar.bz2
         docker start unifi-controller
+        sleep 5
 
     # run npm tests
     - name: run npm tests
