@@ -61,13 +61,13 @@ const Controller = function (hostname, port) {
         // We have to use a custom cookie jar for this request - otherwise the login will fail on Unifi
         const j = request.jar();
         request({method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: j}, (err, res, body) => {
-          if (!err && body && res.statusCode == 200) {
+          if (!err && body && res.statusCode === 200) {
             _self._unifios = true;
           }
-          return callback();
+          return callback(err, body);
         });
       },
-      function (callback) {
+      function () {
         // If this is a unifios system we use /api/auth instead
         _self._request(_self._unifios ? '/api/auth/login' : '/api/login', {
           username,
@@ -1027,8 +1027,8 @@ const Controller = function (hostname, port) {
   _self.createUserGroup = function (sites, group_name, cb,
                                    group_dn, group_up) {
     const json = {name: group_name,
-      qos_rate_max_down: typeof (group_dn) !== 'undefined' ? group_dn : -1,
-      qos_rate_max_up: typeof (group_up) !== 'undefined' ? group_up : -1};
+      qos_rate_max_down: typeof (group_dn) === 'undefined' ? -1 : group_dn,
+      qos_rate_max_up: typeof (group_up) === 'undefined' ? -1 : group_up};
 
     _self._request('/api/s/<SITE>/rest/usergroup', json, sites, cb);
   };
@@ -1051,8 +1051,8 @@ const Controller = function (hostname, port) {
     const json = {_id: group_id,
       site_id,
       name: group_name,
-      qos_rate_max_down: typeof (group_dn) !== 'undefined' ? group_dn : -1,
-      qos_rate_max_up: typeof (group_up) !== 'undefined' ? group_up : -1};
+      qos_rate_max_down: typeof (group_dn) === 'undefined' ? -1 : group_dn,
+      qos_rate_max_up: typeof (group_up) === 'undefined' ? -1 : group_up};
 
     _self._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), json, sites, cb, 'PUT');
   };
@@ -1140,7 +1140,7 @@ const Controller = function (hostname, port) {
    * required parameter <group_id> = _id value of the firewall group to delete
    */
   _self.deleteFirewallGroup = function (sites, group_id, cb) {
-    _self._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), json, sites, cb, 'DELETE');
+    _self._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), null, sites, cb, 'DELETE');
   };
 
   /**
@@ -1641,10 +1641,10 @@ const Controller = function (hostname, port) {
    * returns an array of hotspot payments
    */
   _self.getPayments = function (sites, cb, within) {
-    if (typeof (within) !== 'undefined') {
-      within = '?within=' + within.trim();
-    } else {
+    if (typeof (within) === 'undefined') {
       within = '';
+    } else {
+      within = '?within=' + within.trim();
     }
 
     _self._request('/api/s/<SITE>/stat/payment' + within, null, sites, cb);
@@ -1785,7 +1785,7 @@ const Controller = function (hostname, port) {
 
     const json = {type};
 
-    if (typeof (cat_filter) !== 'undefined' && type == 'by_app') {
+    if (typeof (cat_filter) !== 'undefined' && type === 'by_app') {
       json.cats = cat_filter;
     }
 
@@ -1943,7 +1943,7 @@ const Controller = function (hostname, port) {
    * - available since controller versions 5.2.X
    */
   _self.disableAccessPoint = function (sites, ap_id, disable, cb) {
-    _self._request('/api/s/<SITE>/rest/device/' + ap_id.trim(), {disabled}, sites, cb, 'PUT');
+    _self._request('/api/s/<SITE>/rest/device/' + ap_id.trim(), {disabled: disable}, sites, cb, 'PUT');
   };
 
   /**
@@ -2251,16 +2251,16 @@ const Controller = function (hostname, port) {
     const json = {name,
       usergroup_id,
       wlangroup_id,
-      enabled: typeof (enabled) !== 'undefined' ? enabled : true,
-      hide_ssid: typeof (hide_ssid) !== 'undefined' ? hide_ssid : false,
-      is_guest: typeof (is_guest) !== 'undefined' ? is_guest : false,
-      security: typeof (security) !== 'undefined' ? security : 'open',
-      wpa_mode: typeof (wpa_mode) !== 'undefined' ? wpa_mode : 'wpa2',
-      wpa_enc: typeof (wpa_enc) !== 'undefined' ? wpa_enc : 'ccmp',
-      vlan_enabled: typeof (vlan_enabled) !== 'undefined' ? vlan_enabled : false,
-      uapsd_enabled: typeof (uapsd_enabled) !== 'undefined' ? uapsd_enabled : false,
-      schedule_enabled: typeof (schedule_enabled) !== 'undefined' ? schedule_enabled : false,
-      schedule: typeof (schedule) !== 'undefined' ? schedule : {}
+      enabled: typeof (enabled) === 'undefined' ? true : enabled,
+      hide_ssid: typeof (hide_ssid) === 'undefined' ? false : hide_ssid,
+      is_guest: typeof (is_guest) === 'undefined' ? false : is_guest,
+      security: typeof (security) === 'undefined' ? 'open' : security,
+      wpa_mode: typeof (wpa_mode) === 'undefined' ? 'wpa2' : wpa_mode,
+      wpa_enc: typeof (wpa_enc) === 'undefined' ? 'ccmp' : wpa_enc,
+      vlan_enabled: typeof (vlan_enabled) === 'undefined' ? false : vlan_enabled,
+      uapsd_enabled: typeof (uapsd_enabled) === 'undefined' ? false : uapsd_enabled,
+      schedule_enabled: typeof (schedule_enabled) === 'undefined' ? false : schedule_enabled,
+      schedule: typeof (schedule) === 'undefined' ? {} : schedule
     };
 
     if (typeof (vlan) !== 'undefined' && typeof (vlan_enabled) !== 'undefined') {
@@ -2320,7 +2320,7 @@ const Controller = function (hostname, port) {
    *
    */
   _self.disableWLan = function (sites, wlan_id, disable, cb) {
-    const json = {enabled: disable != true};
+    const json = {enabled: disable !== true};
 
     _self.setWLanSettingsBase(sites, wlan_id, json, sites, cb);
   };
@@ -2369,22 +2369,22 @@ const Controller = function (hostname, port) {
     const json = {_sort: '-time',
       type: null};
 
-    if (typeof (historyhours) !== 'undefined') {
-      json.within = historyhours;
-    } else {
+    if (typeof (historyhours) === 'undefined') {
       json.within = 720;
+    } else {
+      json.within = historyhours;
     }
 
-    if (typeof (start) !== 'undefined') {
-      json._start = start;
-    } else {
+    if (typeof (start) === 'undefined') {
       json._start = 0;
+    } else {
+      json._start = start;
     }
 
-    if (typeof (limit) !== 'undefined') {
-      json._limit = limit;
-    } else {
+    if (typeof (limit) === 'undefined') {
       json._limit = 3000;
+    } else {
+      json._limit = limit;
     }
 
     _self._request('/api/s/<SITE>/stat/event', json, sites, cb);
@@ -2636,7 +2636,7 @@ const Controller = function (hostname, port) {
    * - this function/method is only supported on controller versions 5.5.19 and later
    */
   _self.deleteRadiusAccount = function (sites, account_id, cb) {
-    _self._request('/api/s/<SITE>/rest/account/' + account_id.trim(), json, sites, cb, 'DELETE');
+    _self._request('/api/s/<SITE>/rest/account/' + account_id.trim(), null, sites, cb, 'DELETE');
   };
 
   /**
@@ -2736,7 +2736,6 @@ request to, *must* start with a "/" character
       callback => {
         let reqfunc;
         const reqjson = {url: getbaseurl() + url.replace('<SITE>', proc_sites[count])};
-        let req;
 
         // Identify which request method we are using (GET, POST, PUT, DELETE) based
         // on the json data supplied and the overriding method
@@ -2759,7 +2758,7 @@ request to, *must* start with a "/" character
           reqfunc = request.get;
         }
 
-        req = reqfunc(reqjson, (error, response, body) => {
+        reqfunc(reqjson, (error, response, body) => {
           if (!error && body && response.statusCode >= 200 && response.statusCode < 400 &&
                            (typeof (body) !== 'undefined' && typeof (body.meta) !== 'undefined' && body.meta.rc === 'ok')) {
             results.push(body.data);
@@ -2779,11 +2778,7 @@ request to, *must* start with a "/" character
             results = results[0];
           }
 
-          if (!err) {
-            cb(false, results);
-          } else {
-            cb(err, results);
-          }
+          cb(err ? err : false, results);
         }
       }
     );
