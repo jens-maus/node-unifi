@@ -34,45 +34,23 @@ jobs:
     # docker test
     - name: install+run docker-unifi-controller
       run: |
+        # create docker-unifi-controller
         docker create --name=unifi-controller -e PUID=1001 -e PGID=116 -e MEM_LIMIT=1024M -p 8443:8443 -v $GITHUB_WORKSPACE/unifi-storage:/config linuxserver/unifi-controller
+        # do an initial startup to create databse&co
         docker start unifi-controller
+        # stop the unifi-controller right away and
+        # install our own demo database instead
         docker stop unifi-controller
         rm -rf unifi-storage/data
         tar -C unifi-storage -xf $GITHUB_WORKSPACE/.github/workflows/db-demo-dump.tar.bz2
+        # final unifi-controller startup
         docker start unifi-controller
-        sleep 30
+        # wait for unifi-controller to be ready
+        while ! curl -ks https://127.0.0.1:8443; do echo waiting for unifi-controller; sleep 2; done
 
     #- name: remote debug tmate session
     #  uses: mxschmitt/action-tmate@v1
 
     # run npm tests
-    - name: run npm tests
+    - name: run API tests
       run: npm test
- 
-      ## install required dependencies
-      #- name: install dependencies
-      #  run: |
-      #    sudo apt -qq update || true
-      #    sudo apt install ca-certificates apt-transport-https
-
-      ## install UniFi controller
-      #- name: install UniFi controller using EUS
-      #  run: |
-      #    export TERM=vt100
-      #    sudo $GITHUB_WORKSPACE/.github/workflows/unifi-install.sh --skip --server-ip 127.0.0.1
-
-      ## extract/install demo database
-      #- name: extract/install demo database
-      #  run: |
-      #    tar xf $GITHUB_WORKSPACE/.github/workflows/db-demo-dump.tar.bz2
-      #    sudo mongorestore --port 27117 --drop db-demo-dump
-      #    sudo systemctl stop unifi
-      #    sudo sh -c "echo is_default=false >>/usr/lib/unifi/data/system.properties"
-      #    sudo systemctl start unifi
-
-      # run npm tests
-      #- name: run npm tests
-      #  run: npm test
-
-        #- name: remote debug tmate session
-        #uses: mxschmitt/action-tmate@v1
