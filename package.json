@@ -19,7 +19,6 @@
   "dependencies": {
     "request": "^2.88.2",
     "async": "^3.2.0",
-    "camo-purge": "latest",
     "mocha": "latest",
     "mocha-clean": "latest",
     "should": "latest",
@@ -39,7 +38,7 @@
   ],
   "main": "unifi.js",
   "scripts": {
-    "test": "camo-purge; xo; mocha --colors",
+    "test": "xo; mocha --colors",
     "lint": "xo",
     "lintfix": "xo --fix",
     "snyk-protect": "snyk protect",
