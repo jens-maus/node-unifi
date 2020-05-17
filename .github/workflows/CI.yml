@@ -17,6 +17,11 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
+    # do a matrix test with different node versions
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -25,11 +30,7 @@ jobs:
     # try to perform a nodejs setup
     - uses: actions/setup-node@v1
       with:
-        node-version: '12.x'
-
-    # try to install node-unifi using npm
-    - name: install node-unifi
-      run: npm install
+        node-version: ${{ matrix.node-version }}
 
     # docker test
     - name: install+run docker-unifi-controller
@@ -52,5 +53,10 @@ jobs:
     #  uses: mxschmitt/action-tmate@v1
 
     # run npm tests
-    - name: run API tests
-      run: npm test
+    - name: npm install, build, and test
+      run: |
+        npm install
+        npm run build --if-present
+        npm test
+      env:
+        CI: true
