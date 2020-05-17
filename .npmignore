@@ -5,4 +5,5 @@ node_modules
 .git
 .github
 /node_modules
+/unifi-storage
 test
