@@ -6,7 +6,7 @@
 [![Downloads](https://img.shields.io/npm/dm/node-unifi.svg)](https://www.npmjs.com/package/node-unifi)
 [![License](https://img.shields.io/github/license/jens-maus/node-unifi.svg)](https://github.com/jens-maus/node-unifi/blob/master/LICENSE)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RAQSDY9YNZVCL)
-[![Greenkeeper badge](https://badges.greenkeeper.io/mabunixda/node-unifi.svg)](https://greenkeeper.io/)
+[![Known Vulnerabilities](https://snyk.io/test/github/jens-maus/node-unifi/badge.svg)](https://snyk.io/test/github/jens-maus/node-unifi)
 [![GitHub stars](https://img.shields.io/github/stars/jens-maus/node-unifi.svg?style=social&label=Star)](https://github.com/jens-maus/node-unifi/stargazers/)
 
 [![NPM](https://nodei.co/npm/node-unifi.png?downloads=true)](https://nodei.co/npm/node-unifi/)
