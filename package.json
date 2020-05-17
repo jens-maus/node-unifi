@@ -26,6 +26,7 @@
     "mocha-steps": "latest"
   },
   "devDependencies": {
+    "eslint": ">=4.18.2",
     "pre-commit": "^1.2.2",
     "xo": "^0.18.2"
   },
