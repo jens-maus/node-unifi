@@ -1,5 +1,5 @@
 /* global describe, it */
-/* eslint-disable camelcase */
+/* eslint-disable camelcase, max-nested-callbacks */
 
 const unifi = require('../unifi.js');
 
@@ -29,11 +29,31 @@ describe('Running tests', () => {
         if (err) {
           done(err);
         } else {
-          controller.logout(err => {
+          // GET SITE STATS
+          controller.getSitesStats((err, sites) => {
+            if (typeof (sites) === 'undefined' || sites.length <= 0) {
+              done('ERROR: getSitesStats()');
+            }
             if (err) {
               done(err);
             } else {
-              done();
+              // GET CLIENT DEVICES
+              controller.getClientDevices(sites[0].name, (err, client_data) => {
+                if (typeof (client_data) === 'undefined' || client_data.length < 0) {
+                  done('ERROR: getClientDevices()');
+                }
+                if (err) {
+                  done(err);
+                } else {
+                  controller.logout(err => {
+                    if (err) {
+                      done(err);
+                    } else {
+                      done();
+                    }
+                  });
+                }
+              });
             }
           });
         }

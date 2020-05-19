@@ -101,7 +101,9 @@ const Controller = function (hostname, port) {
         _self._csrfToken = null;
         _self._unifios = false;
       }
-      cb(err, result);
+      if (typeof (cb) === 'function') {
+        cb(err, result);
+      }
     });
   };
 
