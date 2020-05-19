@@ -41,6 +41,8 @@ const Controller = function (hostname, port) {
 
   _self._baseurl = 'https://127.0.0.1:8443';
   _self._unifios = false;
+  _self._csrfToken = null;
+  _self._cookies = null;
 
   // Format a new baseurl based on the arguments
   if (typeof (hostname) !== 'undefined' && typeof (port) !== 'undefined') {
@@ -59,11 +61,21 @@ const Controller = function (hostname, port) {
     async.series([
       function (callback) {
         // We have to use a custom cookie jar for this request - otherwise the login will fail on Unifi
-        const j = request.jar();
-        request({method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: j}, (err, res, body) => {
-          if (!err && body && res.statusCode === 200) {
-            _self._unifios = true;
+        _self._cookies = request.jar();
+        request({method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: _self._cookies}, (err, res, body) => {
+          if (!err) {
+            // If the statusCode is 200 and a x-csrf-token is supplied this is a
+            // UniFiOS device (e.g. UDM-Pro)
+            if (res.statusCode === 200 && typeof (res.headers['x-csrf-token']) !== 'undefined') {
+              console.log('UNIFIOS');
+              _self._unifios = true;
+              _self._csrfToken = res.headers['x-csrf-token'];
+            } else {
+              _self._unifios = false;
+              _self._csrfToken = null;
+            }
           }
+
           return callback(err, body);
         });
       },
@@ -83,7 +95,14 @@ const Controller = function (hostname, port) {
    * returns true upon success
    */
   _self.logout = function (cb) {
-    _self._request(_self._unifios ? '/api/auth/logout' : '/logout', {}, null, cb);
+    _self._request(_self._unifios ? '/api/auth/logout' : '/logout', {}, null, (err, result) => {
+      if (!err) {
+        _self._cookies = null;
+        _self._csrfToken = null;
+        _self._unifios = false;
+      }
+      cb(err, result);
+    });
   };
 
   /**
@@ -2735,7 +2754,17 @@ request to, *must* start with a "/" character
       },
       callback => {
         let reqfunc;
-        const reqjson = {url: getbaseurl() + url.replace('<SITE>', proc_sites[count])};
+        const options = {
+          url: getbaseurl() + url.replace('<SITE>', proc_sites[count]),
+          headers: _self._unifios === true ?
+          {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': _self._csrfToken
+          } : {
+            'Content-Type': 'application/json'
+          },
+          jar: _self._cookies
+        };
 
         // Identify which request method we are using (GET, POST, PUT, DELETE) based
         // on the json data supplied and the overriding method
@@ -2745,7 +2774,7 @@ request to, *must* start with a "/" character
           } else {
             reqfunc = request.post;
           }
-          reqjson.json = json;
+          options.json = json;
         } else if (typeof (method) === 'undefined') {
           reqfunc = request.get;
         } else if (method === 'DELETE') {
@@ -2758,7 +2787,7 @@ request to, *must* start with a "/" character
           reqfunc = request.get;
         }
 
-        reqfunc(reqjson, (error, response, body) => {
+        reqfunc(options, (error, response, body) => {
           if (!error && body && response.statusCode >= 200 && response.statusCode < 400 &&
                            (typeof (body) !== 'undefined' && typeof (body.meta) !== 'undefined' && body.meta.rc === 'ok')) {
             results.push(body.data);
@@ -2786,94 +2815,3 @@ request to, *must* start with a "/" character
 };
 
 exports.Controller = Controller;
-
-/*
- ********************
- * TEST
- ********************
-*/
-/*
-var controller = new Controller("192.168.5.6", 8443);
-
-//////////////////////////////
-// LOGIN
-controller.login("ubnt", "ubnt", function(err) {
-
-  if(err)
-  {
-    console.log('ERROR: ' + err);
-    return;
-  }
-
-  //////////////////////////////
-  // GET SITE STATS
-  controller.getSitesStats(function(err, site_data) {
-    var sites = site_data.map(function(s) { return s.name; });
-
-    console.log('getSitesStats: ' + sites + ' : ' + sites.length);
-    console.log(JSON.stringify(site_data));
-
-    //////////////////////////////
-    // GET SITE SYSINFO
-    controller.getSiteSysinfo(sites, function(err, sysinfo) {
-      console.log('getSiteSysinfo: ' + sysinfo.length);
-      console.log(JSON.stringify(sysinfo));
-
-      //////////////////////////////
-      // GET CLIENT DEVICES
-      controller.getClientDevices(sites, function(err, client_data) {
-        console.log('getClientDevices: ' + client_data[0].length);
-        console.log(JSON.stringify(client_data));
-
-        //////////////////////////////
-        // GET ALL USERS EVER CONNECTED
-        controller.getAllUsers(sites, function(err, users_data) {
-          console.log('getAllUsers: ' + users_data[0].length);
-          console.log(JSON.stringify(users_data));
-
-          //////////////////////////////
-          // GET ALL ACCESS DEVICES
-          controller.getAccessDevices(sites, function(err, access_data) {
-            console.log('getAccessDevices: ' + access_data[0].length);
-            console.log(JSON.stringify(access_data));
-
-            //////////////////////////////
-            // GET ALL SESSIONS
-            controller.getSessions(sites, function(err, session_data) {
-              console.log('getSessions: ' + session_data[0].length);
-              console.log(JSON.stringify(session_data));
-
-              //////////////////////////////
-              // GET ALL AUTHORIZATIONS
-              controller.getAllAuthorizations(sites, function(err, auth_data) {
-                console.log('getAllAuthorizations: ' + auth_data[0].length);
-                console.log(JSON.stringify(auth_data));
-
-                //////////////////////////////
-                // GET USERS
-                controller.getUsers(sites, function(err, user_data) {
-                  console.log('getUsers: ' + user_data[0].length);
-                  console.log(JSON.stringify(user_data));
-
-                  //////////////////////////////
-                  // GET SELF
-                  controller.getSelf(sites, function(err, self_data) {
-                    console.log('getSelf: ' + self_data[0].length);
-                    console.log(JSON.stringify(self_data));
-
-                    //////////////////////////////
-                    // FINALIZE
-
-                    // finalize, logout and finish
-                    controller.logout();
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
-    });
-  });
-});
-*/
