@@ -2238,7 +2238,7 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * optional parameter <wlan_id> = 24 char string; _id value of the wlan to fetch the settings for
    */
-  _self.getWLanSettings = function (sites, wlan_id, cb) {
+  _self.getWLanSettings = function (sites, cb, wlan_id) {
     if (typeof (wlan_id) === 'undefined') {
       wlan_id = '';
     }
