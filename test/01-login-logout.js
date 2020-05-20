@@ -1,6 +1,7 @@
 /* global describe, it */
-/* eslint-disable camelcase, max-nested-callbacks */
+/* eslint-disable camelcase, max-nested-callbacks, import/no-unassigned-import */
 
+require('should');
 const unifi = require('../unifi.js');
 
 let CONTROLLER_IP = '127.0.0.1';
@@ -50,6 +51,25 @@ describe('Running tests', () => {
         done();
       }
     });
+  });
+
+  // AUTHORIZE GUEST
+  it('authorizeGuest()', done => {
+    controller.authorizeGuest(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', 100, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: authorizeGuest()');
+      } else {
+        result[0][0].mac.should.equal('aa:bb:cc:dd:ee:ff');
+        result[0][0].end.should.aboveOrEqual(result[0][0].start + (100 * 60));
+        result[0][0].end.should.belowOrEqual(result[0][0].start + (140 * 60));
+        result[0][0].qos_rate_max_up.should.equal(20);
+        result[0][0].qos_rate_max_down.should.equal(30);
+        result[0][0].qos_usage_quota.should.equal(40);
+        done();
+      }
+    }, 20, 30, 40, 'ff:ee:dd:cc:BB:AA');
   });
 
   // GET SITE SYSINFO
