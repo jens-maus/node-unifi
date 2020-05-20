@@ -1,7 +1,6 @@
 /* eslint-disable max-params, camelcase */
 
 /**
- * eslint-disable max-params
  *
  * UniFi controller class (NodeJS)
  *
@@ -67,7 +66,6 @@ const Controller = function (hostname, port) {
             // If the statusCode is 200 and a x-csrf-token is supplied this is a
             // UniFiOS device (e.g. UDM-Pro)
             if (res.statusCode === 200 && typeof (res.headers['x-csrf-token']) !== 'undefined') {
-              console.log('UNIFIOS');
               _self._unifios = true;
               _self._csrfToken = res.headers['x-csrf-token'];
             } else {
@@ -2739,7 +2737,6 @@ request to, *must* start with a "/" character
     }
 
     let proc_sites;
-
     if (sites === null) {
       proc_sites = [{}];
     } else if (Array.isArray(sites) === false) {
@@ -2757,7 +2754,7 @@ request to, *must* start with a "/" character
       callback => {
         let reqfunc;
         const options = {
-          url: getbaseurl() + url.replace('<SITE>', proc_sites[count]),
+          url: getbaseurl() + url.replace('<SITE>', typeof (proc_sites[count]) === 'string' ? proc_sites[count] : ''),
           headers: _self._unifios === true ?
           {
             'Content-Type': 'application/json',
@@ -2790,14 +2787,16 @@ request to, *must* start with a "/" character
         }
 
         reqfunc(options, (error, response, body) => {
-          if (!error && body && response.statusCode >= 200 && response.statusCode < 400 &&
-                           (typeof (body) !== 'undefined' && typeof (body.meta) !== 'undefined' && body.meta.rc === 'ok')) {
+          if (error) {
+            callback(error);
+          } else if (body && response.statusCode >= 200 && response.statusCode < 400 &&
+                     (typeof (body) !== 'undefined' && typeof (body.meta) !== 'undefined' && body.meta.rc === 'ok')) {
             results.push(body.data);
             callback(null);
           } else if (typeof (body) !== 'undefined' && typeof (body.meta) !== 'undefined' && body.meta.rc === 'error') {
             callback(body.meta.msg);
           } else {
-            callback(error);
+            callback(null);
           }
         });
 
