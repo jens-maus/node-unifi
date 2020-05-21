@@ -169,7 +169,7 @@ describe('Running tests', () => {
         result[0][0].meta.rc.should.equal('ok');
         result[0][0].data[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
         result[0][0].data[0].name.should.equal('createUserTest');
-        result[0][0].data[0].name.should.equal('createUserTest note');
+        result[0][0].data[0].note.should.equal('createUserTest note');
         result[0][0].data[0].should.is_wired(true);
         result[0][0].data[0].should.is_guest(false);
         done();
