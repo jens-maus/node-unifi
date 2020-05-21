@@ -244,7 +244,7 @@ const Controller = function (hostname, port) {
       new_user.is_wired = is_wired;
     }
 
-    _self._request('/api/s/<SITE>/group/user', {objects: {data: new_user}}, sites, cb);
+    _self._request('/api/s/<SITE>/group/user', {objects: [{data: new_user}]}, sites, cb);
   };
 
   /**
