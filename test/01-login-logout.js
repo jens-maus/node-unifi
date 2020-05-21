@@ -72,6 +72,111 @@ describe('Running tests', () => {
     }, 20, 30, 40, 'ff:ee:dd:cc:BB:AA');
   });
 
+  // UN-AUTHORIZE GUEST
+  it('unauthorizeGuest()', done => {
+    controller.unauthorizeGuest(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: unauthorizeGuest()');
+      } else {
+        done();
+      }
+    });
+  });
+
+  // Reconnect a client device
+  it('reconnectClient()', done => {
+    controller.unauthorizeGuest(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: reconnectClient()');
+      } else {
+        done();
+      }
+    });
+  });
+
+  // Block a client device
+  it('blockClient()', done => {
+    controller.blockClient(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: blockClient()');
+      } else {
+        result[0][0].mac.should.equal('aa:bb:cc:dd:ee:ff');
+        result[0][0].blocked.should.equal(true);
+        done();
+      }
+    });
+  });
+
+  // Unblock a client device
+  it('unblockClient()', done => {
+    controller.unblockClient(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: unblockClient()');
+      } else {
+        result[0][0].mac.should.equal('aa:bb:cc:dd:ee:ff');
+        result[0][0].blocked.should.equal(false);
+        done();
+      }
+    });
+  });
+
+  // Forget one or more client devices
+  it('forgetClient()', done => {
+    controller.forgetClient(controller_sites[0].name, ['aa:bb:CC:DD:EE:FF'], (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: forgetClient()');
+      } else {
+        done();
+      }
+    });
+  });
+
+  // List user groups
+  let defaultGroupID = null;
+  it('getUserGroups()', done => {
+    controller.getUserGroups(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getUserGroups()');
+      } else {
+        result[0][0].name.should.equal('Default');
+        result[0][0].attr_no_delete.should.equal(true);
+        defaultGroupID = result[0][0]._id;
+        done();
+      }
+    });
+  });
+
+  // Create a new user/client-device
+  it('createUser()', done => {
+    controller.createUser(controller_sites[0].name, 'FF:EE:DD:CC:bb:aa', defaultGroupID, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: createUser()');
+      } else {
+        result[0][0].meta.rc.should.equal('ok');
+        result[0][0].data[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
+        result[0][0].data[0].name.should.equal('createUserTest');
+        result[0][0].data[0].name.should.equal('createUserTest note');
+        result[0][0].data[0].should.is_wired(true);
+        result[0][0].data[0].should.is_guest(false);
+        done();
+      }
+    }, 'createUserTest', 'createUserTest note', true, false);
+  });
+
   // GET SITE SYSINFO
   it('getSiteSysinfo()', done => {
     controller.getSiteSysinfo(controller_sites[0].name, (err, sysinfo) => {
@@ -152,7 +257,7 @@ describe('Running tests', () => {
 
   // GET USERS
   it('getUsers()', done => {
-    controller.getAllAuthorizations(controller_sites[0].name, (err, user_data) => {
+    controller.getUsers(controller_sites[0].name, (err, user_data) => {
       if (err) {
         done(err);
       } else if (typeof (user_data) === 'undefined' || user_data.length < 0) {
