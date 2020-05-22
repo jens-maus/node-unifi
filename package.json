@@ -28,7 +28,7 @@
     "mocha": "latest",
     "mocha-clean": "latest",
     "mocha-steps": "latest",
-    "snyk": "^1.321.0"
+    "snyk": "^1.323.1"
   },
   "xo": {
     "space": 2
