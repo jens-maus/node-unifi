@@ -69,7 +69,7 @@ describe('Running tests', () => {
         result[0][0].qos_usage_quota.should.equal(40);
         done();
       }
-    }, 20, 30, 40, 'ff:ee:dd:cc:BB:AA');
+    }, 20, 30, 40, 'aa:bb:cc:dd:ee:fa');
   });
 
   // UN-AUTHORIZE GUEST
@@ -128,19 +128,6 @@ describe('Running tests', () => {
     });
   });
 
-  // Forget one or more client devices
-  it('forgetClient()', done => {
-    controller.forgetClient(controller_sites[0].name, ['aa:bb:CC:DD:EE:FF'], (err, result) => {
-      if (err) {
-        done(err);
-      } else if (typeof (result) === 'undefined') {
-        done('ERROR: forgetClient()');
-      } else {
-        done();
-      }
-    });
-  });
-
   // List user groups
   let defaultGroupID = null;
   it('getUserGroups()', done => {
@@ -159,22 +146,57 @@ describe('Running tests', () => {
   });
 
   // Create a new user/client-device
+  let createdUserID = null;
   it('createUser()', done => {
     controller.createUser(controller_sites[0].name, 'FF:EE:DD:CC:bb:aa', defaultGroupID, (err, result) => {
       if (err) {
         done(err);
       } else if (typeof (result) === 'undefined') {
         done('ERROR: createUser()');
-      } else {
+      } else if (typeof (result[0][0].meta.msg) === 'undefined') {
         result[0][0].meta.rc.should.equal('ok');
         result[0][0].data[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
         result[0][0].data[0].name.should.equal('createUserTest');
         result[0][0].data[0].note.should.equal('createUserTest note');
         result[0][0].data[0].is_wired.should.equal(true);
         result[0][0].data[0].is_guest.should.equal(false);
+        createdUserID = result[0][0].data[0]._id;
         done();
+      } else {
+        done(result[0][0].meta.msg);
       }
     }, 'createUserTest', 'createUserTest note', true, false);
+  });
+
+  // Add/modify/remove a client device not
+  it('setClientNote()', done => {
+    controller.setClientNote(controller_sites[0].name, createdUserID, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: createUser()');
+      } else {
+        console.log(result);
+        result[0][0].note.should.equal('createUserTest note changed');
+        result[0][0].name.should.equal('createUserTest');
+        result[0][0].data[0].is_wired.should.equal(true);
+        result[0][0].data[0].is_guest.should.equal(false);
+        done();
+      }
+    }, 'createUserTest note changed');
+  });
+
+  // Forget one or more client devices
+  it('forgetClient()', done => {
+    controller.forgetClient(controller_sites[0].name, ['aa:bb:cc:dd:ee:ff', 'FF:EE:DD:CC:bb:aa'], (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: forgetClient()');
+      } else {
+        done();
+      }
+    });
   });
 
   // GET SITE SYSINFO
