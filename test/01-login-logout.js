@@ -174,9 +174,8 @@ describe('Running tests', () => {
       if (err) {
         done(err);
       } else if (typeof (result) === 'undefined') {
-        done('ERROR: createUser()');
+        done('ERROR: setClientNote()');
       } else {
-        console.log(result);
         result[0][0].note.should.equal('createUserTest note changed');
         result[0][0].name.should.equal('createUserTest');
         result[0][0].mac.should.equal('ff:ee:dd:cc:bb:aa');
@@ -185,6 +184,206 @@ describe('Running tests', () => {
         done();
       }
     }, 'createUserTest note changed');
+  });
+
+  // Add/modify/remove a client device not
+  it('setClientName()', done => {
+    controller.setClientName(controller_sites[0].name, createdUserID, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: setClientName()');
+      } else {
+        result[0][0].note.should.equal('createUserTest note changed');
+        result[0][0].name.should.equal('createUserTest changed');
+        result[0][0].mac.should.equal('ff:ee:dd:cc:bb:aa');
+        result[0][0].is_wired.should.equal(true);
+        result[0][0].is_guest.should.equal(false);
+        done();
+      }
+    }, 'createUserTest changed');
+  });
+
+  // 5 minutes site stats method
+  it('get5minSiteStats()', done => {
+    controller.get5minSiteStats(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: get5minSiteStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Hourly site stats method
+  it('getHourlySiteStats()', done => {
+    controller.getHourlySiteStats(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getHourlySiteStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Daily site stats method
+  it('getDailySiteStats()', done => {
+    controller.getDailySiteStats(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getDailySiteStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // 5 minutes stats method for a single access point or all access points
+  it('get5minApStats()', done => {
+    controller.get5minApStats(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: get5minApStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Hourly stats method for a single access point or all access points
+  it('getHourlyApStats()', done => {
+    controller.getHourlyApStats(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getHourlyApStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Daily stats method for a single access point or all access points
+  it('getDailyApStats()', done => {
+    controller.getDailyApStats(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getDailyApStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // 5 minutes stats method for a single user/client device
+  it('get5minUserStats()', done => {
+    controller.get5minUserStats(controller_sites[0].name, 'ff:ee:dd:cc:bb:aa', (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: get5minUserStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Hourly stats method for a a single user/client device
+  it('getHourlyUserStats()', done => {
+    controller.getHourlyUserStats(controller_sites[0].name, 'ff:ee:dd:cc:bb:aa', (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getHourlyUserStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Daily stats method for a single user/client device
+  it('getDailyUserStats()', done => {
+    controller.getDailyUserStats(controller_sites[0].name, 'ff:ee:dd:cc:bb:aa', (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getDailyUserStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // 5 minutes gateway stats method
+  it('get5minGatewayStats()', done => {
+    controller.get5minGatewayStats(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: get5minGatewayStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Hourly gateway stats method
+  it('getHourlyGatewayStats()', done => {
+    controller.getHourlyGatewayStats(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getHourlyGatewayStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Daily gateway stats method
+  it('getDailyGatewayStats()', done => {
+    controller.getDailyGatewayStats(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getDailyGatewayStats()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Method to fetch speed test results
+  it('getSpeedTestResults()', done => {
+    controller.getSpeedTestResults(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined') {
+        done('ERROR: getSpeedTestResults()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
   });
 
   // Forget one or more client devices
