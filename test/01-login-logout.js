@@ -58,7 +58,7 @@ describe('Running tests', () => {
     controller.authorizeGuest(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', 100, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: authorizeGuest()');
       } else {
         result[0][0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -77,7 +77,7 @@ describe('Running tests', () => {
     controller.unauthorizeGuest(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: unauthorizeGuest()');
       } else {
         done();
@@ -90,7 +90,7 @@ describe('Running tests', () => {
     controller.unauthorizeGuest(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: reconnectClient()');
       } else {
         done();
@@ -103,7 +103,7 @@ describe('Running tests', () => {
     controller.blockClient(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: blockClient()');
       } else {
         result[0][0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -118,7 +118,7 @@ describe('Running tests', () => {
     controller.unblockClient(controller_sites[0].name, 'aa:bb:CC:DD:EE:FF', (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: unblockClient()');
       } else {
         result[0][0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -134,7 +134,7 @@ describe('Running tests', () => {
     controller.getUserGroups(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getUserGroups()');
       } else {
         result[0][0].name.should.equal('Default');
@@ -151,7 +151,7 @@ describe('Running tests', () => {
     controller.createUser(controller_sites[0].name, 'FF:EE:DD:CC:bb:aa', defaultGroupID, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: createUser()');
       } else if (typeof (result[0][0].meta.msg) === 'undefined') {
         result[0][0].meta.rc.should.equal('ok');
@@ -173,7 +173,7 @@ describe('Running tests', () => {
     controller.setClientNote(controller_sites[0].name, createdUserID, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: setClientNote()');
       } else {
         result[0][0].note.should.equal('createUserTest note changed');
@@ -191,7 +191,7 @@ describe('Running tests', () => {
     controller.setClientName(controller_sites[0].name, createdUserID, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: setClientName()');
       } else {
         result[0][0].note.should.equal('createUserTest note changed');
@@ -209,7 +209,7 @@ describe('Running tests', () => {
     controller.get5minSiteStats(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: get5minSiteStats()');
       } else {
         console.log(result);
@@ -223,7 +223,7 @@ describe('Running tests', () => {
     controller.getHourlySiteStats(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getHourlySiteStats()');
       } else {
         console.log(result);
@@ -237,7 +237,7 @@ describe('Running tests', () => {
     controller.getDailySiteStats(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getDailySiteStats()');
       } else {
         console.log(result);
@@ -251,7 +251,7 @@ describe('Running tests', () => {
     controller.get5minApStats(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: get5minApStats()');
       } else {
         console.log(result);
@@ -265,7 +265,7 @@ describe('Running tests', () => {
     controller.getHourlyApStats(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getHourlyApStats()');
       } else {
         console.log(result);
@@ -279,7 +279,7 @@ describe('Running tests', () => {
     controller.getDailyApStats(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getDailyApStats()');
       } else {
         console.log(result);
@@ -293,7 +293,7 @@ describe('Running tests', () => {
     controller.get5minUserStats(controller_sites[0].name, 'ff:ee:dd:cc:bb:aa', (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: get5minUserStats()');
       } else {
         console.log(result);
@@ -307,7 +307,7 @@ describe('Running tests', () => {
     controller.getHourlyUserStats(controller_sites[0].name, 'ff:ee:dd:cc:bb:aa', (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getHourlyUserStats()');
       } else {
         console.log(result);
@@ -321,7 +321,7 @@ describe('Running tests', () => {
     controller.getDailyUserStats(controller_sites[0].name, 'ff:ee:dd:cc:bb:aa', (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getDailyUserStats()');
       } else {
         console.log(result);
@@ -335,7 +335,7 @@ describe('Running tests', () => {
     controller.get5minGatewayStats(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: get5minGatewayStats()');
       } else {
         console.log(result);
@@ -349,7 +349,7 @@ describe('Running tests', () => {
     controller.getHourlyGatewayStats(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getHourlyGatewayStats()');
       } else {
         console.log(result);
@@ -363,7 +363,7 @@ describe('Running tests', () => {
     controller.getDailyGatewayStats(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getDailyGatewayStats()');
       } else {
         console.log(result);
@@ -377,8 +377,64 @@ describe('Running tests', () => {
     controller.getSpeedTestResults(controller_sites[0].name, (err, result) => {
       if (err) {
         done(err);
-      } else if (typeof (result) === 'undefined') {
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getSpeedTestResults()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Method to fetch IPS/IDS event
+  it('getIPSEvents()', done => {
+    controller.getIPSEvents(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
+        done('ERROR: getIPSEvents()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Show all login sessions
+  it('getSessions()', done => {
+    controller.getSessions(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
+        done('ERROR: getSessions()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Show latest 'n' login sessions for a single client device
+  it('getLatestSessions()', done => {
+    controller.getLatestSessions(controller_sites[0].name, 'ff:ee:dd:cc:bb:aa', (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
+        done('ERROR: getLatestSessions()');
+      } else {
+        console.log(result);
+        done();
+      }
+    });
+  });
+
+  // Show all authorizations
+  it('getAllAuthorizations()', done => {
+    controller.getAllAuthorizations(controller_sites[0].name, (err, result) => {
+      if (err) {
+        done(err);
+      } else if (typeof (result) === 'undefined' || result.length < 0) {
+        done('ERROR: getAllAuthorizations()');
       } else {
         console.log(result);
         done();
