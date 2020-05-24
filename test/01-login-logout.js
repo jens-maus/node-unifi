@@ -422,7 +422,7 @@ describe('Running tests', () => {
       } else if (typeof (result) === 'undefined' || result.length < 0) {
         done('ERROR: getLatestSessions()');
       } else {
-        console.log(result);
+        result[0][0].mac.should.equal('aa:bb:cc:dd:ee:ff');
         done();
       }
     });
