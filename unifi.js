@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.52
+ * Based/Compatible to UniFi-API-client class: v1.1.56
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -781,7 +781,7 @@ const Controller = function (hostname, port) {
 
   /**
    * Method to fetch IPS/IDS event - stat_ips_events
-   * ----------------------------------
+   * -----------------------------
    * returns an array of IPS/IDS event objects
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
@@ -1164,11 +1164,25 @@ const Controller = function (hostname, port) {
 
   /**
    * List firewall rules (using REST) - list_firewallrules()
-   * ----------------------------------
+   * --------------------------------
    * returns an array containing the current firewall rules on success
    */
   _self.getFirewallRules = function (sites, cb) {
     _self._request('/api/s/<SITE>/rest/firewallrule', null, sites, cb);
+  };
+
+  /**
+   * List static routing settings (using REST) - list_routing()
+   * -----------------------------------------
+   * returns an array of static routes and their settings
+   * optional parameter <route_id> = string; _id value of the static route to get settings for
+   */
+  _self.getRouting = function (sites, cb, route_id) {
+    if (typeof (route_id) === 'undefined') {
+      route_id = '';
+    }
+
+    _self._request('/api/s/<SITE>/rest/routing/' + route_id.trim(), null, sites, cb);
   };
 
   /**
@@ -2497,6 +2511,21 @@ const Controller = function (hostname, port) {
    */
   _self.cancelRollingUpgrade = function (sites, cb) {
     _self._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'unset-rollupgrade'}, sites, cb);
+  };
+
+  /**
+   * List firmware versions - list_firmware()
+   * ----------------------
+   * returns an array of firmware versions
+   * optional parameter <type> = string; "available" or "cached", determines which firmware types to return
+   */
+  _self.getFirmware = function (sites, cb, type) {
+    const payload = { };
+    if (typeof (type) === 'undefined') {
+      payload.cmd = 'available';
+    }
+
+    _self._request('/api/s/<SITE>/cmd/firmware', payload, sites, cb);
   };
 
   /**
