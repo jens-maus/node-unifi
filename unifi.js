@@ -2434,6 +2434,16 @@ const Controller = function (hostname, port) {
   };
 
   /**
+   * List alarms not archived - list_alarms()
+   * -----------
+   *
+   * required paramater <sites>   = name or array of site names
+   */
+  _self.getAlarmsNotArchived = function (sites, cb) {
+    _self._request('/api/s/<SITE>/list/alarm?archived=false', null, sites, cb);
+  };	
+	
+  /**
    * Count alarms - count_alarms()
    * ------------
    * returns an array containing the alarm count
