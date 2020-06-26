@@ -2428,9 +2428,10 @@ const Controller = function (hostname, port) {
    * -----------
    *
    * required paramater <sites>   = name or array of site names
+   * optional parameter <archived> = boolean; if true all alarms will be listed, if false only non-archived (active) alarms will be listed
    */
-  _self.getAlarms = function (sites, cb) {
-    _self._request('/api/s/<SITE>/list/alarm', null, sites, cb);
+  _self.getAlarms = function (sites, cb, archived) {
+    _self._request('/api/s/<SITE>/list/alarm' + archived === false ? '?archived=false' : '', null, sites, cb);
   };
 
   /**
@@ -2440,7 +2441,7 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * optional parameter <archived> = boolean; if true all alarms will be counted, if false only non-archived (active) alarms will be counted
    */
-  _self.getAlarms = function (sites, cb, archived) {
+  _self.countAlarms = function (sites, cb, archived) {
     _self._request('/api/s/<SITE>/cnt/alarm' + archived === false ? '?archived=false' : '', null, sites, cb);
   };
 
