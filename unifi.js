@@ -2560,6 +2560,24 @@ const Controller = function (hostname, port) {
   };
 
   /**
+   * Trigger a speedtest on a USG
+   * ----------------------------
+   * return true on success
+   */
+  _self.runSpeedTest = function (sites, cb) {
+    _self._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'speedtest'}, sites, cb);
+  };
+
+  /**
+   * Get the current state of a running speedtest on a USG
+   * -----------------------------------------------------
+   * returns status of speedtest
+   */
+  _self.getSpeedTestStatus = function (sites, cb) {
+    _self._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'speedtest-status'}, sites, cb);
+  };
+
+  /**
    * Check the RF scanning state of an AP - spectrum_scan_state()
    * ------------------------------------
    * returns an object with relevant information (results if available) regarding the RF scanning state of the AP
