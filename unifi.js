@@ -1274,8 +1274,8 @@ const Controller = function (hostname, port) {
   };
 
   /**
-   * Generate backup
-   * ---------------------------
+   * Generate backup - generate_backup()
+   * ---------------
    * returns a URL from where the backup file can be downloaded once generated
    *
    * NOTES:
@@ -1293,6 +1293,16 @@ const Controller = function (hostname, port) {
    */
   _self.getBackups = function (sites, cb) {
     _self._request('/api/s/<SITE>/cmd/backup', {cmd: 'list-backups'}, sites, cb);
+  };
+
+  /**
+   * Delete a backup file
+   * --------------------
+   * return true on success
+   * required parameter <filename> = string; filename of backup to delete
+   */
+  _self.deleteBackup = function (sites, filename, cb) {
+    _self._request('/api/s/<SITE>/cmd/backup', {cmd: 'delete-backup', filename: filename}, sites, cb);
   };
 
   /**
@@ -2717,17 +2727,6 @@ const Controller = function (hostname, port) {
     const json = {cmd: command.trim()};
 
     _self._request('/api/s/<SITE>/cmd/stat', json, sites, cb);
-  };
-
-  /**
-   * Create backup (5.4.9+)
-   * -------------
-   *
-   * required paramater <sites>   = name or array of site names
-   *
-   */
-  _self.createBackup = function (sites, cb) {
-    _self._request('/api/s/<SITE>/cmd/backup', {cmd: 'backup'}, sites, cb);
   };
 
   /**
