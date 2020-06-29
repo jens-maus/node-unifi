@@ -1302,7 +1302,7 @@ const Controller = function (hostname, port) {
    * required parameter <filename> = string; filename of backup to delete
    */
   _self.deleteBackup = function (sites, filename, cb) {
-    _self._request('/api/s/<SITE>/cmd/backup', {cmd: 'delete-backup', filename: filename}, sites, cb);
+    _self._request('/api/s/<SITE>/cmd/backup', {cmd: 'delete-backup', filename}, sites, cb);
   };
 
   /**
