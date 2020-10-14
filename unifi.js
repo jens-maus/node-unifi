@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.56
+ * Based/Compatible to UniFi-API-client class: v1.1.57
  *
  * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
  *
@@ -604,6 +604,8 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - defaults to the past 7*24 hours
    * - only supported with UniFi controller versions 5.8.X and higher
+   * - make sure that the retention policy for daily stats is set to the correct value in
+   *   the controller settings
    * - make sure that "Clients Historical Data" has been enabled in the UniFi controller settings in the Maintenance section
    */
   _self.getDailyUserStats = function (sites, mac, cb, start, end, attribs) {
@@ -1897,6 +1899,29 @@ const Controller = function (hostname, port) {
   };
 
   /**
+   * Create dynamic DNS settings, base (using REST) - create_dynamicdns()
+   * ----------------------------------------------
+   * return true on success
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the site, must be a
+   *                                (partial) object/array structured in the same manner as is returned by list_dynamicdns() for the site.
+   */
+  _self.createDynamicDNS = function (sites, payload, cb) {
+    _self._request('/api/s/<SITE>/rest/dynamicdns', payload, sites, cb);
+  };
+
+  /**
+   * Update site dynamic DNS, base (using REST) - set_dynamicdns
+   * ------------------------------------------
+   * return true on success
+   * required parameter <dynamicdns_id> = 24 char string; _id of the settings which can be found with the list_dynamicdns() function
+   * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the site, must be a
+   *                                (partial) object/array structured in the same manner as is returned by list_dynamicdns() for the site.
+   */
+  _self.setDynamicDNS = function (sites, dynamicdns_id, payload, cb) {
+    _self._request('/api/s/<SITE>/rest/dynamicdns/' + dynamicdns_id.trim(), payload, sites, cb);
+  };
+
+  /**
    * List port configurations - list_portconf()
    * ------------------------
    * returns an array of port configurations
@@ -2736,6 +2761,18 @@ const Controller = function (hostname, port) {
     const json = {cmd: command.trim()};
 
     _self._request('/api/s/<SITE>/cmd/stat', json, sites, cb);
+  };
+
+  /**
+   * Toggle Element Adoption ON or OFF - set_element_adoption()
+   * ---------------------------------
+   * return true on success
+   * required parameter <enable> = boolean; true will enable Element Adoption, false will disable Element Adoption
+   */
+  _self.setElementAdoption = function (sites, enable, cb) {
+    const payload = {enabled: enable};
+
+    _self._request('/api/s/<SITE>/set/setting/element_adopt', payload, sites, cb);
   };
 
   /**
