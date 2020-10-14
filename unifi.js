@@ -61,13 +61,13 @@ const Controller = function (hostname, port) {
       function (callback) {
         // We have to use a custom cookie jar for this request - otherwise the login will fail on Unifi
         _self._cookies = request.jar();
-        request({method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: _self._cookies}, (err, res, body) => {
+        request({method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: _self._cookies}, (err, response, body) => {
           if (!err) {
             // If the statusCode is 200 and a x-csrf-token is supplied this is a
             // UniFiOS device (e.g. UDM-Pro)
-            if (res.statusCode === 200 && typeof (res.headers['x-csrf-token']) !== 'undefined') {
+            if (response.statusCode === 200 && typeof (response.headers['x-csrf-token']) !== 'undefined') {
               _self._unifios = true;
-              _self._csrfToken = res.headers['x-csrf-token'];
+              _self._csrfToken = response.headers['x-csrf-token'];
             } else {
               _self._unifios = false;
               _self._csrfToken = null;
@@ -99,6 +99,7 @@ const Controller = function (hostname, port) {
         _self._csrfToken = null;
         _self._unifios = false;
       }
+
       if (typeof (cb) === 'function') {
         cb(err, result);
       }
@@ -123,18 +124,22 @@ const Controller = function (hostname, port) {
     if (typeof (minutes) !== 'undefined') {
       json.minutes = minutes;
     }
+
     /**
      * If we have received values for up/down/MBytes/ap_mac we append them to the payload array to be submitted
      */
     if (typeof (up) !== 'undefined') {
       json.up = up;
     }
+
     if (typeof (down) !== 'undefined') {
       json.down = down;
     }
+
     if (typeof (mbytes) !== 'undefined') {
       json.bytes = mbytes;
     }
+
     if (typeof (ap_mac) !== 'undefined') {
       json.ap_mac = ap_mac.toLowerCase();
     }
@@ -318,8 +323,8 @@ const Controller = function (hostname, port) {
       'lan-num_sta',
       'wlan-num_sta',
       'time'],
-      start,
-      end};
+    start,
+    end};
 
     _self._request('/api/s/<SITE>/stat/report/5minutes.site', json, sites, cb);
   };
@@ -353,8 +358,8 @@ const Controller = function (hostname, port) {
       'lan-num_sta',
       'wlan-num_sta',
       'time'],
-      start,
-      end};
+    start,
+    end};
 
     _self._request('/api/s/<SITE>/stat/report/hourly.site', json, sites, cb);
   };
@@ -388,8 +393,8 @@ const Controller = function (hostname, port) {
       'lan-num_sta',
       'wlan-num_sta',
       'time'],
-      start,
-      end};
+    start,
+    end};
 
     _self._request('/api/s/<SITE>/stat/report/daily.site', json, sites, cb);
   };
@@ -421,8 +426,8 @@ const Controller = function (hostname, port) {
     const json = {attrs: ['bytes',
       'num_sta',
       'time'],
-      start,
-      end};
+    start,
+    end};
 
     if (typeof (mac) !== 'undefined') {
       json.mac = mac.toLowerCase();
@@ -456,8 +461,8 @@ const Controller = function (hostname, port) {
     const json = {attrs: ['bytes',
       'num_sta',
       'time'],
-      start,
-      end};
+    start,
+    end};
 
     if (typeof (mac) !== 'undefined') {
       json.mac = mac.toLowerCase();
@@ -491,8 +496,8 @@ const Controller = function (hostname, port) {
     const json = {attrs: ['bytes',
       'num_sta',
       'time'],
-      start,
-      end};
+    start,
+    end};
 
     if (typeof (mac) !== 'undefined') {
       json.mac = mac.toLowerCase();
@@ -773,8 +778,8 @@ const Controller = function (hostname, port) {
       'xput_upload',
       'latency',
       'time'],
-      start,
-      end};
+    start,
+    end};
 
     _self._request('/api/s/<SITE>/stat/report/archive.speedtest', json, sites, cb);
   };
@@ -1044,7 +1049,7 @@ const Controller = function (hostname, port) {
    *
    */
   _self.createUserGroup = function (sites, group_name, cb,
-                                   group_dn, group_up) {
+    group_dn, group_up) {
     const json = {name: group_name,
       qos_rate_max_down: typeof (group_dn) === 'undefined' ? -1 : group_dn,
       qos_rate_max_up: typeof (group_up) === 'undefined' ? -1 : group_up};
@@ -1066,7 +1071,7 @@ const Controller = function (hostname, port) {
    *
    */
   _self.editUserGroup = function (sites, group_id, site_id, group_name, cb,
-                                 group_dn, group_up) {
+    group_dn, group_up) {
     const json = {_id: group_id,
       site_id,
       name: group_name,
@@ -1741,6 +1746,7 @@ const Controller = function (hostname, port) {
     if (typeof (count) === 'undefined') {
       count = 1;
     }
+
     if (typeof (quota) === 'undefined') {
       quota = 0;
     }
@@ -1753,12 +1759,15 @@ const Controller = function (hostname, port) {
     if (typeof (note) !== 'undefined') {
       json.note = note;
     }
+
     if (typeof (up) !== 'undefined') {
       json.up = up;
     }
+
     if (typeof (down) !== 'undefined') {
       json.down = down;
     }
+
     if (typeof (mbytes) !== 'undefined') {
       json.bytes = mbytes;
     }
@@ -2290,7 +2299,7 @@ const Controller = function (hostname, port) {
    * optional parameter <schedule>         = string; schedule rules
    */
   _self.createWLan = function (sites, name, x_passphrase, usergroup_id, wlangroup_id, cb,
-                              enabled, hide_ssid, is_guest, security, wpa_mode, wpa_enc, vlan_enabled, vlan, uapsd_enabled, schedule_enabled, schedule) {
+    enabled, hide_ssid, is_guest, security, wpa_mode, wpa_enc, vlan_enabled, vlan, uapsd_enabled, schedule_enabled, schedule) {
     const json = {name,
       usergroup_id,
       wlangroup_id,
@@ -2777,9 +2786,10 @@ request to, *must* start with a "/" character
    */
   _self._request = function (url, json, sites, cb, method) {
     function getbaseurl() {
-      if (_self._unifios === false || url.indexOf('login') > -1 || url.indexOf('logout') > -1) {
+      if (_self._unifios === false || url.includes('login') || url.includes('logout')) {
         return _self._baseurl;
       }
+
       return _self._baseurl + '/proxy/network';
     }
 
@@ -2803,12 +2813,12 @@ request to, *must* start with a "/" character
         const options = {
           url: getbaseurl() + url.replace('<SITE>', typeof (proc_sites[count]) === 'string' ? proc_sites[count] : ''),
           headers: _self._unifios === true ?
-          {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': _self._csrfToken
-          } : {
-            'Content-Type': 'application/json'
-          },
+            {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': _self._csrfToken
+            } : {
+              'Content-Type': 'application/json'
+            },
           jar: _self._cookies
         };
 
@@ -2820,6 +2830,7 @@ request to, *must* start with a "/" character
           } else {
             reqfunc = request.post;
           }
+
           options.json = json;
         } else if (typeof (method) === 'undefined') {
           reqfunc = request.get;
