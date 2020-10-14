@@ -11,15 +11,15 @@
 
 [![NPM](https://nodei.co/npm/node-unifi.png?downloads=true)](https://nodei.co/npm/node-unifi/)
 
-Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the latest UniFi-Controller API version starting with v4.x.x/v5.x.x.
+Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the UniFi-Controller API version starting with v4.x.x up to v6.x.x
 
 ## Features
-* Supports all UniFi-Controller API features introduced with v4.x.x and v5.x.x.
+* Supports all UniFi-Controller API features introduced with v4.x.x, v5.x.x or v6.x.x
 * Supports CloudKey Gen1, CloudKey Gen2, UnifiOS-based UDM-Pro Controller as well as self-hostd UniFi Controller Software.
 * Returns all data in JSON parsable strings/objects.
 
 ## Requirements
-* Installed [UniFi-Controller](https://www.ubnt.com/download/unifi) version v4 or v5, CloudKey Gen1, Gen2 or UDM-Pro.
+* Installed [UniFi-Controller](https://www.ubnt.com/download/unifi) version v4, v5 or v6, CloudKey Gen1, Gen2 or UDM-Pro.
 * Working UniFi-device environment
 
 ## Installation
