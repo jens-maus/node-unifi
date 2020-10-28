@@ -533,13 +533,9 @@ const Controller = function (hostname, port) {
       start = end - (12 * 3600 * 1000);
     }
 
-    if (typeof (attribs) === 'undefined') {
-      attribs = ['time',
-        'rx_bytes',
-        'tx_bytes'];
-    } else {
-      attribs = ['time'].concat(attribs);
-    }
+    attribs = typeof (attribs) === 'undefined' ? ['time',
+      'rx_bytes',
+      'tx_bytes'] : ['time'].concat(attribs);
 
     const json = {attrs: attribs,
       start,
@@ -574,13 +570,9 @@ const Controller = function (hostname, port) {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    if (typeof (attribs) === 'undefined') {
-      attribs = ['time',
-        'rx_bytes',
-        'tx_bytes'];
-    } else {
-      attribs = ['time'].concat(attribs);
-    }
+    attribs = typeof (attribs) === 'undefined' ? ['time',
+      'rx_bytes',
+      'tx_bytes'] : ['time'].concat(attribs);
 
     const json = {attrs: attribs,
       start,
@@ -617,13 +609,9 @@ const Controller = function (hostname, port) {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    if (typeof (attribs) === 'undefined') {
-      attribs = ['time',
-        'rx_bytes',
-        'tx_bytes'];
-    } else {
-      attribs = ['time'].concat(attribs);
-    }
+    attribs = typeof (attribs) === 'undefined' ? ['time',
+      'rx_bytes',
+      'tx_bytes'] : ['time'].concat(attribs);
 
     const json = {attrs: attribs,
       start,
@@ -660,14 +648,10 @@ const Controller = function (hostname, port) {
       start = end - (12 * 3600 * 1000);
     }
 
-    if (typeof (attribs) === 'undefined') {
-      attribs = ['time',
-        'mem',
-        'cpu',
-        'loadavg_5'];
-    } else {
-      attribs = ['time'].concat(attribs);
-    }
+    attribs = typeof (attribs) === 'undefined' ? ['time',
+      'mem',
+      'cpu',
+      'loadavg_5'] : ['time'].concat(attribs);
 
     const json = {attrs: attribs,
       start,
@@ -700,14 +684,10 @@ const Controller = function (hostname, port) {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    if (typeof (attribs) === 'undefined') {
-      attribs = ['time',
-        'mem',
-        'cpu',
-        'loadavg_5'];
-    } else {
-      attribs = ['time'].concat(attribs);
-    }
+    attribs = typeof (attribs) === 'undefined' ? ['time',
+      'mem',
+      'cpu',
+      'loadavg_5'] : ['time'].concat(attribs);
 
     const json = {attrs: attribs,
       start,
@@ -740,14 +720,10 @@ const Controller = function (hostname, port) {
       start = end - (52 * 7 * 24 * 3600 * 1000);
     }
 
-    if (typeof (attribs) === 'undefined') {
-      attribs = ['time',
-        'mem',
-        'cpu',
-        'loadavg_5'];
-    } else {
-      attribs = ['time'].concat(attribs);
-    }
+    attribs = typeof (attribs) === 'undefined' ? ['time',
+      'mem',
+      'cpu',
+      'loadavg_5'] : ['time'].concat(attribs);
 
     const json = {attrs: attribs,
       start,
@@ -1691,11 +1667,7 @@ const Controller = function (hostname, port) {
    * returns an array of hotspot payments
    */
   _self.getPayments = function (sites, cb, within) {
-    if (typeof (within) === 'undefined') {
-      within = '';
-    } else {
-      within = '?within=' + within.trim();
-    }
+    within = typeof (within) === 'undefined' ? '' : '?within=' + within.trim();
 
     _self._request('/api/s/<SITE>/stat/payment' + within, null, sites, cb);
   };
@@ -2862,11 +2834,7 @@ request to, *must* start with a "/" character
         // Identify which request method we are using (GET, POST, PUT, DELETE) based
         // on the json data supplied and the overriding method
         if (json !== null) {
-          if (method === 'PUT') {
-            reqfunc = request.put;
-          } else {
-            reqfunc = request.post;
-          }
+          reqfunc = method === 'PUT' ? request.put : request.post;
 
           options.json = json;
         } else if (typeof (method) === 'undefined') {
