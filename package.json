@@ -29,7 +29,7 @@
     "mocha-clean": "latest",
     "mocha-steps": "latest",
     "dot-prop": ">=6.0.0",
-    "snyk": "^1.420.1"
+    "snyk": "^1.434.2"
   },
   "xo": {
     "space": 2
