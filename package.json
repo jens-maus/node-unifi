@@ -23,7 +23,7 @@
   "devDependencies": {
     "eslint": ">=7.16.0",
     "pre-commit": "^1.2.2",
-    "xo": "^0.36.1",
+    "xo": "^0.37.1",
     "should": "latest",
     "mocha": "latest",
     "mocha-clean": "latest",
