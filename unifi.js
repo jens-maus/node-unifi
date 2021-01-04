@@ -61,8 +61,8 @@ const Controller = function (hostname, port) {
       function (callback) {
         // We have to use a custom cookie jar for this request - otherwise the login will fail on Unifi
         _self._cookies = request.jar();
-        request({method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: _self._cookies}, (err, response, body) => {
-          if (!err) {
+        request({method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: _self._cookies}, (error, response, body) => {
+          if (!error) {
             // If the statusCode is 200 and a x-csrf-token is supplied this is a
             // UniFiOS device (e.g. UDM-Pro)
             if (response.statusCode === 200 && typeof (response.headers['x-csrf-token']) !== 'undefined') {
@@ -74,7 +74,7 @@ const Controller = function (hostname, port) {
             }
           }
 
-          return callback(err, body);
+          return callback(error, body);
         });
       },
       function () {
@@ -93,15 +93,15 @@ const Controller = function (hostname, port) {
    * returns true upon success
    */
   _self.logout = function (cb) {
-    _self._request(_self._unifios ? '/api/auth/logout' : '/logout', {}, null, (err, result) => {
-      if (!err) {
+    _self._request(_self._unifios ? '/api/auth/logout' : '/logout', {}, null, (error, result) => {
+      if (!error) {
         _self._cookies = null;
         _self._csrfToken = null;
         _self._unifios = false;
       }
 
       if (typeof (cb) === 'function') {
-        cb(err, result);
+        cb(error, result);
       }
     });
   };
@@ -1338,15 +1338,12 @@ const Controller = function (hostname, port) {
    */
   _self.deleteSite = function (site_id, cb) {
     // Lets get the _id first
-    _self.getSites((err, result) => {
-      if (!err && result && result.length > 0) {
-        // Only if name or _id matches the site paramater
-        if (result[0].name === site_id || result[0]._id === site_id) {
-          const json = {site: result[0]._id,
-            cmd: 'delete-site'};
+    _self.getSites((error, result) => {
+      if (!error && result && result.length > 0 && (result[0].name === site_id || result[0]._id === site_id)) {
+        const json = {site: result[0]._id,
+          cmd: 'delete-site'};
 
-          _self._request('/api/s/<SITE>/cmd/sitemgr', json, result[0].name, cb);
-        }
+        _self._request('/api/s/<SITE>/cmd/sitemgr', json, result[0].name, cb);
       }
     });
   };
@@ -2347,7 +2344,7 @@ const Controller = function (hostname, port) {
    *
    */
   _self.setWLanSettings = function (sites, wlan_id, cb, x_passphrase, name) {
-    const json = { };
+    const json = {};
 
     if (typeof (x_passphrase) !== 'undefined') {
       json.x_passphrase = x_passphrase.trim();
@@ -2469,7 +2466,7 @@ const Controller = function (hostname, port) {
    *                                 if not provided, *all* un-archived alarms for the current site will be archived!
    */
   _self.archiveAlarms = function (sites, cb, alarm_id) {
-    const json = { };
+    const json = {};
     if (typeof (alarm_id) === 'undefined') {
       json.cmd = 'archive-all-alarms';
     } else {
@@ -2537,7 +2534,7 @@ const Controller = function (hostname, port) {
    * optional parameter <type> = string; "available" or "cached", determines which firmware types to return
    */
   _self.getFirmware = function (sites, cb, type) {
-    const payload = { };
+    const payload = {};
     if (typeof (type) === 'undefined') {
       payload.cmd = 'available';
     }
@@ -2865,13 +2862,13 @@ request to, *must* start with a "/" character
 
         count++;
       },
-      err => {
+      error => {
         if (typeof (cb) === 'function') {
           if (sites === null) {
             results = results[0];
           }
 
-          cb(err ? err : false, results);
+          cb(error ? error : false, results);
         }
       }
     );
