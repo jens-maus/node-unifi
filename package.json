@@ -28,8 +28,7 @@
     "mocha": "latest",
     "mocha-clean": "latest",
     "mocha-steps": "latest",
-    "dot-prop": ">=6.0.1",
-    "snyk": "^1.437.3"
+    "dot-prop": ">=6.0.1"
   },
   "xo": {
     "space": 2
@@ -41,13 +40,10 @@
   "scripts": {
     "test": "xo && mocha --colors",
     "lint": "xo",
-    "lintfix": "xo --fix",
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "lintfix": "xo --fix"
   },
   "bugs": {
     "url": "https://github.com/jens-maus/node-unifi/issues"
   },
-  "readmeFilename": "README.md",
-  "snyk": true
+  "readmeFilename": "README.md"
 }
