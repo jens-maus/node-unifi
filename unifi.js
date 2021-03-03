@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.60
+ * Based/Compatible to UniFi-API-client class: v1.1.61
  *
  * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
  *
@@ -58,7 +58,7 @@ class Controller {
     // Find out if this is a UnifiOS driven controller or not.
     async.series([
       callback => {
-        // We have to use a custom cookie jar for this request - otherwise the login will fail on Unifi
+        // We have to use a custom cookie jar for this request - otherwise the login fails on Unifi
         this._cookies = request.jar();
         request({method: 'GET', followRedirect: false, uri: this._baseurl + '/', jar: this._cookies}, (error, response, body) => {
           if (!error) {
@@ -114,17 +114,17 @@ class Controller {
    * required paramater <cb>      = the callback function that is called with the results
    * optional parameter <up>      = upload speed limit in kbps
    * optional parameter <down>    = download speed limit in kbps
-   * optional parameter <MBytes>  = data transfer limit in MB
+   * optional parameter <megabytes>= data transfer limit in MB
    * optional parameter <ap_mac>  = AP MAC address to which client is connected, should result in faster authorization
    */
-  authorizeGuest(sites, mac, minutes, cb, up, down, mbytes, ap_mac) {
+  authorizeGuest(sites, mac, minutes, cb, up, down, megabytes, ap_mac) {
     const json = {cmd: 'authorize-guest', mac: mac.toLowerCase()};
     if (typeof (minutes) !== 'undefined') {
       json.minutes = minutes;
     }
 
     /**
-     * If we have received values for up/down/MBytes/ap_mac we append them to the payload array to be submitted
+     * If we have received values for up/down/megabytes/ap_mac we append them to the payload array to be submitted
      */
     if (typeof (up) !== 'undefined') {
       json.up = up;
@@ -134,8 +134,8 @@ class Controller {
       json.down = down;
     }
 
-    if (typeof (mbytes) !== 'undefined') {
-      json.bytes = mbytes;
+    if (typeof (megabytes) !== 'undefined') {
+      json.bytes = megabytes;
     }
 
     if (typeof (ap_mac) !== 'undefined') {
@@ -254,7 +254,7 @@ class Controller {
    * optional parameter <note>    = note to be applied to the client-device
    *
    * NOTES:
-   * - when note is empty or not set, the existing note for the client-device will be removed and "noted" attribute set to false
+   * - when note is empty or not set, the existing note for the client-device is removed and "noted" attribute set to false
    */
   setClientNote(sites, user_id, cb, note) {
     let noted = 1;
@@ -274,7 +274,7 @@ class Controller {
    * optional parameter <name>    = name to be applied to the client device
    *
    * NOTES:
-   * - when name is empty or not set, the existing name for the client device will be removed
+   * - when name is empty or not set, the existing name for the client device is removed
    */
   setClientName(sites, user_id, cb, name) {
     if (typeof (name) === 'undefined') {
@@ -1097,7 +1097,7 @@ class Controller {
    * @param  string $group_id    _id value of the AP group to modify
    * @param  string $group_name  name to assign to the AP group
    * @param  array  $device_macs array containing the members of the AP group which overwrites the existing
-   *                             group_members (passing an empty array will clear the AP member list)
+   *                             group_members (passing an empty array clears the AP member list)
    * @return object              returns a single object with attributes of the updated AP group on success
    *
    */
@@ -1166,7 +1166,7 @@ class Controller {
    * required parameter <group_type>    = firewall group type; valid values are address-group, ipv6  -address-group, port-group,
    *                                      group_type cannot be changed for an existing firewall gro  up!
    * optional parameter <group_members> = array containing the members of the group (IPv4 addresses  , IPv6 addresses or port numbers)
-   *                                      which will overwrite the existing group_members (default   is an empty array)
+   *                                      which overwrites the existing group_members (default   is an empty array)
    *
    *
    */
@@ -1362,7 +1362,7 @@ class Controller {
    *
    * required parameter <description> = the long name for the new site
    *
-   * NOTES: immediately after being added, the new site will be available in the output of the "list_sites" function
+   * NOTES: immediately after being added, the new site is available in the output of the "list_sites" function
    */
   createSite(site, cb, description) {
     if (typeof (description) === 'undefined') {
@@ -1400,7 +1400,7 @@ class Controller {
    * return true on success
    * required parameter <site_name> = string; the new long name for the current site
    *
-   * NOTES: immediately after being changed, the site will be available in the output of the list_sites() function
+   * NOTES: immediately after being changed, the site is available in the output of the list_sites() function
    */
   setSiteName(site, site_name, cb) {
     const json = {desc: site_name,
@@ -1415,7 +1415,7 @@ class Controller {
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "country" key.
    *                                Valid country codes can be obtained using the list_country_codes() function/method.
-   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   *                                Do not include the _id property, it is assigned by the controller and returned upon success.
    * return true on success
    */
   setSiteCountry(site, country_id, payload, cb) {
@@ -1427,7 +1427,7 @@ class Controller {
    *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "locale" key.
-   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   *                                Do not include the _id property, it is assigned by the controller and returned upon success.
    * return true on success
    */
   setSiteLocale(site, locale_id, payload, cb) {
@@ -1439,7 +1439,7 @@ class Controller {
    *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "snmp" key.
-   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   *                                Do not include the _id property, it is assigned by the controller and returned upon success.
    * return true on success
    */
   setSiteSNMP(site, snmp_id, payload, cb) {
@@ -1451,7 +1451,7 @@ class Controller {
    *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "mgmt" key.
-   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   *                                Do not include the _id property, it is assigned by the controller and returned upon success.
    * return true on success
    */
   setSiteMgmt(site, mgmt_id, payload, cb) {
@@ -1463,7 +1463,7 @@ class Controller {
    *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "guest_access" key.
-   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   *                                Do not include the _id property, it is assigned by the controller and returned upon success.
    * return true on success
    */
   setSiteGuestAccess(site, guest_access_id, payload, cb) {
@@ -1475,7 +1475,7 @@ class Controller {
    *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "ntp" key.
-   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   *                                Do not include the _id property, it is assigned by the controller and returned upon success.
    * return true on success
    */
   setSiteNTP(site, ntp_id, payload, cb) {
@@ -1487,7 +1487,7 @@ class Controller {
    *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "connectivity" key.
-   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   *                                Do not include the _id property, it is assigned by the controller and returned upon success.
    * return true on success
    */
   setSiteConnectivity(site, connectivity_id, payload, cb) {
@@ -1519,21 +1519,21 @@ class Controller {
    * returns true on success
    * required parameter <name>           = string, name to assign to the new admin user
    * required parameter <email>          = email address to assign to the new admin user
-   * optional parameter <enable_sso>     = boolean, whether or not SSO will be allowed for the new admin
+   * optional parameter <enable_sso>     = boolean, whether or not SSO is allowed for the new admin
    *                                       default value is true which enables the SSO capability
-   * optional parameter <readonly>       = boolean, whether or not the new admin will have readonly
+   * optional parameter <readonly>       = boolean, whether or not the new admin has readonly
    *                                       permissions, default value is false which gives the new admin
    *                                       Administrator permissions
-   * optional parameter <device_adopt>   = boolean, whether or not the new admin will have permissions to
+   * optional parameter <device_adopt>   = boolean, whether or not the new admin has permissions to
    *                                       adopt devices, default value is false. With versions < 5.9.X this only applies
    *                                       when readonly is true.
-   * optional parameter <device_restart> = boolean, whether or not the new admin will have permissions to
+   * optional parameter <device_restart> = boolean, whether or not the new admin has permissions to
    *                                       restart devices, default value is false. With versions < 5.9.X this only applies
    *                                       when readonly is true.
    *
    * NOTES:
-   * - after issuing a valid request, an invite will be sent to the email address provided
-   * - issuing this command against an existing admin will trigger a "re-invite"
+   * - after issuing a valid request, an invite is sent to the email address provided
+   * - issuing this command against an existing admin triggers a "re-invite"
    */
   inviteAdmin(sites, name, email, cb, enable_sso, readonly, device_adopt, device_restart) {
     if (typeof (enable_sso) === 'undefined') {
@@ -1583,13 +1583,13 @@ class Controller {
    * returns true on success
    * required parameter <admin_id>       = 24 char string; _id value of the admin user to assign, can be obtained using the
    *                                       list_all_admins() method/function
-   * optional parameter <readonly>       = boolean, whether or not the new admin will have readonly
+   * optional parameter <readonly>       = boolean, whether or not the new admin has readonly
    *                                       permissions, default value is false which gives the new admin
    *                                       Administrator permissions
-   * optional parameter <device_adopt>   = boolean, whether or not the new admin will have permissions to
+   * optional parameter <device_adopt>   = boolean, whether or not the new admin has permissions to
    *                                       adopt devices, default value is false. With versions < 5.9.X this only applies
    *                                       when readonly is true.
-   * optional parameter <device_restart> = boolean, whether or not the new admin will have permissions to
+   * optional parameter <device_restart> = boolean, whether or not the new admin has permissions to
    *                                       restart devices, default value is false. With versions < 5.9.X this only applies
    *                                       when readonly is true.
    */
@@ -1751,11 +1751,11 @@ class Controller {
    * optional parameter <note>    = note text to add to voucher when printing
    * optional parameter <up>      = upload speed limit in kbps
    * optional parameter <down>    = download speed limit in kbps
-   * optional parameter <mbytes>  = data transfer limit in MB
+   * optional parameter <megabytes>= data transfer limit in MB
    *
    * NOTES: please use the stat_voucher() method/function to retrieve the newly created voucher(s) by create_time
    */
-  createVouchers(sites, minutes, cb, count, quota, note, up, down, mbytes) {
+  createVouchers(sites, minutes, cb, count, quota, note, up, down, megabytes) {
     if (typeof (count) === 'undefined') {
       count = 1;
     }
@@ -1781,8 +1781,8 @@ class Controller {
       json.down = down;
     }
 
-    if (typeof (mbytes) !== 'undefined') {
-      json.bytes = mbytes;
+    if (typeof (megabytes) !== 'undefined') {
+      json.bytes = megabytes;
     }
 
     this._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
@@ -2021,10 +2021,10 @@ class Controller {
    * Disable/enable an access point (using REST) - disable_ap()
    *
    * required parameter <ap_id>   = 24 char string; value of _id for the access point which can be obtained from the device list
-   * required parameter <disable> = boolean; TRUE will disable the device, FALSE will enable the device
+   * required parameter <disable> = boolean; TRUE disables the device, FALSE enables the device
    *
    * NOTES:
-   * - a disabled device will be excluded from the dashboard status and device count and its LED and WLAN will be turned off
+   * - a disabled device is excluded from the dashboard status and device count and its LED and WLAN is turned off
    * - appears to only be supported for access points
    * - available since controller versions 5.2.X
    */
@@ -2036,9 +2036,9 @@ class Controller {
    * Override LED mode for a device (using REST) - led_override()
    *
    * required parameter <device_id>     = 24 char string; value of _id for the device which can be obtained from the device list
-   * required parameter <override_mode> = string, off/on/default; "off" will disable the LED of the device,
-   *                                      "on" will enable the LED of the device,
-   *                                      "default" will apply the site-wide setting for device LEDs
+   * required parameter <override_mode> = string, off/on/default; "off" disables the LED of the device,
+   *                                      "on" enables the LED of the device,
+   *                                      "default" applies the site-wide setting for device LEDs
    */
   setLEDOverride(sites, device_id, override_mode, cb) {
     this._request('/api/s/<SITE>/rest/device/' + device_id.trim(), {led_override: override_mode}, sites, cb, 'PUT');
@@ -2048,7 +2048,7 @@ class Controller {
    * Toggle flashing LED of an access point for locating purposes - locate_ap()
    *
    * required parameter <mac> = device MAC address
-   * required parameter <enable> = boolean; true will enable flashing LED, false will disable
+   * required parameter <enable> = boolean; true enables flashing LED, false disables
    */
   setLocateAccessPoint(sites, mac, enable, cb) {
     const json = {cmd: enable === true ? 'set-locate' : 'unset-locate',
@@ -2060,7 +2060,7 @@ class Controller {
   /**
    * Toggle LEDs of all the access points ON or OFF - site_leds()
    *
-   * required parameter <enable> = boolean; true will switch LEDs of all the access points ON, false will switch them OFF
+   * required parameter <enable> = boolean; true switches LEDs of all the access points ON, false switches them OFF
    */
   setSiteLEDs(sites, enable, cb) {
     this._request('/api/s/<SITE>/set/setting/mgmt', {led_enabled: enable}, sites, cb);
@@ -2262,7 +2262,7 @@ class Controller {
    * return an array with a single object containing details of the new network on success, else return false
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_networkconf() for the specific network type.
-   *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
+   *                                Do not include the _id property, it is assigned by the controller and returned upon success.
    */
   createNetwork(sites, payload, cb) {
     this._request('/api/s/<SITE>/rest/networkconf', payload, sites, cb);
@@ -2372,7 +2372,7 @@ class Controller {
    *
    * required parameter <wlan_id>
    * optional parameter <x_passphrase> = new pre-shared key, minimal length is 8 characters, maximum length is 63,
-   *                                     will be ignored if set to null
+   *                                     is ignored if set to null
    * optional parameter <name>
    *
    */
@@ -2494,7 +2494,7 @@ class Controller {
    *
    * return true on success
    * optional parameter <alarm_id> = 24 char string; _id of the alarm to archive which can be found with the list_alarms() function,
-   *                                 if not provided, *all* un-archived alarms for the current site will be archived!
+   *                                 if not provided, *all* un-archived alarms for the current site is archived!
    */
   archiveAlarms(sites, cb, alarm_id) {
     const json = {};
@@ -2793,7 +2793,7 @@ class Controller {
    * Toggle Element Adoption ON or OFF - set_element_adoption()
    *
    * return true on success
-   * required parameter <enable> = boolean; true will enable Element Adoption, false will disable Element Adoption
+   * required parameter <enable> = boolean; true enables Element Adoption, false disables Element Adoption
    */
   setElementAdoption(sites, enable, cb) {
     const payload = {enabled: enable};
