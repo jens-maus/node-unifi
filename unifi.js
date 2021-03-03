@@ -18,7 +18,7 @@
  *
  * Based/Compatible to UniFi-API-client class: v1.1.57
  *
- * Copyright (c) 2017-2020 Jens Maus <mail@jens-maus.de>
+ * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
  *
  * The source code is distributed under the MIT license
  *
@@ -33,78 +33,77 @@ request = request.defaults({jar: true,
   strictSSL: false
 });
 
-const Controller = function (hostname, port) {
-  const _self = this;
+class Controller {
+  /** CONSTRUCTOR */
+  constructor(hostname, port) {
+    this._baseurl = 'https://127.0.0.1:8443';
+    this._unifios = false;
+    this._csrfToken = null;
+    this._cookies = null;
 
-  /** INIT CODE * */
-
-  _self._baseurl = 'https://127.0.0.1:8443';
-  _self._unifios = false;
-  _self._csrfToken = null;
-  _self._cookies = null;
-
-  // Format a new baseurl based on the arguments
-  if (typeof (hostname) !== 'undefined' && typeof (port) !== 'undefined') {
-    _self._baseurl = 'https://' + hostname + ':' + port;
+    // Format a new baseurl based on the arguments
+    if (typeof (hostname) !== 'undefined' && typeof (port) !== 'undefined') {
+      this._baseurl = 'https://' + hostname + ':' + port;
+    }
   }
 
-  /** PUBLIC FUNCTIONS * */
+  /** PUBLIC METHODS */
 
   /**
    * Login to the UniFi controller - login()
    * -----------------------------
    * returns true upon success
    */
-  _self.login = function (username, password, cb) {
+  login(username, password, cb) {
     // Find out if this is a UnifiOS driven controller or not.
     async.series([
-      function (callback) {
+      callback => {
         // We have to use a custom cookie jar for this request - otherwise the login will fail on Unifi
-        _self._cookies = request.jar();
-        request({method: 'GET', followRedirect: false, uri: _self._baseurl + '/', jar: _self._cookies}, (error, response, body) => {
+        this._cookies = request.jar();
+        request({method: 'GET', followRedirect: false, uri: this._baseurl + '/', jar: this._cookies}, (error, response, body) => {
           if (!error) {
             // If the statusCode is 200 and a x-csrf-token is supplied this is a
             // UniFiOS device (e.g. UDM-Pro)
             if (response.statusCode === 200 && typeof (response.headers['x-csrf-token']) !== 'undefined') {
-              _self._unifios = true;
-              _self._csrfToken = response.headers['x-csrf-token'];
+              this._unifios = true;
+              this._csrfToken = response.headers['x-csrf-token'];
             } else {
-              _self._unifios = false;
-              _self._csrfToken = null;
+              this._unifios = false;
+              this._csrfToken = null;
             }
           }
 
           return callback(error, body);
         });
       },
-      function () {
+      () => {
         // If this is a unifios system we use /api/auth instead
-        _self._request(_self._unifios ? '/api/auth/login' : '/api/login', {
+        this._request(this._unifios ? '/api/auth/login' : '/api/login', {
           username,
           password
         }, null, cb);
       }
     ]);
-  };
+  }
 
   /**
    * Logout from the UniFi controller - logout()
    * --------------------------------
    * returns true upon success
    */
-  _self.logout = function (cb) {
-    _self._request(_self._unifios ? '/api/auth/logout' : '/logout', {}, null, (error, result) => {
+  logout(cb) {
+    this._request(this._unifios ? '/api/auth/logout' : '/logout', {}, null, (error, result) => {
       if (!error) {
-        _self._cookies = null;
-        _self._csrfToken = null;
-        _self._unifios = false;
+        this._cookies = null;
+        this._csrfToken = null;
+        this._unifios = false;
       }
 
       if (typeof (cb) === 'function') {
         cb(error, result);
       }
     });
-  };
+  }
 
   /**
    * Authorize a client device - authorize_guest()
@@ -119,7 +118,7 @@ const Controller = function (hostname, port) {
    * optional parameter <MBytes>  = data transfer limit in MB
    * optional parameter <ap_mac>  = AP MAC address to which client is connected, should result in faster authorization
    */
-  _self.authorizeGuest = function (sites, mac, minutes, cb, up, down, mbytes, ap_mac) {
+  authorizeGuest(sites, mac, minutes, cb, up, down, mbytes, ap_mac) {
     const json = {cmd: 'authorize-guest', mac: mac.toLowerCase()};
     if (typeof (minutes) !== 'undefined') {
       json.minutes = minutes;
@@ -144,8 +143,8 @@ const Controller = function (hostname, port) {
       json.ap_mac = ap_mac.toLowerCase();
     }
 
-    _self._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
+  }
 
   /**
    * Unauthorize a client device - unauthorize_guest()
@@ -154,11 +153,11 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
    */
-  _self.unauthorizeGuest = function (sites, mac, cb) {
+  unauthorizeGuest(sites, mac, cb) {
     const json = {cmd: 'unauthorize-guest', mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
+  }
 
   /**
    * Reconnect a client device - reconnect_sta()
@@ -167,11 +166,11 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
    */
-  _self.reconnectClient = function (sites, mac, cb) {
+  reconnectClient(sites, mac, cb) {
     const json = {cmd: 'kick-sta', mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
+  }
 
   /**
    * Block a client device - block_sta()
@@ -180,11 +179,11 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
    */
-  _self.blockClient = function (sites, mac, cb) {
+  blockClient(sites, mac, cb) {
     const json = {cmd: 'block-sta', mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
+  }
 
   /**
    * Unblock a client device - unblock_sta()
@@ -193,11 +192,11 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
    */
-  _self.unblockClient = function (sites, mac, cb) {
+  unblockClient(sites, mac, cb) {
     const json = {cmd: 'unblock-sta', mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
+  }
 
   /**
    * Forget one or more client devices - forget_sta()
@@ -209,11 +208,11 @@ const Controller = function (hostname, port) {
    * only supported with controller versions 5.9.X and higher, can be
    * slow (up to 5 minutes) on larger controllers
    */
-  _self.forgetClient = function (sites, macs, cb) {
+  forgetClient(sites, macs, cb) {
     const json = {cmd: 'forget-sta', macs};
 
-    _self._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/stamgr', json, sites, cb);
+  }
 
   /**
    * Create a new user/client-device - create_user()
@@ -227,7 +226,7 @@ const Controller = function (hostname, port) {
    * optional parameter <is_guest>      = boolean; defines whether the new user/client-device is a   guest or not
    * optional parameter <is_wired>      = boolean; defines whether the new user/client-device is wi  red or not
    */
-  _self.createUser = function (sites, mac, user_group_id, cb, name, note, is_guest, is_wired) {
+  createUser(sites, mac, user_group_id, cb, name, note, is_guest, is_wired) {
     const new_user = {mac: mac.toLowerCase(),
       user_group_id
     };
@@ -249,8 +248,8 @@ const Controller = function (hostname, port) {
       new_user.is_wired = is_wired;
     }
 
-    _self._request('/api/s/<SITE>/group/user', {objects: [{data: new_user}]}, sites, cb);
-  };
+    this._request('/api/s/<SITE>/group/user', {objects: [{data: new_user}]}, sites, cb);
+  }
 
   /**
    * Add/modify/remove a client device note - set_sta_note()
@@ -263,15 +262,15 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - when note is empty or not set, the existing note for the client-device will be removed and "noted" attribute set to false
    */
-  _self.setClientNote = function (sites, user_id, cb, note) {
+  setClientNote(sites, user_id, cb, note) {
     let noted = 1;
     if (typeof (note) === 'undefined') {
       note = '';
       noted = 0;
     }
 
-    _self._request('/api/s/<SITE>/upd/user/' + user_id.trim(), {note, noted}, sites, cb);
-  };
+    this._request('/api/s/<SITE>/upd/user/' + user_id.trim(), {note, noted}, sites, cb);
+  }
 
   /**
    * Add/modify/remove a client device name - set_sta_name()
@@ -284,13 +283,13 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - when name is empty or not set, the existing name for the client device will be removed
    */
-  _self.setClientName = function (sites, user_id, cb, name) {
+  setClientName(sites, user_id, cb, name) {
     if (typeof (name) === 'undefined') {
       name = '';
     }
 
-    _self._request('/api/s/<SITE>/upd/user/' + user_id.trim(), {name}, sites, cb);
-  };
+    this._request('/api/s/<SITE>/upd/user/' + user_id.trim(), {name}, sites, cb);
+  }
 
   /**
    * 5 minutes site stats method - stat_5minutes_site()
@@ -306,7 +305,7 @@ const Controller = function (hostname, port) {
    * - make sure that the retention policy for 5 minutes stats is set to the correct value in
    *   the controller settings
    */
-  _self.get5minSiteStats = function (sites, cb, start, end) {
+  get5minSiteStats(sites, cb, start, end) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -328,8 +327,8 @@ const Controller = function (hostname, port) {
     start,
     end};
 
-    _self._request('/api/s/<SITE>/stat/report/5minutes.site', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/5minutes.site', json, sites, cb);
+  }
 
   /**
    * Hourly site stats method - stat_hourly_site()
@@ -343,7 +342,7 @@ const Controller = function (hostname, port) {
    * - defaults to the past 7*24 hours
    * - "bytes" are no longer returned with controller version 4.9.1 and later
    */
-  _self.getHourlySiteStats = function (sites, cb, start, end) {
+  getHourlySiteStats(sites, cb, start, end) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -365,8 +364,8 @@ const Controller = function (hostname, port) {
     start,
     end};
 
-    _self._request('/api/s/<SITE>/stat/report/hourly.site', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/hourly.site', json, sites, cb);
+  }
 
   /**
    * Daily site stats method - stat_daily_site()
@@ -380,7 +379,7 @@ const Controller = function (hostname, port) {
    * - defaults to the past 52*7*24 hours
    * - "bytes" are no longer returned with controller version 4.9.1 and later
    */
-  _self.getDailySiteStats = function (sites, cb, start, end) {
+  getDailySiteStats(sites, cb, start, end) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -402,8 +401,8 @@ const Controller = function (hostname, port) {
     start,
     end};
 
-    _self._request('/api/s/<SITE>/stat/report/daily.site', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/daily.site', json, sites, cb);
+  }
 
   /**
    * 5 minutes stats method for a single access point or all access points - stat_5minutes_aps()
@@ -420,7 +419,7 @@ const Controller = function (hostname, port) {
    * - make sure that the retention policy for 5 minutes stats is set to the correct value in
    *   the controller settings
    */
-  _self.get5minApStats = function (sites, cb, start, end, mac) {
+  get5minApStats(sites, cb, start, end, mac) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -439,8 +438,8 @@ const Controller = function (hostname, port) {
       json.mac = mac.toLowerCase();
     }
 
-    _self._request('/api/s/<SITE>/stat/report/5minutes.ap', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/5minutes.ap', json, sites, cb);
+  }
 
   /**
    * Hourly stats method for a single access point or all access points - stat_hourly_aps()
@@ -455,7 +454,7 @@ const Controller = function (hostname, port) {
    * - defaults to the past 7*24 hours
    * - UniFi controller does not keep these stats longer than 5 hours with versions < 4.6.6
    */
-  _self.getHourlyApStats = function (sites, cb, start, end, mac) {
+  getHourlyApStats(sites, cb, start, end, mac) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -474,8 +473,8 @@ const Controller = function (hostname, port) {
       json.mac = mac.toLowerCase();
     }
 
-    _self._request('/api/s/<SITE>/stat/report/hourly.ap', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/hourly.ap', json, sites, cb);
+  }
 
   /**
    * Daily stats method for a single access point or all access points - stat_daily_aps()
@@ -490,7 +489,7 @@ const Controller = function (hostname, port) {
    * - defaults to the past 7*24 hours
    * - UniFi controller does not keep these stats longer than 5 hours with versions < 4.6.6
    */
-  _self.getDailyApStats = function (sites, cb, start, end, mac) {
+  getDailyApStats(sites, cb, start, end, mac) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -509,8 +508,8 @@ const Controller = function (hostname, port) {
       json.mac = mac.toLowerCase();
     }
 
-    _self._request('/api/s/<SITE>/stat/report/daily.ap', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/daily.ap', json, sites, cb);
+  }
 
   /**
    * 5 minutes stats method for a single user/client device - stat_5minutes_user()
@@ -530,7 +529,7 @@ const Controller = function (hostname, port) {
    *   the controller settings
    * - make sure that "Clients Historical Data" has been enabled in the UniFi controller settings in the Maintenance section
    */
-  _self.get5minUserStats = function (sites, mac, cb, start, end, attribs) {
+  get5minUserStats(sites, mac, cb, start, end, attribs) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -548,8 +547,8 @@ const Controller = function (hostname, port) {
       end,
       mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/stat/report/5minutes.user', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/5minutes.user', json, sites, cb);
+  }
 
   /**
    * Hourly stats method for a a single user/client device - stat_hourly_user()
@@ -567,7 +566,7 @@ const Controller = function (hostname, port) {
    * - only supported with UniFi controller versions 5.8.X and higher
    * - make sure that "Clients Historical Data" has been enabled in the UniFi controller settings in the Maintenance section
    */
-  _self.getHourlyUserStats = function (sites, mac, cb, start, end, attribs) {
+  getHourlyUserStats(sites, mac, cb, start, end, attribs) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -585,8 +584,8 @@ const Controller = function (hostname, port) {
       end,
       mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/stat/report/hourly.user', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/hourly.user', json, sites, cb);
+  }
 
   /**
    * Daily stats method for a single user/client device - stat_daily_user()
@@ -606,7 +605,7 @@ const Controller = function (hostname, port) {
    *   the controller settings
    * - make sure that "Clients Historical Data" has been enabled in the UniFi controller settings in the Maintenance section
    */
-  _self.getDailyUserStats = function (sites, mac, cb, start, end, attribs) {
+  getDailyUserStats(sites, mac, cb, start, end, attribs) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -624,8 +623,8 @@ const Controller = function (hostname, port) {
       end,
       mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/stat/report/daily.user', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/daily.user', json, sites, cb);
+  }
 
   /**
    * 5 minutes gateway stats method - stat_5minutes_gateway()
@@ -645,7 +644,7 @@ const Controller = function (hostname, port) {
    *   the controller settings
    * - requires a USG
    */
-  _self.get5minGatewayStats = function (sites, cb, start, end, attribs) {
+  get5minGatewayStats(sites, cb, start, end, attribs) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -663,8 +662,8 @@ const Controller = function (hostname, port) {
       start,
       end};
 
-    _self._request('/api/s/<SITE>/stat/report/5minutes.gw', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/5minutes.gw', json, sites, cb);
+  }
 
   /**
    * Hourly gateway stats method - stat_hourly_gateway()
@@ -681,7 +680,7 @@ const Controller = function (hostname, port) {
    * - defaults to the past 7*24 hours
    * - requires a USG
    */
-  _self.getHourlyGatewayStats = function (sites, cb, start, end, attribs) {
+  getHourlyGatewayStats(sites, cb, start, end, attribs) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -699,8 +698,8 @@ const Controller = function (hostname, port) {
       start,
       end};
 
-    _self._request('/api/s/<SITE>/stat/report/hourly.gw', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/hourly.gw', json, sites, cb);
+  }
 
   /**
    * Daily gateway stats method - stat_daily_gateway()
@@ -717,7 +716,7 @@ const Controller = function (hostname, port) {
    * - defaults to the past 52*7*24 hours
    * - requires a USG
    */
-  _self.getDailyGatewayStats = function (sites, cb, start, end, attribs) {
+  getDailyGatewayStats(sites, cb, start, end, attribs) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -735,8 +734,8 @@ const Controller = function (hostname, port) {
       start,
       end};
 
-    _self._request('/api/s/<SITE>/stat/report/daily.gw', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/daily.gw', json, sites, cb);
+  }
 
   /**
    * Method to fetch speed test results - stat_speedtest_results()
@@ -749,7 +748,7 @@ const Controller = function (hostname, port) {
    * - defaults to the past 24 hours
    * - requires a USG
    */
-  _self.getSpeedTestResults = function (sites, cb, start, end) {
+  getSpeedTestResults(sites, cb, start, end) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -765,8 +764,8 @@ const Controller = function (hostname, port) {
     start,
     end};
 
-    _self._request('/api/s/<SITE>/stat/report/archive.speedtest', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/report/archive.speedtest', json, sites, cb);
+  }
 
   /**
    * Method to fetch IPS/IDS event - stat_ips_events
@@ -781,7 +780,7 @@ const Controller = function (hostname, port) {
    * - requires a USG
    * - supported in UniFi controller versions 5.9.X and higher
    */
-  _self.getIPSEvents = function (sites, cb, start, end, limit) {
+  getIPSEvents(sites, cb, start, end, limit) {
     if (typeof (end) === 'undefined') {
       end = Date.now();
     }
@@ -798,8 +797,8 @@ const Controller = function (hostname, port) {
       end,
       _limit: limit};
 
-    _self._request('/api/s/<SITE>/stat/ips/event', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/ips/event', json, sites, cb);
+  }
 
   /**
    * Show all login sessions - stat_sessions()
@@ -814,7 +813,7 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - defaults to the past 7*24 hours
    */
-  _self.getSessions = function (sites, cb, start, end, mac, type) {
+  getSessions(sites, cb, start, end, mac, type) {
     if (typeof (end) === 'undefined') {
       end = Math.floor(Date.now() / 1000);
     }
@@ -835,8 +834,8 @@ const Controller = function (hostname, port) {
       json.mac = mac.toLowerCase();
     }
 
-    _self._request('/api/s/<SITE>/stat/session', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/session', json, sites, cb);
+  }
 
   /**
    * Show latest 'n' login sessions for a single client device - stat_sta_sessions_latest()
@@ -847,7 +846,7 @@ const Controller = function (hostname, port) {
    * optional parameter <limit> = maximum number of sessions to get (defaults to 5)
    *
    */
-  _self.getLatestSessions = function (sites, mac, cb, limit) {
+  getLatestSessions(sites, mac, cb, limit) {
     if (typeof (limit) === 'undefined') {
       limit = 5;
     }
@@ -856,8 +855,8 @@ const Controller = function (hostname, port) {
       _limit: limit,
       _sort: '-assoc_time'};
 
-    _self._request('/api/s/<SITE>/stat/session', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/session', json, sites, cb);
+  }
 
   /**
    * Show all authorizations - stat_auths()
@@ -869,7 +868,7 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - defaults to the past 7*24 hours
    */
-  _self.getAllAuthorizations = function (sites, cb, start, end) {
+  getAllAuthorizations(sites, cb, start, end) {
     if (typeof (end) === 'undefined') {
       end = Math.floor(Date.now() / 1000);
     }
@@ -878,8 +877,8 @@ const Controller = function (hostname, port) {
       start = end - (7 * 24 * 3600);
     }
 
-    _self._request('/api/s/<SITE>/stat/authorization', {start, end}, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/authorization', {start, end}, sites, cb);
+  }
 
   /**
    * List all client devices ever connected to the site - stat_allusers()
@@ -891,7 +890,7 @@ const Controller = function (hostname, port) {
    * - <historyhours> is only used to select clients that were online within that period,
    *    the returned stats per client are all-time totals, irrespective of the value of <historyhours>
    */
-  _self.getAllUsers = function (sites, cb, within) {
+  getAllUsers(sites, cb, within) {
     if (typeof (within) === 'undefined') {
       within = 8760;
     }
@@ -900,8 +899,8 @@ const Controller = function (hostname, port) {
       conn: 'all',
       within};
 
-    _self._request('/api/s/<SITE>/stat/alluser', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/alluser', json, sites, cb);
+  }
 
   /**
    * List all blocked client devices ever connected to the site
@@ -913,7 +912,7 @@ const Controller = function (hostname, port) {
    * - <historyhours> is only used to select clients that were online within that period,
    *    the returned stats per client are all-time totals, irrespective of the value of <historyhours>
    */
-  _self.getBlockedUsers = function (sites, cb, within) {
+  getBlockedUsers(sites, cb, within) {
     if (typeof (within) === 'undefined') {
       within = 8760;
     }
@@ -922,8 +921,8 @@ const Controller = function (hostname, port) {
       conn: 'all',
       within};
 
-    _self._request('/api/s/<SITE>/stat/alluser', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/alluser', json, sites, cb);
+  }
 
   /**
    * List guest devices - list_guests()
@@ -932,13 +931,13 @@ const Controller = function (hostname, port) {
    * optional parameter <within> = time frame in hours to go back to list guests with valid access (default = 24*365 hours)
    *
    */
-  _self.getGuests = function (sites, cb, within) {
+  getGuests(sites, cb, within) {
     if (typeof (within) === 'undefined') {
       within = 8760;
     }
 
-    _self._request('/api/s/<SITE>/stat/guest', {within}, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/guest', {within}, sites, cb);
+  }
 
   /**
    * List online client device(s) - list_clients()
@@ -948,13 +947,13 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * optional parameter <client_mac> = the MAC address of a single online client device for which the call must be made
    */
-  _self.getClientDevices = function (sites, cb, client_mac) {
+  getClientDevices(sites, cb, client_mac) {
     if (typeof (client_mac) === 'undefined') {
       client_mac = '';
     }
 
-    _self._request('/api/s/<SITE>/stat/sta/' + client_mac.trim().toLowerCase(), null, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/sta/' + client_mac.trim().toLowerCase(), null, sites, cb);
+  }
 
   /**
    * Get details for a single client device - stat_client()
@@ -963,13 +962,13 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * optional parameter <client_mac> = the MAC address of a single online client device for which the call must be made
    */
-  _self.getClientDevice = function (sites, cb, client_mac) {
+  getClientDevice(sites, cb, client_mac) {
     if (typeof (client_mac) === 'undefined') {
       client_mac = '';
     }
 
-    _self._request('/api/s/<SITE>/stat/user/' + client_mac.trim().toLowerCase(), null, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/user/' + client_mac.trim().toLowerCase(), null, sites, cb);
+  }
 
   /**
    * Assign client device to another group - set_usergroup()
@@ -980,9 +979,9 @@ const Controller = function (hostname, port) {
    * required parameter <group_id> = id of the user group to assign user to
    *
    */
-  _self.setUserGroup = function (sites, user_id, group_id, cb) {
-    _self._request('/api/s/<SITE>/upd/user/' + user_id.trim(), {usergroup_id: group_id}, sites, cb);
-  };
+  setUserGroup(sites, user_id, group_id, cb) {
+    this._request('/api/s/<SITE>/upd/user/' + user_id.trim(), {usergroup_id: group_id}, sites, cb);
+  }
 
   /**
    * Update client fixedip (using REST) - edit_client_fixedip()
@@ -994,7 +993,7 @@ const Controller = function (hostname, port) {
    * optional parameter <fixed_ip>    = value of client's fixed_ip field
    *
    */
-  _self.editClientFixedIP = function (sites, client_id, use_fixedip, cb, network_id, fixed_ip) {
+  editClientFixedIP(sites, client_id, use_fixedip, cb, network_id, fixed_ip) {
     const json = {_id: client_id,
       use_fixedip};
 
@@ -1008,8 +1007,8 @@ const Controller = function (hostname, port) {
       }
     }
 
-    _self._request('/api/s/<SITE>/rest/user/' + client_id.trim(), json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/rest/user/' + client_id.trim(), json, sites, cb);
+  }
 
   /**
    * List user groups - list_usergroups()
@@ -1017,9 +1016,9 @@ const Controller = function (hostname, port) {
    *
    * required paramater <sites>   = name or array of site names
    */
-  _self.getUserGroups = function (sites, cb) {
-    _self._request('/api/s/<SITE>/list/usergroup', null, sites, cb);
-  };
+  getUserGroups(sites, cb) {
+    this._request('/api/s/<SITE>/list/usergroup', null, sites, cb);
+  }
 
   /**
    * Create user group (using REST) - create_usergroup()
@@ -1032,14 +1031,14 @@ const Controller = function (hostname, port) {
    * optional parameter <group_up>   = limit upload bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
    *
    */
-  _self.createUserGroup = function (sites, group_name, cb,
+  createUserGroup(sites, group_name, cb,
     group_dn, group_up) {
     const json = {name: group_name,
       qos_rate_max_down: typeof (group_dn) === 'undefined' ? -1 : group_dn,
       qos_rate_max_up: typeof (group_up) === 'undefined' ? -1 : group_up};
 
-    _self._request('/api/s/<SITE>/rest/usergroup', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/rest/usergroup', json, sites, cb);
+  }
 
   /**
    * Modify user group (using REST) - edit_usergroup()
@@ -1054,7 +1053,7 @@ const Controller = function (hostname, port) {
    * optional parameter <group_up>   = limit upload bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
    *
    */
-  _self.editUserGroup = function (sites, group_id, site_id, group_name, cb,
+  editUserGroup(sites, group_id, site_id, group_name, cb,
     group_dn, group_up) {
     const json = {_id: group_id,
       site_id,
@@ -1062,8 +1061,8 @@ const Controller = function (hostname, port) {
       qos_rate_max_down: typeof (group_dn) === 'undefined' ? -1 : group_dn,
       qos_rate_max_up: typeof (group_up) === 'undefined' ? -1 : group_up};
 
-    _self._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), json, sites, cb, 'PUT');
-  };
+    this._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), json, sites, cb, 'PUT');
+  }
 
   /**
    * Delete user group (using REST) - delete_usergroup()
@@ -1074,9 +1073,9 @@ const Controller = function (hostname, port) {
    * required parameter <group_id> = _id value of the user group
    *
    */
-  _self.deleteUserGroup = function (sites, group_id, cb) {
-    _self._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), null, sites, cb, 'DELETE');
-  };
+  deleteUserGroup(sites, group_id, cb) {
+    this._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), null, sites, cb, 'DELETE');
+  }
 
   /**
    * List firewall groups (using REST) - list_firewallgroups()
@@ -1084,13 +1083,13 @@ const Controller = function (hostname, port) {
    * returns an array containing the current firewall groups or the selected firewall group on success
    * optional parameter <group_id> = _id value of the single firewall group to list
    */
-  _self.getFirewallGroups = function (sites, cb, group_id) {
+  getFirewallGroups(sites, cb, group_id) {
     if (typeof (group_id) === 'undefined') {
       group_id = '';
     }
 
-    _self._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), null, sites, cb);
-  };
+    this._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), null, sites, cb);
+  }
 
   /**
    * Create firewall group (using REST) - create_firewallgroup()
@@ -1101,7 +1100,7 @@ const Controller = function (hostname, port) {
    * optional parameter <group_members> = array containing the members of the new group (IPv4 addre  sses, IPv6 addresses or port numbers)
    *                                      (default is an empty array)
    */
-  _self.createFirewallGroup = function (sites, group_name, group_type, cb, group_members) {
+  createFirewallGroup(sites, group_name, group_type, cb, group_members) {
     if (typeof (group_members) === 'undefined') {
       group_members = [];
     }
@@ -1110,8 +1109,8 @@ const Controller = function (hostname, port) {
       group_type,
       group_members};
 
-    _self._request('/api/s/<SITE>/rest/firewallgroup', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/rest/firewallgroup', json, sites, cb);
+  }
 
   /**
    * Modify firewall group (using REST) - edit_firewallgroup
@@ -1127,7 +1126,7 @@ const Controller = function (hostname, port) {
    *
    *
    */
-  _self.editFirewallGroup = function (sites, group_id, site_id, group_name, group_type, cb, group_members) {
+  editFirewallGroup(sites, group_id, site_id, group_name, group_type, cb, group_members) {
     if (typeof (group_members) === 'undefined') {
       group_members = [];
     }
@@ -1138,8 +1137,8 @@ const Controller = function (hostname, port) {
       group_members,
       site_id};
 
-    _self._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), json, sites, cb, 'PUT');
-  };
+    this._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), json, sites, cb, 'PUT');
+  }
 
   /**
    * Delete firewall group (using REST) - delete_firewallgroup()
@@ -1147,18 +1146,18 @@ const Controller = function (hostname, port) {
    * returns true on success
    * required parameter <group_id> = _id value of the firewall group to delete
    */
-  _self.deleteFirewallGroup = function (sites, group_id, cb) {
-    _self._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), null, sites, cb, 'DELETE');
-  };
+  deleteFirewallGroup(sites, group_id, cb) {
+    this._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), null, sites, cb, 'DELETE');
+  }
 
   /**
    * List firewall rules (using REST) - list_firewallrules()
    * --------------------------------
    * returns an array containing the current firewall rules on success
    */
-  _self.getFirewallRules = function (sites, cb) {
-    _self._request('/api/s/<SITE>/rest/firewallrule', null, sites, cb);
-  };
+  getFirewallRules(sites, cb) {
+    this._request('/api/s/<SITE>/rest/firewallrule', null, sites, cb);
+  }
 
   /**
    * List static routing settings (using REST) - list_routing()
@@ -1166,13 +1165,13 @@ const Controller = function (hostname, port) {
    * returns an array of static routes and their settings
    * optional parameter <route_id> = string; _id value of the static route to get settings for
    */
-  _self.getRouting = function (sites, cb, route_id) {
+  getRouting(sites, cb, route_id) {
     if (typeof (route_id) === 'undefined') {
       route_id = '';
     }
 
-    _self._request('/api/s/<SITE>/rest/routing/' + route_id.trim(), null, sites, cb);
-  };
+    this._request('/api/s/<SITE>/rest/routing/' + route_id.trim(), null, sites, cb);
+  }
 
   /**
    * List health metrics - list_health()
@@ -1181,9 +1180,9 @@ const Controller = function (hostname, port) {
    * required paramater <sites> = name or array of site names
    *
    */
-  _self.getHealth = function (sites, cb) {
-    _self._request('/api/s/<SITE>/stat/health', null, sites, cb);
-  };
+  getHealth(sites, cb) {
+    this._request('/api/s/<SITE>/stat/health', null, sites, cb);
+  }
 
   /**
    * List dashboard metrics - list_dashboard()
@@ -1193,14 +1192,14 @@ const Controller = function (hostname, port) {
    * optional parameter <five_minutes> = boolean; if true, return stats based on 5 minute intervals,
    *                                     returns hourly stats by default (supported on controller versions 5.5.* and higher)
    */
-  _self.getDashboard = function (sites, cb, five_minutes) {
+  getDashboard(sites, cb, five_minutes) {
     let url_suffix = '';
     if (typeof (five_minutes) !== 'undefined' && five_minutes === true) {
       url_suffix = '?scale=5minutes';
     }
 
-    _self._request('/api/s/<SITE>/stat/dashboard' + url_suffix, null, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/dashboard' + url_suffix, null, sites, cb);
+  }
 
   /**
    * List client devices - list_users()
@@ -1208,9 +1207,9 @@ const Controller = function (hostname, port) {
    * returns an array of known client device objects
    * required paramater <sites> = name or array of site names
    */
-  _self.getUsers = function (sites, cb) {
-    _self._request('/api/s/<SITE>/list/user', null, sites, cb);
-  };
+  getUsers(sites, cb) {
+    this._request('/api/s/<SITE>/list/user', null, sites, cb);
+  }
 
   /**
    * List access points and other devices under management of the controller (USW and/or USG devices) - list_devices()
@@ -1219,13 +1218,13 @@ const Controller = function (hostname, port) {
    * required paramater <sites>      = name or array of site names
    * optional paramater <device_mac> = the MAC address of a single device for which the call must be made
    */
-  _self.getAccessDevices = function (sites, cb, device_mac) {
+  getAccessDevices(sites, cb, device_mac) {
     if (typeof (device_mac) === 'undefined') {
       device_mac = '';
     }
 
-    _self._request('/api/s/<SITE>/stat/device/' + device_mac.trim().toLowerCase(), null, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/device/' + device_mac.trim().toLowerCase(), null, sites, cb);
+  }
 
   /**
    * List (device) tags (using REST) - list_tags()
@@ -1234,9 +1233,9 @@ const Controller = function (hostname, port) {
    *
    * NOTES: this endpoint was introduced with controller versions 5.5.X
    */
-  _self.listTags = function (sites, cb) {
-    _self._request('/api/s/<SITE>/rest/tag', null, sites, cb);
-  };
+  listTags(sites, cb) {
+    this._request('/api/s/<SITE>/rest/tag', null, sites, cb);
+  }
 
   /**
    * List rogue/neighboring access points - list_rogueaps()
@@ -1245,22 +1244,22 @@ const Controller = function (hostname, port) {
    * optional parameter <within> = hours to go back to list discovered "rogue" access points (default = 24 hours)
    *
    */
-  _self.getRogueAccessPoints = function (sites, cb, within) {
+  getRogueAccessPoints(sites, cb, within) {
     if (typeof (within) === 'undefined') {
       within = 24;
     }
 
-    _self._request('/api/s/<SITE>/stat/rogueap', {within}, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/rogueap', {within}, sites, cb);
+  }
 
   /**
    * List known rogue access points - list_known_rogueaps()
    * ------------------------------
    * returns an array of known rogue access point objects
    */
-  _self.getKnownRogueAccessPoints = function (sites, cb) {
-    _self._request('/api/s/<SITE>/rest/rogueknown', null, sites, cb);
-  };
+  getKnownRogueAccessPoints(sites, cb) {
+    this._request('/api/s/<SITE>/rest/rogueknown', null, sites, cb);
+  }
 
   /**
    * Generate backup - generate_backup()
@@ -1271,18 +1270,18 @@ const Controller = function (hostname, port) {
    * this is an experimental function, please do not use unless you know exactly
    * what you're doing
    */
-  _self.generateBackup = function (sites, cb) {
-    _self._request('/api/s/<SITE>/cmd/backup', {cmd: 'backup'}, sites, cb);
-  };
+  generateBackup(sites, cb) {
+    this._request('/api/s/<SITE>/cmd/backup', {cmd: 'backup'}, sites, cb);
+  }
 
   /**
    * List auto backups - list_backups()
    * -----------------
    * return an array containing objects with backup details on success
    */
-  _self.getBackups = function (sites, cb) {
-    _self._request('/api/s/<SITE>/cmd/backup', {cmd: 'list-backups'}, sites, cb);
-  };
+  getBackups(sites, cb) {
+    this._request('/api/s/<SITE>/cmd/backup', {cmd: 'list-backups'}, sites, cb);
+  }
 
   /**
    * Delete a backup file
@@ -1290,9 +1289,9 @@ const Controller = function (hostname, port) {
    * return true on success
    * required parameter <filename> = string; filename of backup to delete
    */
-  _self.deleteBackup = function (sites, filename, cb) {
-    _self._request('/api/s/<SITE>/cmd/backup', {cmd: 'delete-backup', filename}, sites, cb);
-  };
+  deleteBackup(sites, filename, cb) {
+    this._request('/api/s/<SITE>/cmd/backup', {cmd: 'delete-backup', filename}, sites, cb);
+  }
 
   /**
    * List sites
@@ -1300,9 +1299,9 @@ const Controller = function (hostname, port) {
    * calls callback function(err, result) with an array of the sites
    * registered to the UniFi controller
    */
-  _self.getSites = function (cb) {
-    _self._request('/api/self/sites', null, null, cb);
-  };
+  getSites(cb) {
+    this._request('/api/self/sites', null, null, cb);
+  }
 
   /**
    * List sites stats
@@ -1312,9 +1311,9 @@ const Controller = function (hostname, port) {
    *
    * NOTES: endpoint was introduced with controller version 5.2.9
    */
-  _self.getSitesStats = function (cb) {
-    _self._request('/api/stat/sites', null, null, cb);
-  };
+  getSitesStats(cb) {
+    this._request('/api/stat/sites', null, null, cb);
+  }
 
   /**
    * Create a site - create_site()
@@ -1324,7 +1323,7 @@ const Controller = function (hostname, port) {
    *
    * NOTES: immediately after being added, the new site will be available in the output of the "list_sites" function
    */
-  _self.createSite = function (site, cb, description) {
+  createSite(site, cb, description) {
     if (typeof (description) === 'undefined') {
       description = '';
     }
@@ -1332,8 +1331,8 @@ const Controller = function (hostname, port) {
     const json = {desc: description,
       cmd: 'add-site'};
 
-    _self._request('/api/s/<SITE>/cmd/sitemgr', json, site, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/sitemgr', json, site, cb);
+  }
 
   /**
    * Delete a site - delete_site()
@@ -1342,17 +1341,17 @@ const Controller = function (hostname, port) {
    * required parameter <site_id> = 24 char string; _id value of the site to delete
    *
    */
-  _self.deleteSite = function (site_id, cb) {
+  deleteSite(site_id, cb) {
     // Lets get the _id first
-    _self.getSites((error, result) => {
+    this.getSites((error, result) => {
       if (!error && result && result.length > 0 && (result[0].name === site_id || result[0]._id === site_id)) {
         const json = {site: result[0]._id,
           cmd: 'delete-site'};
 
-        _self._request('/api/s/<SITE>/cmd/sitemgr', json, result[0].name, cb);
+        this._request('/api/s/<SITE>/cmd/sitemgr', json, result[0].name, cb);
       }
     });
-  };
+  }
 
   /**
    * Change the current site's name - set_site_name()
@@ -1362,12 +1361,12 @@ const Controller = function (hostname, port) {
    *
    * NOTES: immediately after being changed, the site will be available in the output of the list_sites() function
    */
-  _self.setSiteName = function (site, site_name, cb) {
+  setSiteName(site, site_name, cb) {
     const json = {desc: site_name,
       cmd: 'update-site'};
 
-    _self._request('/api/s/<SITE>/cmd/sitemgr', json, site, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/sitemgr', json, site, cb);
+  }
 
   /**
    * Set site country - set_site_country()
@@ -1378,9 +1377,9 @@ const Controller = function (hostname, port) {
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteCountry = function (site, country_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/setting/country/' + country_id.trim(), payload, site, cb, 'PUT');
-  };
+  setSiteCountry(site, country_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/setting/country/' + country_id.trim(), payload, site, cb, 'PUT');
+  }
 
   /**
    * Set site locale - set_site_locale()
@@ -1390,9 +1389,9 @@ const Controller = function (hostname, port) {
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteLocale = function (site, locale_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/setting/locale/' + locale_id.trim(), payload, site, cb, 'PUT');
-  };
+  setSiteLocale(site, locale_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/setting/locale/' + locale_id.trim(), payload, site, cb, 'PUT');
+  }
 
   /**
    * Set site snmp - set_site_snmp()
@@ -1402,9 +1401,9 @@ const Controller = function (hostname, port) {
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteSNMP = function (site, snmp_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/setting/snmp/' + snmp_id.trim(), payload, site, cb, 'PUT');
-  };
+  setSiteSNMP(site, snmp_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/setting/snmp/' + snmp_id.trim(), payload, site, cb, 'PUT');
+  }
 
   /**
    * Set site mgmt - set_site_mgmt()
@@ -1414,9 +1413,9 @@ const Controller = function (hostname, port) {
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteMgmt = function (site, mgmt_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/setting/mgmt/' + mgmt_id.trim(), payload, site, cb, 'PUT');
-  };
+  setSiteMgmt(site, mgmt_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/setting/mgmt/' + mgmt_id.trim(), payload, site, cb, 'PUT');
+  }
 
   /**
    * Set site guest access - set_site_guest_access()
@@ -1426,9 +1425,9 @@ const Controller = function (hostname, port) {
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteGuestAccess = function (site, guest_access_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/setting/guest_access/' + guest_access_id.trim(), payload, site, cb, 'PUT');
-  };
+  setSiteGuestAccess(site, guest_access_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/setting/guest_access/' + guest_access_id.trim(), payload, site, cb, 'PUT');
+  }
 
   /**
    * Set site ntp - set_site_ntp()
@@ -1438,9 +1437,9 @@ const Controller = function (hostname, port) {
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteNTP = function (site, ntp_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/setting/ntp/' + ntp_id.trim(), payload, site, cb, 'PUT');
-  };
+  setSiteNTP(site, ntp_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/setting/ntp/' + ntp_id.trim(), payload, site, cb, 'PUT');
+  }
 
   /**
    * Set site connectivity - set_site_connectivity()
@@ -1450,9 +1449,9 @@ const Controller = function (hostname, port) {
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    * return true on success
    */
-  _self.setSiteConnectivity = function (site, connectivity_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/setting/connectivity/' + connectivity_id.trim(), payload, site, cb, 'PUT');
-  };
+  setSiteConnectivity(site, connectivity_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/setting/connectivity/' + connectivity_id.trim(), payload, site, cb, 'PUT');
+  }
 
   /**
    * List admins - list_admins()
@@ -1461,18 +1460,18 @@ const Controller = function (hostname, port) {
    * required paramater <sites> = name or array of site names
    *
    */
-  _self.listAdmins = function (sites, cb) {
-    _self._request('/api/s/<SITE>/cmd/sitemgr', {cmd: 'get-admins'}, sites, cb);
-  };
+  listAdmins(sites, cb) {
+    this._request('/api/s/<SITE>/cmd/sitemgr', {cmd: 'get-admins'}, sites, cb);
+  }
 
   /**
    * List all admins - list_all_admins()
    * ---------------
    * returns an array containing administrator objects for all sites
    */
-  _self.listAllAdmins = function (cb) {
-    _self._request('/api/s/admin', {}, null, cb);
-  };
+  listAllAdmins(cb) {
+    this._request('/api/s/admin', {}, null, cb);
+  }
 
   /**
    * Invite a new admin for access to the current site - invite_admin()
@@ -1496,7 +1495,7 @@ const Controller = function (hostname, port) {
    * - after issuing a valid request, an invite will be sent to the email address provided
    * - issuing this command against an existing admin will trigger a "re-invite"
    */
-  _self.inviteAdmin = function (sites, name, email, cb, enable_sso, readonly, device_adopt, device_restart) {
+  inviteAdmin(sites, name, email, cb, enable_sso, readonly, device_adopt, device_restart) {
     if (typeof (enable_sso) === 'undefined') {
       enable_sso = true;
     }
@@ -1535,8 +1534,8 @@ const Controller = function (hostname, port) {
 
     json.permissions = permissions;
 
-    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  }
 
   /**
    * Assign an existing admin to the current site - assign_existing_admin()
@@ -1554,7 +1553,7 @@ const Controller = function (hostname, port) {
    *                                       restart devices, default value is false. With versions < 5.9.X this only applies
    *                                       when readonly is true.
    */
-  _self.assignExistingAdmin = function (sites, admin_id, cb, readonly, device_adopt, device_restart) {
+  assignExistingAdmin(sites, admin_id, cb, readonly, device_adopt, device_restart) {
     if (typeof (readonly) === 'undefined') {
       readonly = false;
     }
@@ -1587,8 +1586,8 @@ const Controller = function (hostname, port) {
 
     json.permissions = permissions;
 
-    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  }
 
   /**
    * Revoke an admin from the current site - revoke_admin()
@@ -1600,13 +1599,13 @@ const Controller = function (hostname, port) {
    * NOTES:
    * only non-superadmin accounts can be revoked
    */
-  _self.revokeAdmin = function (sites, admin_id, cb) {
+  revokeAdmin(sites, admin_id, cb) {
     const json = {cmd: 'revoke-admin',
       admin: admin_id
     };
 
-    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  }
 
   /**
    * List wlan_groups - list_wlan_groups()
@@ -1614,9 +1613,9 @@ const Controller = function (hostname, port) {
    *
    * required paramater <sites> = name or array of site names
    */
-  _self.getWLanGroups = function (sites, cb) {
-    _self._request('/api/s/<SITE>/list/wlangroup', null, sites, cb);
-  };
+  getWLanGroups(sites, cb) {
+    this._request('/api/s/<SITE>/list/wlangroup', null, sites, cb);
+  }
 
   /**
    * Show sysinfo - stat_sysinfo()
@@ -1624,9 +1623,9 @@ const Controller = function (hostname, port) {
    * returns an array of known sysinfo data via callback function(err, result)
    * for all sites specified as a function parameter
    */
-  _self.getSiteSysinfo = function (sites, cb) {
-    _self._request('/api/s/<SITE>/stat/sysinfo', null, sites, cb);
-  };
+  getSiteSysinfo(sites, cb) {
+    this._request('/api/s/<SITE>/stat/sysinfo', null, sites, cb);
+  }
 
   /**
    * Get controller status - stat_status()
@@ -1636,18 +1635,18 @@ const Controller = function (hostname, port) {
    * NOTES: in order to get useful results (e.g. controller version) you can call get_last_results_raw()
    * immediately after this method
    */
-  _self.getStatus = function (cb) {
-    _self._request('/status', {}, null, cb);
-  };
+  getStatus(cb) {
+    this._request('/status', {}, null, cb);
+  }
 
   /**
    * List self - list_self()
    * ---------
    * returns an array of information about the logged in user
    */
-  _self.getSelf = function (sites, cb) {
-    _self._request('/api/s/<SITE>/self', null, sites, cb);
-  };
+  getSelf(sites, cb) {
+    this._request('/api/s/<SITE>/self', null, sites, cb);
+  }
 
   /**
    * List vouchers - stat_voucher()
@@ -1655,25 +1654,25 @@ const Controller = function (hostname, port) {
    *
    * optional parameter <create_time> = Unix timestamp in seconds
    */
-  _self.getVouchers = function (sites, cb, create_time) {
+  getVouchers(sites, cb, create_time) {
     let json = {};
     if (typeof (create_time) !== 'undefined') {
       json = {create_time};
     }
 
-    _self._request('/api/s/<SITE>/stat/voucher', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/voucher', json, sites, cb);
+  }
 
   /**
    * List payments - stat_payment()
    * -------------
    * returns an array of hotspot payments
    */
-  _self.getPayments = function (sites, cb, within) {
+  getPayments(sites, cb, within) {
     within = typeof (within) === 'undefined' ? '' : '?within=' + within.trim();
 
-    _self._request('/api/s/<SITE>/stat/payment' + within, null, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/payment' + within, null, sites, cb);
+  }
 
   /**
    * Create hotspot operator (using REST) - create_hotspotop()
@@ -1683,7 +1682,7 @@ const Controller = function (hostname, port) {
    * required parameter <x_password> = clear text password for the hotspot operator
    * optional parameter <note>       = note to attach to the hotspot operator
    */
-  _self.createHotspotOperator = function (sites, name, x_password, cb, note) {
+  createHotspotOperator(sites, name, x_password, cb, note) {
     const json = {name,
       x_password};
 
@@ -1691,17 +1690,17 @@ const Controller = function (hostname, port) {
       json.note = note;
     }
 
-    _self._request('/api/s/<SITE>/rest/hotspotop', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/rest/hotspotop', json, sites, cb);
+  }
 
   /**
    * List hotspot operators (using REST) - list_hotspotop()
    * -----------------------------------
    * returns an array of hotspot operators
    */
-  _self.getHotspotOperators = function (sites, cb) {
-    _self._request('/api/s/<SITE>/rest/hotspotop', null, sites, cb);
-  };
+  getHotspotOperators(sites, cb) {
+    this._request('/api/s/<SITE>/rest/hotspotop', null, sites, cb);
+  }
 
   /**
    * Create voucher(s) - create_voucher()
@@ -1719,7 +1718,7 @@ const Controller = function (hostname, port) {
    *
    * NOTES: please use the stat_voucher() method/function to retrieve the newly created voucher(s) by create_time
    */
-  _self.createVouchers = function (sites, minutes, cb, count, quota, note, up, down, mbytes) {
+  createVouchers(sites, minutes, cb, count, quota, note, up, down, mbytes) {
     if (typeof (count) === 'undefined') {
       count = 1;
     }
@@ -1749,8 +1748,8 @@ const Controller = function (hostname, port) {
       json.bytes = mbytes;
     }
 
-    _self._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
+  }
 
   /**
    * Revoke voucher - revoke_voucher()
@@ -1759,12 +1758,12 @@ const Controller = function (hostname, port) {
    *
    * required parameter <voucher_id> = 24 char string; _id value of the voucher to revoke
    */
-  _self.revokeVoucher = function (sites, voucher_id, cb) {
+  revokeVoucher(sites, voucher_id, cb) {
     const json = {cmd: 'delete-voucher',
       _id: voucher_id};
 
-    _self._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
+  }
 
   /**
    * Extend guest validity - extend_guest_validity()
@@ -1773,30 +1772,30 @@ const Controller = function (hostname, port) {
    *
    * required parameter <guest_id> = 24 char string; _id value of the guest to extend validity
    */
-  _self.extendGuestValidity = function (sites, guest_id, cb) {
+  extendGuestValidity(sites, guest_id, cb) {
     const json = {cmd: 'extend',
       _id: guest_id};
 
-    _self._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/hotspot', json, sites, cb);
+  }
 
   /**
    * List port forwarding stats - list_portforward_stats()
    * --------------------------
    * returns an array of port forwarding stats
    */
-  _self.getPortForwardingStats = function (sites, cb) {
-    _self._request('/api/s/<SITE>/stat/portforward', null, sites, cb);
-  };
+  getPortForwardingStats(sites, cb) {
+    this._request('/api/s/<SITE>/stat/portforward', null, sites, cb);
+  }
 
   /**
    * List DPI stats - list_dpi_stats()
    * --------------
    * returns an array of DPI stats
    */
-  _self.getDPIStats = function (sites, cb) {
-    _self._request('/api/s/<SITE>/stat/dpi', null, sites, cb);
-  };
+  getDPIStats(sites, cb) {
+    this._request('/api/s/<SITE>/stat/dpi', null, sites, cb);
+  }
 
   /**
    * List filtered DPI stats
@@ -1807,7 +1806,7 @@ const Controller = function (hostname, port) {
    * optional parameter <cat_filter> = an array containing numeric category ids to filter by,
    *                                   only to be combined with a "by_app" value for $type
    */
-  _self.getFilteredDPIStats = function (sites, cb, type, cat_filter) {
+  getFilteredDPIStats(sites, cb, type, cat_filter) {
     if (typeof (type) === 'undefined') {
       type = 'by_cat';
     }
@@ -1818,29 +1817,29 @@ const Controller = function (hostname, port) {
       json.cats = cat_filter;
     }
 
-    _self._request('/api/s/<SITE>/stat/sitedpi', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/sitedpi', json, sites, cb);
+  }
 
   /**
    * Clear DPI stats
    * --------------
    * clears stats of DPI
    */
-  _self.ClearDPIStatus = function (sites, cb) {
+  ClearDPIStatus(sites, cb) {
     const json = {
       cmd: 'clear-dpi'
     };
-    _self._request('/api/s/<SITE>/cmd/stat', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/stat', json, sites, cb);
+  }
 
   /**
    * List current channels - list_current_channels()
    * ---------------------
    * returns an array of currently allowed channels
    */
-  _self.getCurrentChannels = function (sites, cb) {
-    _self._request('/api/s/<SITE>/stat/current-channel', null, sites, cb);
-  };
+  getCurrentChannels(sites, cb) {
+    this._request('/api/s/<SITE>/stat/current-channel', null, sites, cb);
+  }
 
   /**
    * List country codes - list_country_codes()
@@ -1851,27 +1850,27 @@ const Controller = function (hostname, port) {
    * these codes following the ISO standard:
    * https://en.wikipedia.org/wiki/ISO_3166-1_numeric
    */
-  _self.getCountryCodes = function (sites, cb) {
-    _self._request('/api/s/<SITE>/stat/ccode', null, sites, cb);
-  };
+  getCountryCodes(sites, cb) {
+    this._request('/api/s/<SITE>/stat/ccode', null, sites, cb);
+  }
 
   /**
    * List port forwarding settings - list_portforwarding()
    * -----------------------------
    * returns an array of port forwarding settings
    */
-  _self.getPortForwarding = function (sites, cb) {
-    _self._request('/api/s/<SITE>/list/portforward', null, sites, cb);
-  };
+  getPortForwarding(sites, cb) {
+    this._request('/api/s/<SITE>/list/portforward', null, sites, cb);
+  }
 
   /**
    * List dynamic DNS settings - list_dynamicdns()
    * -------------------------
    * returns an array of dynamic DNS settings
    */
-  _self.getDynamicDNS = function (sites, cb) {
-    _self._request('/api/s/<SITE>/list/dynamicdns', null, sites, cb);
-  };
+  getDynamicDNS(sites, cb) {
+    this._request('/api/s/<SITE>/list/dynamicdns', null, sites, cb);
+  }
 
   /**
    * Create dynamic DNS settings, base (using REST) - create_dynamicdns()
@@ -1880,9 +1879,9 @@ const Controller = function (hostname, port) {
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the site, must be a
    *                                (partial) object/array structured in the same manner as is returned by list_dynamicdns() for the site.
    */
-  _self.createDynamicDNS = function (sites, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/dynamicdns', payload, sites, cb);
-  };
+  createDynamicDNS(sites, payload, cb) {
+    this._request('/api/s/<SITE>/rest/dynamicdns', payload, sites, cb);
+  }
 
   /**
    * Update site dynamic DNS, base (using REST) - set_dynamicdns
@@ -1892,36 +1891,36 @@ const Controller = function (hostname, port) {
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the site, must be a
    *                                (partial) object/array structured in the same manner as is returned by list_dynamicdns() for the site.
    */
-  _self.setDynamicDNS = function (sites, dynamicdns_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/dynamicdns/' + dynamicdns_id.trim(), payload, sites, cb);
-  };
+  setDynamicDNS(sites, dynamicdns_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/dynamicdns/' + dynamicdns_id.trim(), payload, sites, cb);
+  }
 
   /**
    * List port configurations - list_portconf()
    * ------------------------
    * returns an array of port configurations
    */
-  _self.getPortConfig = function (sites, cb) {
-    _self._request('/api/s/<SITE>/list/portconf', null, sites, cb);
-  };
+  getPortConfig(sites, cb) {
+    this._request('/api/s/<SITE>/list/portconf', null, sites, cb);
+  }
 
   /**
    * List VoIP extensions - list_extensions()
    * --------------------
    * returns an array of VoIP extensions
    */
-  _self.getVoipExtensions = function (sites, cb) {
-    _self._request('/api/s/<SITE>/list/extension', null, sites, cb);
-  };
+  getVoipExtensions(sites, cb) {
+    this._request('/api/s/<SITE>/list/extension', null, sites, cb);
+  }
 
   /**
    * List site settings - list_settings()
    * ------------------
    * returns an array of site configuration settings
    */
-  _self.getSiteSettings = function (sites, cb) {
-    _self._request('/api/s/<SITE>/get/setting', null, sites, cb);
-  };
+  getSiteSettings(sites, cb) {
+    this._request('/api/s/<SITE>/get/setting', null, sites, cb);
+  }
 
   /**
    * Adopt a device to the selected site - adopt_device()
@@ -1929,12 +1928,12 @@ const Controller = function (hostname, port) {
    *
    * required parameter <mac> = device MAC address
    */
-  _self.adoptDevice = function (sites, mac, cb) {
+  adoptDevice(sites, mac, cb) {
     const json = {cmd: 'adopt',
       mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
+  }
 
   /**
    * Reboot a device - restart_device()
@@ -1947,7 +1946,7 @@ const Controller = function (hostname, port) {
    *                             power cycle on all PoE capable ports. Keep in mind that a 'hard' r  eboot
    *                             does *NOT* trigger a factory-reset, as it somehow could suggest.
    */
-  _self.restartDevice = function (sites, mac, cb, type) {
+  restartDevice(sites, mac, cb, type) {
     const json = {cmd: 'restart',
       mac: mac.toLowerCase()};
 
@@ -1955,8 +1954,8 @@ const Controller = function (hostname, port) {
       json.type = type.toLowerCase();
     }
 
-    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
+  }
 
   /**
    * Force provision of a device - force_provision()
@@ -1964,12 +1963,12 @@ const Controller = function (hostname, port) {
    * return true on success
    * required parameter <mac> = device MAC address
    */
-  _self.forceProvision = function (sites, mac, cb) {
+  forceProvision(sites, mac, cb) {
     const json = {cmd: 'force-provision',
       mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
+  }
 
   /**
    * Reboot a UniFi CloudKey - reboot_cloudkey()
@@ -1978,9 +1977,9 @@ const Controller = function (hostname, port) {
    *
    * This API call does nothing on UniFi controllers *not* running on a UniFi CloudKey device
    */
-  _self.rebootCloudKey = function (sites, cb) {
-    _self._request('/api/s/<SITE>/cmd/system', {cmd: 'reboot'}, sites, cb);
-  };
+  rebootCloudKey(sites, cb) {
+    this._request('/api/s/<SITE>/cmd/system', {cmd: 'reboot'}, sites, cb);
+  }
 
   /**
    * Disable/enable an access point (using REST) - disable_ap()
@@ -1994,9 +1993,9 @@ const Controller = function (hostname, port) {
    * - appears to only be supported for access points
    * - available since controller versions 5.2.X
    */
-  _self.disableAccessPoint = function (sites, ap_id, disable, cb) {
-    _self._request('/api/s/<SITE>/rest/device/' + ap_id.trim(), {disabled: disable}, sites, cb, 'PUT');
-  };
+  disableAccessPoint(sites, ap_id, disable, cb) {
+    this._request('/api/s/<SITE>/rest/device/' + ap_id.trim(), {disabled: disable}, sites, cb, 'PUT');
+  }
 
   /**
    * Override LED mode for a device (using REST) - led_override()
@@ -2007,9 +2006,9 @@ const Controller = function (hostname, port) {
    *                                      "on" will enable the LED of the device,
    *                                      "default" will apply the site-wide setting for device LEDs
    */
-  _self.setLEDOverride = function (sites, device_id, override_mode, cb) {
-    _self._request('/api/s/<SITE>/rest/device/' + device_id.trim(), {led_override: override_mode}, sites, cb, 'PUT');
-  };
+  setLEDOverride(sites, device_id, override_mode, cb) {
+    this._request('/api/s/<SITE>/rest/device/' + device_id.trim(), {led_override: override_mode}, sites, cb, 'PUT');
+  }
 
   /**
    * Toggle flashing LED of an access point for locating purposes - locate_ap()
@@ -2018,12 +2017,12 @@ const Controller = function (hostname, port) {
    * required parameter <mac> = device MAC address
    * required parameter <enable> = boolean; true will enable flashing LED, false will disable
    */
-  _self.setLocateAccessPoint = function (sites, mac, enable, cb) {
+  setLocateAccessPoint(sites, mac, enable, cb) {
     const json = {cmd: enable === true ? 'set-locate' : 'unset-locate',
       mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
+  }
 
   /**
    * Toggle LEDs of all the access points ON or OFF - site_leds()
@@ -2031,9 +2030,9 @@ const Controller = function (hostname, port) {
    *
    * required parameter <enable> = boolean; true will switch LEDs of all the access points ON, false will switch them OFF
    */
-  _self.setSiteLEDs = function (sites, enable, cb) {
-    _self._request('/api/s/<SITE>/set/setting/mgmt', {led_enabled: enable}, sites, cb);
-  };
+  setSiteLEDs(sites, enable, cb) {
+    this._request('/api/s/<SITE>/set/setting/mgmt', {led_enabled: enable}, sites, cb);
+  }
 
   /**
    * Update access point radio settings - set_ap_radiosettings()
@@ -2049,15 +2048,15 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - only supported on pre-5.X.X controller versions
    */
-  _self.setAccessPointRadioSettings = function (sites, ap_id, radio, channel, ht, tx_power_mode, tx_power, cb) {
+  setAccessPointRadioSettings(sites, ap_id, radio, channel, ht, tx_power_mode, tx_power, cb) {
     const json = {radio_table: [{radio,
       channel,
       ht,
       tx_power_mode,
       tx_power}]};
 
-    _self._request('/api/s/<SITE>/upd/device/' + ap_id.trim(), json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/upd/device/' + ap_id.trim(), json, sites, cb);
+  }
 
   /**
    * Assign access point to another WLAN group - set_ap_wlangroup()
@@ -2067,7 +2066,7 @@ const Controller = function (hostname, port) {
    * required parameter <device_id> = string; _id value of the access point to be modified
    * required parameter <group_id>  = string; _id value of the WLAN group to assign device to
    */
-  _self.setAccessPointWLanGroup = function (sites, type_id, device_id, group_id, cb) {
+  setAccessPointWLanGroup(sites, type_id, device_id, group_id, cb) {
     const json = {wlan_overrides: {}};
 
     if (type_id === 'ng') {
@@ -2076,8 +2075,8 @@ const Controller = function (hostname, port) {
       json.wlangroup_id_na = group_id;
     }
 
-    _self._request('/api/s/<SITE>/upd/device/' + device_id.trim(), json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/upd/device/' + device_id.trim(), json, sites, cb);
+  }
 
   /**
    * Update guest login settings - set_guestlogin_settings()
@@ -2097,7 +2096,7 @@ const Controller = function (hostname, port) {
    * - both portal parameters are set to the same value!
    *
    */
-  _self.setGuestLoginSettings = function (sites, portal_enabled, portal_customized, redirect_enabled, redirect_url, x_password, expire_number, expire_unit, section_id, cb) {
+  setGuestLoginSettings(sites, portal_enabled, portal_customized, redirect_enabled, redirect_url, x_password, expire_number, expire_unit, section_id, cb) {
     const json = {portal_enabled,
       portal_customized,
       redirect_enabled,
@@ -2107,8 +2106,8 @@ const Controller = function (hostname, port) {
       expire_unit,
       _id: section_id};
 
-    _self._request('/api/s/<SITE>/set/setting/guest_access/', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/set/setting/guest_access/', json, sites, cb);
+  }
 
   /**
    * Update guest login settings, base - set_guestlogin_settings_base()
@@ -2117,9 +2116,9 @@ const Controller = function (hostname, port) {
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the guest login, must be a (partial)
    *                                object/array structured in the same manner as is returned by list_settings() for the "guest_access" section.
    */
-  _self.setGuestLoginSettingsBase = function (sites, payload, cb) {
-    _self._request('/api/s/<SITE>/set/setting/guest_access', payload, sites, cb);
-  };
+  setGuestLoginSettingsBase(sites, payload, cb) {
+    this._request('/api/s/<SITE>/set/setting/guest_access', payload, sites, cb);
+  }
 
   /**
    * Update IPS/IDS settings, base - set_ips_settings_base()
@@ -2128,9 +2127,9 @@ const Controller = function (hostname, port) {
    * required parameter <payload> = stdClass object or associative array containing the IPS/IDS settings to apply, must be a (partial)
    *                                object/array structured in the same manner as is returned by list_settings() for the "ips" section.
    */
-  _self.setIPSSettingsBase = function (sites, payload, cb) {
-    _self._request('/api/s/<SITE>/set/setting/ips', payload, sites, cb);
-  };
+  setIPSSettingsBase(sites, payload, cb) {
+    this._request('/api/s/<SITE>/set/setting/ips', payload, sites, cb);
+  }
 
   /**
    * Update "Super Management" settings, base - set_super_mgmt_settings_base()
@@ -2141,9 +2140,9 @@ const Controller = function (hostname, port) {
    * required parameter <payload>     = stdClass object or associative array containing the "Super Management" settings to apply, must be a (partial)
    *                                    object/array structured in the same manner as is returned by list_settings() for the "super_mgmt" section.
    */
-  _self.setSuperMgmtSettingsBase = function (sites, settings_id, payload, cb) {
-    _self._request('/api/s/<SITE>/set/setting/super_mgmt/' + settings_id.trim(), payload, sites, cb);
-  };
+  setSuperMgmtSettingsBase(sites, settings_id, payload, cb) {
+    this._request('/api/s/<SITE>/set/setting/super_mgmt/' + settings_id.trim(), payload, sites, cb);
+  }
 
   /**
    * Update "Super SMTP" settings, base - set_super_smtp_settings_base()
@@ -2154,9 +2153,9 @@ const Controller = function (hostname, port) {
    * required parameter <payload>     = stdClass object or associative array containing the "Super SMTP" settings to apply, must be a (partial)
    *                                    object/array structured in the same manner as is returned by list_settings() for the "super_smtp" section.
    */
-  _self.setSuperSMTPSettingsBase = function (sites, settings_id, payload, cb) {
-    _self._request('/api/s/<SITE>/set/setting/super_smtp/' + settings_id.trim(), payload, sites, cb);
-  };
+  setSuperSMTPSettingsBase(sites, settings_id, payload, cb) {
+    this._request('/api/s/<SITE>/set/setting/super_smtp/' + settings_id.trim(), payload, sites, cb);
+  }
 
   /**
    * Update "Super Controller Identity" settings, base - set_super_identity_settings_base()
@@ -2167,9 +2166,9 @@ const Controller = function (hostname, port) {
    * required parameter <payload>     = stdClass object or associative array containing the "Super Controller Identity" settings to apply, must be a (partial)
    *                                    object/array structured in the same manner as is returned by list_settings() for the "super_identity" section.
    */
-  _self.setSuperIdentitySettingsBase = function (sites, settings_id, payload, cb) {
-    _self._request('/api/s/<SITE>/set/setting/super_identity/' + settings_id.trim(), payload, sites, cb);
-  };
+  setSuperIdentitySettingsBase(sites, settings_id, payload, cb) {
+    this._request('/api/s/<SITE>/set/setting/super_identity/' + settings_id.trim(), payload, sites, cb);
+  }
 
   /**
    * Rename access point - rename_ap()
@@ -2179,9 +2178,9 @@ const Controller = function (hostname, port) {
    * required parameter <apname> = New name
    *
    */
-  _self.renameAccessPoint = function (sites, ap_id, apname, cb) {
-    _self._request('/api/s/<SITE>/upd/device/' + ap_id.trim(), {name: apname}, sites, cb);
-  };
+  renameAccessPoint(sites, ap_id, apname, cb) {
+    this._request('/api/s/<SITE>/upd/device/' + ap_id.trim(), {name: apname}, sites, cb);
+  }
 
   /**
    * Move a device to another site - move_device()
@@ -2190,14 +2189,14 @@ const Controller = function (hostname, port) {
    * required parameter <mac>     = string; MAC address of the device to move
    * required parameter <site_id> = 24 char string; _id of the site to move the device to
    */
-  _self.moveDevice = function (sites, mac, site_id, cb) {
+  moveDevice(sites, mac, site_id, cb) {
     const json = {site: site_id,
       mac: mac.toLowerCase(),
       cmd: 'move-device'
     };
 
-    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  }
 
   /**
    * Delete a device from the current site - delete_device()
@@ -2205,13 +2204,13 @@ const Controller = function (hostname, port) {
    * return true on success
    * required parameter <mac>     = string; MAC address of the device to move
    */
-  _self.deleteDevice = function (sites, mac, cb) {
+  deleteDevice(sites, mac, cb) {
     const json = {mac: mac.toLowerCase(),
       cmd: 'delete-device'
     };
 
-    _self._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/sitemgr', json, sites, cb);
+  }
 
   /**
    * List network settings (using REST) - list_networkconf()
@@ -2219,13 +2218,13 @@ const Controller = function (hostname, port) {
    * returns an array of (non-wireless) networks and their settings
    * optional parameter <network_id> = string; _id value of the network to get settings for
    */
-  _self.getNetworkConf = function (sites, cb, network_id) {
+  getNetworkConf(sites, cb, network_id) {
     if (typeof (network_id) === 'undefined') {
       network_id = '';
     }
 
-    _self._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), null, sites, cb);
-  };
+    this._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), null, sites, cb);
+  }
 
   /**
    * Create a network (using REST) - create_network()
@@ -2235,9 +2234,9 @@ const Controller = function (hostname, port) {
    *                                object structured in the same manner as is returned by list_networkconf() for the specific network type.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
    */
-  _self.createNetwork = function (sites, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/networkconf', payload, sites, cb);
-  };
+  createNetwork(sites, payload, cb) {
+    this._request('/api/s/<SITE>/rest/networkconf', payload, sites, cb);
+  }
 
   /**
    * Update network settings, base (using REST) - set_networksettings_base()
@@ -2247,9 +2246,9 @@ const Controller = function (hostname, port) {
    * required parameter <payload>    = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                   object/array structured in the same manner as is returned by list_networkconf() for the network.
    */
-  _self.setNetworkSettingsBase = function (sites, network_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), payload, sites, cb, 'PUT');
-  };
+  setNetworkSettingsBase(sites, network_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), payload, sites, cb, 'PUT');
+  }
 
   /**
    * Delete a network (using REST) - delete_network()
@@ -2257,9 +2256,9 @@ const Controller = function (hostname, port) {
    * return true on success
    * required parameter <network_id> = 24 char string; _id value of the network which can be found with the list_networkconf() function
    */
-  _self.deleteNetwork = function (sites, network_id, cb) {
-    _self._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), null, sites, cb, 'DELETE');
-  };
+  deleteNetwork(sites, network_id, cb) {
+    this._request('/api/s/<SITE>/rest/networkconf/' + network_id.trim(), null, sites, cb, 'DELETE');
+  }
 
   /**
    * List wlan settings (using REST) - list_wlanconf()
@@ -2269,13 +2268,13 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * optional parameter <wlan_id> = 24 char string; _id value of the wlan to fetch the settings for
    */
-  _self.getWLanSettings = function (sites, cb, wlan_id) {
+  getWLanSettings(sites, cb, wlan_id) {
     if (typeof (wlan_id) === 'undefined') {
       wlan_id = '';
     }
 
-    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), null, sites, cb);
-  };
+    this._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), null, sites, cb);
+  }
 
   /**
    * Create a wlan - create_wlan()
@@ -2298,7 +2297,7 @@ const Controller = function (hostname, port) {
    * optional parameter <schedule_enabled> = boolean; enable/disable wlan schedule
    * optional parameter <schedule>         = string; schedule rules
    */
-  _self.createWLan = function (sites, name, x_passphrase, usergroup_id, wlangroup_id, cb,
+  createWLan(sites, name, x_passphrase, usergroup_id, wlangroup_id, cb,
     enabled, hide_ssid, is_guest, security, wpa_mode, wpa_enc, vlan_enabled, vlan, uapsd_enabled, schedule_enabled, schedule) {
     const json = {name,
       usergroup_id,
@@ -2323,8 +2322,8 @@ const Controller = function (hostname, port) {
       json.x_passphrase = x_passphrase;
     }
 
-    _self._request('/api/s/<SITE>/add/wlanconf/', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/add/wlanconf/', json, sites, cb);
+  }
 
   /**
    * Update wlan settings, base (using REST) - set_wlansettings_base()
@@ -2335,9 +2334,9 @@ const Controller = function (hostname, port) {
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the wlan, must be a
    *                                (partial) object/array structured in the same manner as is returned by list_wlanconf() for the wlan.
    */
-  _self.setWLanSettingsBase = function (sites, wlan_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), payload, sites, cb, 'PUT');
-  };
+  setWLanSettingsBase(sites, wlan_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), payload, sites, cb, 'PUT');
+  }
 
   /**
    * Update basic wlan settings - set_wlansettings()
@@ -2349,7 +2348,7 @@ const Controller = function (hostname, port) {
    * optional parameter <name>
    *
    */
-  _self.setWLanSettings = function (sites, wlan_id, cb, x_passphrase, name) {
+  setWLanSettings(sites, wlan_id, cb, x_passphrase, name) {
     const json = {};
 
     if (typeof (x_passphrase) !== 'undefined') {
@@ -2360,8 +2359,8 @@ const Controller = function (hostname, port) {
       json.name = name.trim();
     }
 
-    _self.setWLanSettingsBase(sites, wlan_id, json, cb);
-  };
+    this.setWLanSettingsBase(sites, wlan_id, json, cb);
+  }
 
   /**
    * Disable/Enable wlan - disable_wlan()
@@ -2371,11 +2370,11 @@ const Controller = function (hostname, port) {
    * required parameter <disable> = boolean; true disables the wlan, false enables it
    *
    */
-  _self.disableWLan = function (sites, wlan_id, disable, cb) {
+  disableWLan(sites, wlan_id, disable, cb) {
     const json = {enabled: disable !== true};
 
-    _self.setWLanSettingsBase(sites, wlan_id, json, sites, cb);
-  };
+    this.setWLanSettingsBase(sites, wlan_id, json, sites, cb);
+  }
 
   /**
    * Delete a wlan (using REST) - delete_wlan()
@@ -2383,9 +2382,9 @@ const Controller = function (hostname, port) {
    *
    * required parameter <wlan_id> = 24 char string; _id of the wlan that can be found with the list_wlanconf() function
    */
-  _self.deleteWLan = function (sites, wlan_id, cb) {
-    _self._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), {}, sites, cb, 'DELETE');
-  };
+  deleteWLan(sites, wlan_id, cb) {
+    this._request('/api/s/<SITE>/rest/wlanconf/' + wlan_id.trim(), {}, sites, cb, 'DELETE');
+  }
 
   /**
    * Update MAC filter for a wlan - set_wlan_mac_filter()
@@ -2399,14 +2398,14 @@ const Controller = function (hostname, port) {
    *                                           through list_wlanconf().
    *
    */
-  _self.setWLanMacFilter = function (sites, wlan_id, mac_filter_policy, mac_filter_enabled, macs, cb) {
+  setWLanMacFilter(sites, wlan_id, mac_filter_policy, mac_filter_enabled, macs, cb) {
     const json = {mac_filter_enabled,
       mac_filter_policy,
       mac_filter_list: macs
     };
 
-    _self.setWLanSettingsBase(sites, wlan_id, json, cb);
-  };
+    this.setWLanSettingsBase(sites, wlan_id, json, cb);
+  }
 
   /**
    * List events - list_events()
@@ -2417,7 +2416,7 @@ const Controller = function (hostname, port) {
    * optional parameter <start>        = which event number to start with (useful for paging of results), default value is 0
    * optional parameter <limit>        = number of events to return, default value is 3000
    */
-  _self.getEvents = function (sites, cb, historyhours, start, limit) {
+  getEvents(sites, cb, historyhours, start, limit) {
     const json = {_sort: '-time',
       type: null};
 
@@ -2439,8 +2438,8 @@ const Controller = function (hostname, port) {
       json._limit = limit;
     }
 
-    _self._request('/api/s/<SITE>/stat/event', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/stat/event', json, sites, cb);
+  }
 
   /**
    * List alarms - list_alarms()
@@ -2449,9 +2448,9 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * optional parameter <archived> = boolean; if true all alarms will be listed, if false only non-archived (active) alarms will be listed
    */
-  _self.getAlarms = function (sites, cb, archived) {
-    _self._request('/api/s/<SITE>/stat/alarm' + (archived === false ? '?archived=false' : ''), null, sites, cb);
-  };
+  getAlarms(sites, cb, archived) {
+    this._request('/api/s/<SITE>/stat/alarm' + (archived === false ? '?archived=false' : ''), null, sites, cb);
+  }
 
   /**
    * Count alarms - count_alarms()
@@ -2460,9 +2459,9 @@ const Controller = function (hostname, port) {
    * required paramater <sites>   = name or array of site names
    * optional parameter <archived> = boolean; if true all alarms will be counted, if false only non-archived (active) alarms will be counted
    */
-  _self.countAlarms = function (sites, cb, archived) {
-    _self._request('/api/s/<SITE>/cnt/alarm' + (archived === false ? '?archived=false' : ''), null, sites, cb);
-  };
+  countAlarms(sites, cb, archived) {
+    this._request('/api/s/<SITE>/cnt/alarm' + (archived === false ? '?archived=false' : ''), null, sites, cb);
+  }
 
   /**
    * Archive alarms(s) - archive_alarm()
@@ -2471,7 +2470,7 @@ const Controller = function (hostname, port) {
    * optional parameter <alarm_id> = 24 char string; _id of the alarm to archive which can be found with the list_alarms() function,
    *                                 if not provided, *all* un-archived alarms for the current site will be archived!
    */
-  _self.archiveAlarms = function (sites, cb, alarm_id) {
+  archiveAlarms(sites, cb, alarm_id) {
     const json = {};
     if (typeof (alarm_id) === 'undefined') {
       json.cmd = 'archive-all-alarms';
@@ -2480,8 +2479,8 @@ const Controller = function (hostname, port) {
       json._id = alarm_id;
     }
 
-    _self._request('/api/s/<SITE>/cmd/evtmgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/evtmgr', json, sites, cb);
+  }
 
   /**
    * Upgrade a device to the latest firmware - upgrade_device()
@@ -2492,9 +2491,9 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - updates the device to the latest firmware known to the controller
    */
-  _self.upgradeDevice = function (sites, device_mac, cb) {
-    _self._request('/api/s/<SITE>/cmd/devmgr/upgrade', {mac: device_mac.toLowerCase()}, sites, cb);
-  };
+  upgradeDevice(sites, device_mac, cb) {
+    this._request('/api/s/<SITE>/cmd/devmgr/upgrade', {mac: device_mac.toLowerCase()}, sites, cb);
+  }
 
   /**
    * Upgrade a device to a specific firmware file - upgrade_device_external()
@@ -2507,9 +2506,9 @@ const Controller = function (hostname, port) {
    * - updates the device to the firmware file at the given URL
    * - please take great care to select a valid firmware file for the device!
    */
-  _self.upgradeDeviceExternal = function (sites, firmware_url, device_mac, cb) {
-    _self._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', {url: firmware_url, mac: device_mac.toLowerCase()}, sites, cb);
-  };
+  upgradeDeviceExternal(sites, firmware_url, device_mac, cb) {
+    this._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', {url: firmware_url, mac: device_mac.toLowerCase()}, sites, cb);
+  }
 
   /**
    * Start rolling upgrade - start_rolling_upgrade()
@@ -2520,18 +2519,18 @@ const Controller = function (hostname, port) {
    * - updates all access points to the latest firmware known to the controller in a
    *   staggered/rolling fashion
    */
-  _self.startRollingUpgrade = function (sites, cb) {
-    _self._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'set-rollupgrade'}, sites, cb);
-  };
+  startRollingUpgrade(sites, cb) {
+    this._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'set-rollupgrade'}, sites, cb);
+  }
 
   /**
    * Cancel rolling upgrade - cancel_rolling_upgrade()
    * ----------------------
    * return true on success
    */
-  _self.cancelRollingUpgrade = function (sites, cb) {
-    _self._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'unset-rollupgrade'}, sites, cb);
-  };
+  cancelRollingUpgrade(sites, cb) {
+    this._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'unset-rollupgrade'}, sites, cb);
+  }
 
   /**
    * List firmware versions - list_firmware()
@@ -2539,14 +2538,14 @@ const Controller = function (hostname, port) {
    * returns an array of firmware versions
    * optional parameter <type> = string; "available" or "cached", determines which firmware types to return
    */
-  _self.getFirmware = function (sites, cb, type) {
+  getFirmware(sites, cb, type) {
     const payload = {};
     if (typeof (type) === 'undefined') {
       payload.cmd = 'available';
     }
 
-    _self._request('/api/s/<SITE>/cmd/firmware', payload, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/firmware', payload, sites, cb);
+  }
 
   /**
    * Power-cycle the PoE output of a switch port - power_cycle_switch_port()
@@ -2559,14 +2558,14 @@ const Controller = function (hostname, port) {
    * - only applies to switches and their PoE ports...
    * - port must be actually providing power
    */
-  _self.powerCycleSwitchPort = function (sites, switch_mac, port_idx, cb) {
+  powerCycleSwitchPort(sites, switch_mac, port_idx, cb) {
     const json = {mac: switch_mac.toLowerCase(),
       port_idx,
       cmd: 'power-cycle'
     };
 
-    _self._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
+  }
 
   /**
    * Trigger an RF scan by an AP
@@ -2574,27 +2573,27 @@ const Controller = function (hostname, port) {
    * return true on success
    * required parameter <ap_mac> = MAC address of the AP
    */
-  _self.runSpectrumScan = function (sites, ap_mac, cb) {
-    _self._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'spectrum-scan', mac: ap_mac.toLowerCase()}, sites, cb);
-  };
+  runSpectrumScan(sites, ap_mac, cb) {
+    this._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'spectrum-scan', mac: ap_mac.toLowerCase()}, sites, cb);
+  }
 
   /**
    * Trigger a speedtest on a USG
    * ----------------------------
    * return true on success
    */
-  _self.runSpeedTest = function (sites, cb) {
-    _self._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'speedtest'}, sites, cb);
-  };
+  runSpeedTest(sites, cb) {
+    this._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'speedtest'}, sites, cb);
+  }
 
   /**
    * Get the current state of a running speedtest on a USG
    * -----------------------------------------------------
    * returns status of speedtest
    */
-  _self.getSpeedTestStatus = function (sites, cb) {
-    _self._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'speedtest-status'}, sites, cb);
-  };
+  getSpeedTestStatus(sites, cb) {
+    this._request('/api/s/<SITE>/cmd/devmgr', {cmd: 'speedtest-status'}, sites, cb);
+  }
 
   /**
    * Check the RF scanning state of an AP - spectrum_scan_state()
@@ -2602,9 +2601,9 @@ const Controller = function (hostname, port) {
    * returns an object with relevant information (results if available) regarding the RF scanning state of the AP
    * required parameter <ap_mac> = MAC address of the AP
    */
-  _self.getSpectrumScanState = function (sites, ap_mac, cb) {
-    _self._request('/api/s/<SITE>/stat/spectrum-scan/' + ap_mac.trim().toLowerCase(), null, sites, cb);
-  };
+  getSpectrumScanState(sites, ap_mac, cb) {
+    this._request('/api/s/<SITE>/stat/spectrum-scan/' + ap_mac.trim().toLowerCase(), null, sites, cb);
+  }
 
   /**
    * Update device settings, base (using REST) - set_device_settings_base()
@@ -2614,9 +2613,9 @@ const Controller = function (hostname, port) {
    * required parameter <payload>   = stdClass object or associative array containing the configuration to apply to the device, must be a
    *                                  (partial) object/array structured in the same manner as is returned by list_devices() for the device.
    */
-  _self.setDeviceSettingsBase = function (sites, device_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/device/' + device_id.trim(), payload, sites, cb, 'PUT');
-  };
+  setDeviceSettingsBase(sites, device_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/device/' + device_id.trim(), payload, sites, cb, 'PUT');
+  }
 
   /**
    * List Radius profiles (using REST) - list_radius_profiles()
@@ -2626,9 +2625,9 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - this function/method is only supported on controller versions 5.5.19 and later
    */
-  _self.listRadiusProfiles = function (sites, cb) {
-    _self._request('/api/s/<SITE>/rest/radiusprofile', null, sites, cb);
-  };
+  listRadiusProfiles(sites, cb) {
+    this._request('/api/s/<SITE>/rest/radiusprofile', null, sites, cb);
+  }
 
   /**
    * List Radius user accounts (using REST) - list_radius_accounts()
@@ -2638,9 +2637,9 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - this function/method is only supported on controller versions 5.5.19 and later
    */
-  _self.listRadiusAccounts = function (sites, cb) {
-    _self._request('/api/s/<SITE>/rest/account', null, sites, cb);
-  };
+  listRadiusAccounts(sites, cb) {
+    this._request('/api/s/<SITE>/rest/account', null, sites, cb);
+  }
 
   /**
    * Create a Radius user account (using REST) - create_radius_account()
@@ -2683,7 +2682,7 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - this function/method is only supported on controller versions 5.5.19 and later
    */
-  _self.createRadiusAccount = function (sites, name, x_password, tunnel_type, tunnel_medium_type, cb, vlan) {
+  createRadiusAccount(sites, name, x_password, tunnel_type, tunnel_medium_type, cb, vlan) {
     const json = {name,
       x_password,
       tunnel_type,
@@ -2694,8 +2693,8 @@ const Controller = function (hostname, port) {
       json.vlan = vlan;
     }
 
-    _self._request('/api/s/<SITE>/rest/account', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/rest/account', json, sites, cb);
+  }
 
   /**
    * Update Radius account, base (using REST) - set_radius_account_base()
@@ -2708,9 +2707,9 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - this function/method is only supported on controller versions 5.5.19 and later
    */
-  _self.setRadiusAccountBase = function (sites, account_id, payload, cb) {
-    _self._request('/api/s/<SITE>/rest/account/' + account_id.trim(), payload, sites, cb, 'PUT');
-  };
+  setRadiusAccountBase(sites, account_id, payload, cb) {
+    this._request('/api/s/<SITE>/rest/account/' + account_id.trim(), payload, sites, cb, 'PUT');
+  }
 
   /**
    * Delete a Radius account (using REST) - delete_radius_account()
@@ -2721,9 +2720,9 @@ const Controller = function (hostname, port) {
    * NOTES:
    * - this function/method is only supported on controller versions 5.5.19 and later
    */
-  _self.deleteRadiusAccount = function (sites, account_id, cb) {
-    _self._request('/api/s/<SITE>/rest/account/' + account_id.trim(), null, sites, cb, 'DELETE');
-  };
+  deleteRadiusAccount(sites, account_id, cb) {
+    this._request('/api/s/<SITE>/rest/account/' + account_id.trim(), null, sites, cb, 'DELETE');
+  }
 
   /**
    * Execute specific stats command - cmd_stat()
@@ -2732,11 +2731,11 @@ const Controller = function (hostname, port) {
    * required parameter <command>  = string; command to execute, known valid values
    *                                 'reset-dpi': reset all DPI counters for the current site
    */
-  _self.cmdStat = function (sites, command, cb) {
+  cmdStat(sites, command, cb) {
     const json = {cmd: command.trim()};
 
-    _self._request('/api/s/<SITE>/cmd/stat', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/stat', json, sites, cb);
+  }
 
   /**
    * Toggle Element Adoption ON or OFF - set_element_adoption()
@@ -2744,11 +2743,11 @@ const Controller = function (hostname, port) {
    * return true on success
    * required parameter <enable> = boolean; true will enable Element Adoption, false will disable Element Adoption
    */
-  _self.setElementAdoption = function (sites, enable, cb) {
+  setElementAdoption(sites, enable, cb) {
     const payload = {enabled: enable};
 
-    _self._request('/api/s/<SITE>/set/setting/element_adopt', payload, sites, cb);
-  };
+    this._request('/api/s/<SITE>/set/setting/element_adopt', payload, sites, cb);
+  }
 
   /**
    * Upgrade External Firmware (5.4.9+)
@@ -2759,12 +2758,12 @@ const Controller = function (hostname, port) {
    * required parameter <firmware_url> = external URL to firmware data
    *
    */
-  _self.upgradeExternalFirmware = function (sites, mac, firmware_url, cb) {
+  upgradeExternalFirmware(sites, mac, firmware_url, cb) {
     const json = {url: firmware_url,
       mac: mac.toLowerCase()};
 
-    _self._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', json, sites, cb);
-  };
+    this._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', json, sites, cb);
+  }
 
   /**
    * Custom API request - custom_api_request()
@@ -2778,7 +2777,7 @@ request to, *must* start with a "/" character
    * NOTE:
    * Only use this method when you fully understand the behavior of the UniFi controller API. No input validation is performed, to be used with care!
    */
-  _self.customApiRequest = function (sites, path, cb, request_type, payload) {
+  customApiRequest(sites, path, cb, request_type, payload) {
     if (typeof (request_type) === 'undefined') {
       request_type = 'GET';
     }
@@ -2787,23 +2786,23 @@ request to, *must* start with a "/" character
       payload = null;
     }
 
-    _self._request(path, payload, sites, cb, request_type);
-  };
+    this._request(path, payload, sites, cb, request_type);
+  }
 
-  /** PRIVATE FUNCTIONS * */
+  /** PRIVATE METHODS */
 
   /**
    * Private function to send out a generic URL request to a UniFi-Controller
    * for multiple sites (if wanted) and returning data via the callback function
    */
-  _self._request = function (url, json, sites, cb, method) {
-    function getbaseurl() {
-      if (_self._unifios === false || url.includes('login') || url.includes('logout')) {
-        return _self._baseurl;
+  _request(url, json, sites, cb, method) {
+    const getbaseurl = () => {
+      if (this._unifios === false || url.includes('login') || url.includes('logout')) {
+        return this._baseurl;
       }
 
-      return _self._baseurl + '/proxy/network';
-    }
+      return this._baseurl + '/proxy/network';
+    };
 
     let proc_sites;
     if (sites === null) {
@@ -2824,14 +2823,14 @@ request to, *must* start with a "/" character
         let reqfunc;
         const options = {
           url: getbaseurl() + url.replace('<SITE>', typeof (proc_sites[count]) === 'string' ? proc_sites[count] : ''),
-          headers: _self._unifios === true ?
+          headers: this._unifios === true ?
             {
               'Content-Type': 'application/json',
-              'X-CSRF-Token': _self._csrfToken
+              'X-CSRF-Token': this._csrfToken
             } : {
               'Content-Type': 'application/json'
             },
-          jar: _self._cookies
+          jar: this._cookies
         };
 
         // Identify which request method we are using (GET, POST, PUT, DELETE) based
@@ -2878,7 +2877,7 @@ request to, *must* start with a "/" character
         }
       }
     );
-  };
-};
+  }
+}
 
 exports.Controller = Controller;
