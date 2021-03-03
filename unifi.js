@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.62
+ * Based/Compatible to UniFi-API-client class: v1.1.64
  *
  * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
  *
@@ -1819,7 +1819,7 @@ class Controller {
    * returns true upon success (controller is online)
    *
    * NOTES: in order to get useful results (e.g. controller version) you can call get_last_results_raw()
-   * immediately after this method
+   * immediately after this method. Login not required.
    */
   getStatus(cb) {
     this._request('/status', {}, null, cb);
@@ -2632,22 +2632,21 @@ class Controller {
 
   /**
    * Count alarms - count_alarms()
-   * returns an array containing the alarm count
-   * required paramater <sites>   = name or array of site names
-   * optional parameter <payload> = json payload of flags to filter by
-   *                                Example: {archived: 'false', key: 'EVT_GW_WANTransition'}
-   *                                return only unarchived for a specific key
+   *
+   * @param  bool  $archived optional, if true all alarms are counted, if false only non-archived (active) alarms are counted,
+   *                         by default all alarms are counted
+   * @return array           containing the alarm count
    */
-  countAlarms(sites, cb, payload) {
-    this._request('/api/s/<SITE>/cnt/alarm', (typeof (payload) === 'undefined' ? null : payload), sites, cb);
+  countAlarms(sites, cb, archived) {
+    this._request('/api/s/<SITE>/cnt/alarm' + (archived === false ? '?archived=false' : ''), null, sites, cb);
   }
 
   /**
    * Archive alarms(s) - archive_alarm()
    *
-   * return true on success
-   * optional parameter <alarm_id> = 24 char string; _id of the alarm to archive which can be found with the list_alarms() function,
-   *                                 if not provided, *all* un-archived alarms for the current site is archived!
+   * @param  string $alarm_id optional, _id of the alarm to archive which can be found with the list_alarms() function,
+   *                          by default all alarms are archived
+   * @return bool             true on success
    */
   archiveAlarms(sites, cb, alarm_id) {
     const json = {};
@@ -2738,10 +2737,11 @@ class Controller {
   }
 
   /**
-   * List firmware versions - list_firmware()
+   * Fetch firmware versions - list_firmware()
    *
-   * returns an array of firmware versions
-   * optional parameter <type> = string; "available" or "cached", determines which firmware types to return
+   * @param  string $type optional, "available" or "cached", determines which firmware types to return,
+   *                      default value is "available"
+   * @return array        containing firmware versions
    */
   getFirmware(sites, cb, type) {
     const payload = {};
@@ -2972,25 +2972,26 @@ class Controller {
   /**
    * Custom API request - custom_api_request()
    *
-   * returns results as requested, returns false on incorrect parameters
-   * required parameter <path>         = string; suffix of the URL (following the port number) to pass request to, *must* start with a "/" character
-request to, *must* start with a "/" character
-   * optional parameter <request_type> = string; HTTP request type, can be GET (default), POST, PUT, or DELETE
-   * optional parameter <payload>      = stdClass object or associative array containing the payload to pass
-   *
    * NOTE:
    * Only use this method when you fully understand the behavior of the UniFi controller API. No input validation is performed, to be used with care!
+   *
+   * @param  string       $path           suffix of the URL (following the port number) to pass request to, *must* start with a "/" character
+   * @param  string       $request_method optional, HTTP request type, can be GET (default), POST, PUT, PATCH, or DELETE
+   * @param  object|array $payload        optional, stdClass object or associative array containing the payload to pass
+   * @param  string       $return         optional, string; determines how to return results, when "boolean" the method must return a
+   *                                      boolean result (true/false) or "array" when the method must return an array
+   * @return bool|array                   returns results as requested, returns false on incorrect parameters
    */
-  customApiRequest(sites, path, cb, request_type, payload) {
-    if (typeof (request_type) === 'undefined') {
-      request_type = 'GET';
+  customApiRequest(sites, path, cb, request_method, payload) {
+    if (typeof (request_method) === 'undefined') {
+      request_method = 'GET';
     }
 
     if (typeof (payload) === 'undefined') {
       payload = null;
     }
 
-    this._request(path, payload, sites, cb, request_type);
+    this._request(path, payload, sites, cb, request_method);
   }
 
   /** PRIVATE METHODS */
