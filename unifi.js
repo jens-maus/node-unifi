@@ -1829,7 +1829,12 @@ class Controller {
    * @return bool|array  staus array upon success, false upon failure
    */
   getFullStatus(cb) {
-    this._request('/status', {}, null, cb);
+    this._request('/status', {}, null, (error, result) => {
+      result = this._last_results_raw;
+      if (typeof (cb) === 'function') {
+        cb(error, result);
+      }
+    });
   }
 
   /**
@@ -1841,7 +1846,12 @@ class Controller {
    * @return bool|array  mappings array upon success, false upon failure
    */
   getDeviceNameMappings(cb) {
-    this._request('/dl/firmware/bundles.json', {}, null, cb);
+    this._request('/dl/firmware/bundles.json', {}, null, (error, result) => {
+      result = this._last_results_raw;
+      if (typeof (cb) === 'function') {
+        cb(error, result);
+      }
+    });
   }
 
   /**
@@ -3079,6 +3089,7 @@ class Controller {
         }
 
         reqfunc(options, (error, response, body) => {
+          this._last_results_raw = body;
           if (error) {
             callback(error);
           } else if (body && response.statusCode >= 200 && response.statusCode < 400 &&
