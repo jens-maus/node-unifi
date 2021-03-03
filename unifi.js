@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.57
+ * Based/Compatible to UniFi-API-client class: v1.1.58
  *
  * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
  *
@@ -1940,18 +1940,18 @@ class Controller {
    * ---------------
    * return true on success
    * required parameter <mac>  = device MAC address
-   * optional parameter <type> = string; two options: 'soft' or 'hard', defaults to soft
-   *                             soft can be used for all devices, requests a plain restart of that   device
-   *                             hard is special for PoE switches and besides the restart also requ  ests a
-   *                             power cycle on all PoE capable ports. Keep in mind that a 'hard' r  eboot
-   *                             does *NOT* trigger a factory-reset, as it somehow could suggest.
+   * optional parameter <reboot_type> = string; two options: 'soft' or 'hard', defaults to soft
+   *                                    soft can be used for all devices, requests a plain restart of that   device
+   *                                    hard is special for PoE switches and besides the restart also requ  ests a
+   *                                    power cycle on all PoE capable ports. Keep in mind that a 'hard' r  eboot
+   *                                    does *NOT* trigger a factory-reset.
    */
-  restartDevice(sites, mac, cb, type) {
+  restartDevice(sites, mac, cb, reboot_type) {
     const json = {cmd: 'restart',
       mac: mac.toLowerCase()};
 
-    if (typeof (type) !== 'undefined') {
-      json.type = type.toLowerCase();
+    if (typeof (reboot_type) !== 'undefined') {
+      json.reboot_type = reboot_type.toLowerCase();
     }
 
     this._request('/api/s/<SITE>/cmd/devmgr', json, sites, cb);
@@ -2446,10 +2446,12 @@ class Controller {
    * -----------
    *
    * required paramater <sites>   = name or array of site names
-   * optional parameter <archived> = boolean; if true all alarms will be listed, if false only non-archived (active) alarms will be listed
+   * optional parameter <payload> = json payload of flags to filter by
+   *                                Example: {archived: 'false', key: 'EVT_GW_WANTransition'}
+   *                                return only unarchived for a specific key
    */
-  getAlarms(sites, cb, archived) {
-    this._request('/api/s/<SITE>/stat/alarm' + (archived === false ? '?archived=false' : ''), null, sites, cb);
+  getAlarms(sites, cb, payload) {
+    this._request('/api/s/<SITE>/stat/alarm', (typeof (payload) === 'undefined' ? null : payload), sites, cb);
   }
 
   /**
@@ -2457,10 +2459,12 @@ class Controller {
    * ------------
    * returns an array containing the alarm count
    * required paramater <sites>   = name or array of site names
-   * optional parameter <archived> = boolean; if true all alarms will be counted, if false only non-archived (active) alarms will be counted
+   * optional parameter <payload> = json payload of flags to filter by
+   *                                Example: {archived: 'false', key: 'EVT_GW_WANTransition'}
+   *                                return only unarchived for a specific key
    */
-  countAlarms(sites, cb, archived) {
-    this._request('/api/s/<SITE>/cnt/alarm' + (archived === false ? '?archived=false' : ''), null, sites, cb);
+  countAlarms(sites, cb, payload) {
+    this._request('/api/s/<SITE>/cnt/alarm', (typeof (payload) === 'undefined' ? null : payload), sites, cb);
   }
 
   /**
