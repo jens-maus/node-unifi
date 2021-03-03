@@ -92,7 +92,7 @@ The following projects are known to use this nodejs class for query/control UniF
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2017-2020 Jens Maus &lt;mail@jens-maus.de&gt;
+Copyright (c) 2017-2021 Jens Maus &lt;mail@jens-maus.de&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
