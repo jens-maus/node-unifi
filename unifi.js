@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.64
+ * Based/Compatible to UniFi-API-client class: v1.1.65
  *
  * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
  *
@@ -1211,10 +1211,7 @@ class Controller {
   /**
    * Fetch AP groups - list_apgroups()
    *
-   * @return array returns an array containing the current AP groups on success
-   *
-   * required paramater <sites>    = name or array of site names
-   *
+   * @return array  containing the current AP groups on success
    */
   getAPGroups(sites, cb) {
     this._request('/v2/api/site/<SITE>/apgroups', null, sites, cb);
@@ -1642,19 +1639,18 @@ class Controller {
   }
 
   /**
-   * List admins - list_admins()
+   * Fetch admins - list_admins()
    *
-   * required paramater <sites> = name or array of site names
-   *
+   * @return array  containing administrator objects for selected site
    */
   listAdmins(sites, cb) {
     this._request('/api/s/<SITE>/cmd/sitemgr', {cmd: 'get-admins'}, sites, cb);
   }
 
   /**
-   * List all admins - list_all_admins()
+   * Fetch all admins - list_all_admins()
    *
-   * returns an array containing administrator objects for all sites
+   * @return array  containing administrator objects for all sites
    */
   listAllAdmins(cb) {
     this._request('/api/s/admin', {}, null, cb);
@@ -1795,49 +1791,73 @@ class Controller {
   }
 
   /**
-   * List wlan_groups - list_wlan_groups()
+   * Fetch wlan_groups - list_wlan_groups()
    *
-   * required paramater <sites> = name or array of site names
+   * @return array  containing known wlan_groups
    */
   getWLanGroups(sites, cb) {
     this._request('/api/s/<SITE>/list/wlangroup', null, sites, cb);
   }
 
   /**
-   * Show sysinfo - stat_sysinfo()
+   * Fetch sysinfo - stat_sysinfo()
    *
-   * returns an array of known sysinfo data via callback function(err, result)
-   * for all sites specified as a function parameter
+   * @return array  containing known sysinfo data
    */
   getSiteSysinfo(sites, cb) {
     this._request('/api/s/<SITE>/stat/sysinfo', null, sites, cb);
   }
 
   /**
-   * Get controller status - stat_status()
+   * Fetch controller status - stat_status()
    *
-   * returns true upon success (controller is online)
+   * NOTES:
+   * login not required
    *
-   * NOTES: in order to get useful results (e.g. controller version) you can call get_last_results_raw()
-   * immediately after this method. Login not required.
+   * @return bool true upon success (controller is online)
    */
   getStatus(cb) {
     this._request('/status', {}, null, cb);
   }
 
   /**
-   * List self - list_self()
+   * Fetch full controller status - stat_full_status()
    *
-   * returns an array of information about the logged in user
+   * NOTES:
+   * login not required
+   *
+   * @return bool|array  staus array upon success, false upon failure
+   */
+  getFullStatus(cb) {
+    this._request('/status', {}, null, cb);
+  }
+
+  /**
+   * Fetch device name mappings - list_device_name_mappings()
+   *
+   * NOTES:
+   * login not required
+   *
+   * @return bool|array  mappings array upon success, false upon failure
+   */
+  getDeviceNameMappings(cb) {
+    this._request('/dl/firmware/bundles.json', {}, null, cb);
+  }
+
+  /**
+   * Fetch self - list_self()
+   *
+   * @return array  containing information about the logged in user
    */
   getSelf(sites, cb) {
     this._request('/api/s/<SITE>/self', null, sites, cb);
   }
 
   /**
-   * List vouchers - stat_voucher()
+   * Fetch vouchers - stat_voucher()
    *
-   * optional parameter <create_time> = Unix timestamp in seconds
+   * @param  int   $create_time optional, create time of the vouchers to fetch in Unix timestamp in seconds
+   * @return array              containing hotspot voucher objects
    */
   getVouchers(sites, cb, create_time) {
     let json = {};
@@ -1878,9 +1898,9 @@ class Controller {
   }
 
   /**
-   * List hotspot operators (using REST) - list_hotspotop()
+   * Fetch hotspot operators (using REST) - list_hotspotop()
    *
-   * returns an array of hotspot operators
+   * @return array  containing hotspot operators
    */
   getHotspotOperators(sites, cb) {
     this._request('/api/s/<SITE>/rest/hotspotop', null, sites, cb);
@@ -1964,18 +1984,18 @@ class Controller {
   }
 
   /**
-   * List port forwarding stats - list_portforward_stats()
+   * Fetch port forwarding stats - list_portforward_stats()
    *
-   * returns an array of port forwarding stats
+   * @return array  containing port forwarding stats
    */
   getPortForwardingStats(sites, cb) {
     this._request('/api/s/<SITE>/stat/portforward', null, sites, cb);
   }
 
   /**
-   * List DPI stats - list_dpi_stats()
+   * Fetch DPI stats - list_dpi_stats()
    *
-   * returns an array of DPI stats
+   * @return array  containing DPI stats
    */
   getDPIStats(sites, cb) {
     this._request('/api/s/<SITE>/stat/dpi', null, sites, cb);
@@ -2017,40 +2037,40 @@ class Controller {
   }
 
   /**
-   * List current channels - list_current_channels()
+   * Fetch current channels - list_current_channels()
    *
-   * returns an array of currently allowed channels
+   * @return array  containing currently allowed channels
    */
   getCurrentChannels(sites, cb) {
     this._request('/api/s/<SITE>/stat/current-channel', null, sites, cb);
   }
 
   /**
-   * List country codes - list_country_codes()
-   *
-   * returns an array of available country codes
+   * Fetch country codes - list_country_codes()
    *
    * NOTES:
    * these codes following the ISO standard:
    * https://en.wikipedia.org/wiki/ISO_3166-1_numeric
+   *
+   * @return array  containing available country codes
    */
   getCountryCodes(sites, cb) {
     this._request('/api/s/<SITE>/stat/ccode', null, sites, cb);
   }
 
   /**
-   * List port forwarding settings - list_portforwarding()
+   * Fetch port forwarding settings - list_portforwarding()
    *
-   * returns an array of port forwarding settings
+   * @return array  containing port forwarding settings
    */
   getPortForwarding(sites, cb) {
     this._request('/api/s/<SITE>/list/portforward', null, sites, cb);
   }
 
   /**
-   * List dynamic DNS settings - list_dynamicdns()
+   * Fetch dynamic DNS settings - list_dynamicdns()
    *
-   * returns an array of dynamic DNS settings
+   * @return array  containing dynamic DNS settings
    */
   getDynamicDNS(sites, cb) {
     this._request('/api/s/<SITE>/list/dynamicdns', null, sites, cb);
@@ -2080,27 +2100,27 @@ class Controller {
   }
 
   /**
-   * List port configurations - list_portconf()
+   * Fetch port configurations - list_portconf()
    *
-   * returns an array of port configurations
+   * @return array  containing port configurations
    */
   getPortConfig(sites, cb) {
     this._request('/api/s/<SITE>/list/portconf', null, sites, cb);
   }
 
   /**
-   * List VoIP extensions - list_extensions()
+   * Fetch VoIP extensions - list_extensions()
    *
-   * returns an array of VoIP extensions
+   * @return array  containing VoIP extensions
    */
   getVoipExtensions(sites, cb) {
     this._request('/api/s/<SITE>/list/extension', null, sites, cb);
   }
 
   /**
-   * List site settings - list_settings()
+   * Fetch site settings - list_settings()
    *
-   * returns an array of site configuration settings
+   * @return array  containing site configuration settings
    */
   getSiteSettings(sites, cb) {
     this._request('/api/s/<SITE>/get/setting', null, sites, cb);
