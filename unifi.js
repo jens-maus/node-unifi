@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.59
+ * Based/Compatible to UniFi-API-client class: v1.1.60
  *
  * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
  *
@@ -2898,6 +2898,8 @@ request to, *must* start with a "/" character
           reqfunc = request.post;
         } else if (method === 'PUT') {
           reqfunc = request.put;
+        } else if (method === 'PATCH') {
+          reqfunc = request.patch;
         } else {
           reqfunc = request.get;
         }
