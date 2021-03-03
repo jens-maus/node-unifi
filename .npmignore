@@ -6,6 +6,7 @@ node_modules
 .github
 /node_modules
 /unifi-storage
+/examples
 test
 .snyk
 unifi.png
