@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.61
+ * Based/Compatible to UniFi-API-client class: v1.1.62
  *
  * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
  *
@@ -396,6 +396,42 @@ class Controller {
   }
 
   /**
+   * Fetch monthly site stats - stat_monthly_site()
+   *
+   * @param  int   $start optional, Unix timestamp in milliseconds
+   * @param  int   $end   optional, Unix timestamp in milliseconds
+   * @return array        returns an array of monthly stats objects for the current site
+   *
+   * NOTES:
+   * - defaults to the past 52 weeks (52*7*24 hours)
+   * - "bytes" are no longer returned with controller version 4.9.1 and later
+   */
+  getMonthlySiteStats(sites, cb, start, end) {
+    if (typeof (end) === 'undefined') {
+      end = Date.now();
+    }
+
+    if (typeof (start) === 'undefined') {
+      start = end - (52 * 7 * 24 * 3600 * 1000);
+    }
+
+    const json = {attrs: ['bytes',
+      'wan-tx_bytes',
+      'wan-rx_bytes',
+      'wan2-tx_bytes',
+      'wan2-rx_bytes',
+      'wlan_bytes',
+      'num_sta',
+      'lan-num_sta',
+      'wlan-num_sta',
+      'time'],
+    start,
+    end};
+
+    this._request('/api/s/<SITE>/stat/report/monthly.site', json, sites, cb);
+  }
+
+  /**
    * Fetch 5 minutes stats method for a single access point or all access points - stat_5minutes_aps()
    *
    * returns an array of 5-minute stats objects
@@ -498,6 +534,42 @@ class Controller {
     }
 
     this._request('/api/s/<SITE>/stat/report/daily.ap', json, sites, cb);
+  }
+
+  /**
+   * Fetch monthly stats for a single access point or all access points - stat_monthly_aps()
+   *
+   * NOTES:
+   * - defaults to the past 52 weeks (52*7*24 hours)
+   * - make sure that the retention policy for hourly stats is set to the correct value in
+   *   the controller settings
+   *
+   * @param  int    $start optional, Unix timestamp in milliseconds
+   * @param  int    $end   optional, Unix timestamp in milliseconds
+   * @param  string $mac   optional, AP MAC address to return stats for, when empty,
+   *                       stats for all APs are returned
+   * @return array         returns an array of monthly stats objects
+   */
+  getMonthlyApStats(sites, cb, start, end, mac) {
+    if (typeof (end) === 'undefined') {
+      end = Date.now();
+    }
+
+    if (typeof (start) === 'undefined') {
+      start = end - (52 * 7 * 24 * 3600 * 1000);
+    }
+
+    const json = {attrs: ['bytes',
+      'num_sta',
+      'time'],
+    start,
+    end};
+
+    if (typeof (mac) !== 'undefined') {
+      json.mac = mac.toLowerCase();
+    }
+
+    this._request('/api/s/<SITE>/stat/report/monthly.ap', json, sites, cb);
   }
 
   /**
@@ -616,6 +688,45 @@ class Controller {
   }
 
   /**
+   * Fetch monthly stats for a single user/client device - stat_monthly_user()
+   *
+   * NOTES:
+   * - defaults to the past 13 weeks (52*7*24 hours)
+   * - only supported with UniFi controller versions 5.8.X and higher
+   * - make sure that the retention policy for monthly stats is set to the correct value in
+   *   the controller settings
+   * - make sure that "Clients Historical Data" has been enabled in the UniFi controller settings in the Maintenance section
+   *
+   * @param  string $mac     MAC address of user/client device to return stats for
+   * @param  int    $start   optional, Unix timestamp in milliseconds
+   * @param  int    $end     optional, Unix timestamp in milliseconds
+   * @param  array  $attribs array containing attributes (strings) to be returned, valid values are:
+   *                         rx_bytes, tx_bytes, signal, rx_rate, tx_rate, rx_retries, tx_retries, rx_packets, tx_packets
+   *                         default is ['rx_bytes', 'tx_bytes']
+   * @return array           returns an array of monthly stats objects
+   */
+  getMonthlyUserStats(sites, mac, cb, start, end, attribs) {
+    if (typeof (end) === 'undefined') {
+      end = Date.now();
+    }
+
+    if (typeof (start) === 'undefined') {
+      start = end - (13 * 7 * 24 * 3600 * 1000);
+    }
+
+    attribs = typeof (attribs) === 'undefined' ? ['time',
+      'rx_bytes',
+      'tx_bytes'] : ['time'].concat(attribs);
+
+    const json = {attrs: attribs,
+      start,
+      end,
+      mac: mac.toLowerCase()};
+
+    this._request('/api/s/<SITE>/stat/report/monthly.user', json, sites, cb);
+  }
+
+  /**
    * Fetch 5 minutes gateway stats method - stat_5minutes_gateway()
    *
    * returns an array of 5-minute stats objects for the gateway belonging to the current site
@@ -702,7 +813,7 @@ class Controller {
    *                                default is ['time', 'mem', 'cpu', 'loadavg_5']
    *
    * NOTES:
-   * - defaults to the past 52*7*24 hours
+   * - defaults to the past 52 weeks (52*7*24 hours)
    * - requires a USG
    */
   getDailyGatewayStats(sites, cb, start, end, attribs) {
@@ -724,6 +835,42 @@ class Controller {
       end};
 
     this._request('/api/s/<SITE>/stat/report/daily.gw', json, sites, cb);
+  }
+
+  /**
+   * Fetch monthly gateway stats - stat_monthly_gateway()
+   *
+   * NOTES:
+   * - defaults to the past 52 weeks (52*7*24 hours)
+   * - requires a USG
+   *
+   * @param  int   $start   optional, Unix timestamp in milliseconds
+   * @param  int   $end     optional, Unix timestamp in milliseconds
+   * @param  array $attribs array containing attributes (strings) to be returned, valid values are:
+   *                        mem, cpu, loadavg_5, lan-rx_errors, lan-tx_errors, lan-rx_bytes,
+   *                        lan-tx_bytes, lan-rx_packets, lan-tx_packets, lan-rx_dropped, lan-tx_dropped
+   *                        default is ['time', 'mem', 'cpu', 'loadavg_5']
+   * @return array          returns an array of monthly stats objects for the gateway belonging to the current site
+   */
+  getMonthlyGatewayStats(sites, cb, start, end, attribs) {
+    if (typeof (end) === 'undefined') {
+      end = Date.now();
+    }
+
+    if (typeof (start) === 'undefined') {
+      start = end - (52 * 7 * 24 * 3600 * 1000);
+    }
+
+    attribs = typeof (attribs) === 'undefined' ? ['time',
+      'mem',
+      'cpu',
+      'loadavg_5'] : ['time'].concat(attribs);
+
+    const json = {attrs: attribs,
+      start,
+      end};
+
+    this._request('/api/s/<SITE>/stat/report/monthly.gw', json, sites, cb);
   }
 
   /**
@@ -2309,25 +2456,27 @@ class Controller {
   /**
    * Create a wlan - create_wlan()
    *
-   * required parameter <name>             = string; SSID
-   * required parameter <x_passphrase>     = string; new pre-shared key, minimal length is 8 characters, maximum length is 63,
+   * @param  string  $name             SSID
+   * @param  string  $x_passphrase     new pre-shared key, minimal length is 8 characters, maximum length is 63,
    *                                         assign a value of null when security = 'open'
-   * required parameter <usergroup_id>     = string; user group id that can be found using the list_usergroups() function
-   * required parameter <wlangroup_id>     = string; wlan group id that can be found using the list_wlan_groups() function
-   * optional parameter <enabled>          = boolean; enable/disable wlan
-   * optional parameter <hide_ssid>        = boolean; hide/unhide wlan SSID
-   * optional parameter <is_guest>         = boolean; apply guest policies or not
-   * optional parameter <security>         = string; security type (open, wep, wpapsk, wpaeap)
-   * optional parameter <wpa_mode>         = string; wpa mode (wpa, wpa2, ..)
-   * optional parameter <wpa_enc>          = string; encryption (auto, ccmp)
-   * optional parameter <vlan_enabled>     = boolean; enable/disable vlan for this wlan
-   * optional parameter <vlan>             = string; vlan id
-   * optional parameter <uapsd_enabled>    = boolean; enable/disable Unscheduled Automatic Power Save Delivery
-   * optional parameter <schedule_enabled> = boolean; enable/disable wlan schedule
-   * optional parameter <schedule>         = string; schedule rules
+   * @param  string  $usergroup_id     user group id that can be found using the list_usergroups() function
+   * @param  string  $wlangroup_id     wlan group id that can be found using the list_wlan_groups() function
+   * @param  boolean $enabled          optional, enable/disable wlan
+   * @param  boolean $hide_ssid        optional, hide/unhide wlan SSID
+   * @param  boolean $is_guest         optional, apply guest policies or not
+   * @param  string  $security         optional, security type (open, wep, wpapsk, wpaeap)
+   * @param  string  $wpa_mode         optional, wpa mode (wpa, wpa2, ..)
+   * @param  string  $wpa_enc          optional, encryption (auto, ccmp)
+   * @param  boolean $vlan_enabled     optional, enable/disable vlan for this wlan
+   * @param  int     $vlan             optional, vlan id
+   * @param  boolean $uapsd_enabled    optional, enable/disable Unscheduled Automatic Power Save Delivery
+   * @param  boolean $schedule_enabled optional, enable/disable wlan schedule
+   * @param  array   $schedule         optional, schedule rules
+   * @param  array   $ap_group_ids     optional, array of ap group ids, required for UniFi controller versions 6.0.X and higher
+   * @return bool                      true on success
    */
   createWLan(sites, name, x_passphrase, usergroup_id, wlangroup_id, cb,
-    enabled, hide_ssid, is_guest, security, wpa_mode, wpa_enc, vlan_enabled, vlan, uapsd_enabled, schedule_enabled, schedule) {
+    enabled, hide_ssid, is_guest, security, wpa_mode, wpa_enc, vlan_enabled, vlan, uapsd_enabled, schedule_enabled, schedule, ap_group_ids) {
     const json = {name,
       usergroup_id,
       wlangroup_id,
@@ -2349,6 +2498,10 @@ class Controller {
 
     if (x_passphrase !== '' && security !== 'open') {
       json.x_passphrase = x_passphrase;
+    }
+
+    if (typeof (ap_group_ids) !== 'undefined') {
+      json.ap_group_ids = ap_group_ids;
     }
 
     this._request('/api/s/<SITE>/add/wlanconf/', json, sites, cb);
