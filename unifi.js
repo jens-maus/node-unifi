@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.58
+ * Based/Compatible to UniFi-API-client class: v1.1.59
  *
  * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
  *
@@ -51,7 +51,7 @@ class Controller {
 
   /**
    * Login to the UniFi controller - login()
-   * -----------------------------
+   *
    * returns true upon success
    */
   login(username, password, cb) {
@@ -88,7 +88,7 @@ class Controller {
 
   /**
    * Logout from the UniFi controller - logout()
-   * --------------------------------
+   *
    * returns true upon success
    */
   logout(cb) {
@@ -107,7 +107,6 @@ class Controller {
 
   /**
    * Authorize a client device - authorize_guest()
-   * -------------------------
    *
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
@@ -148,7 +147,6 @@ class Controller {
 
   /**
    * Unauthorize a client device - unauthorize_guest()
-   * ---------------------------
    *
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
@@ -161,7 +159,6 @@ class Controller {
 
   /**
    * Reconnect a client device - reconnect_sta()
-   * -------------------------
    *
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
@@ -174,7 +171,6 @@ class Controller {
 
   /**
    * Block a client device - block_sta()
-   * ---------------------
    *
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
@@ -187,7 +183,6 @@ class Controller {
 
   /**
    * Unblock a client device - unblock_sta()
-   * -----------------------
    *
    * required paramater <sites>   = name or array of site names
    * required parameter <mac>     = client MAC address
@@ -200,7 +195,7 @@ class Controller {
 
   /**
    * Forget one or more client devices - forget_sta()
-   * ---------------------------------
+   *
    * return true on success
    * required parameter <macs> = array of client MAC addresses
    *
@@ -216,7 +211,7 @@ class Controller {
 
   /**
    * Create a new user/client-device - create_user()
-   * -------------------------------
+   *
    * return an array with a single object containing details of the new user/client-device on success, else return false
    * required parameter <mac>           = client MAC address
    * required parameter <user_group_id> = _id value for the user group the new user/client-device should belong to which
@@ -253,7 +248,6 @@ class Controller {
 
   /**
    * Add/modify/remove a client device note - set_sta_note()
-   * --------------------------------------
    *
    * required paramater <sites>   = name or array of site names
    * required parameter <user_id> = id of the client-device to be modified
@@ -274,7 +268,6 @@ class Controller {
 
   /**
    * Add/modify/remove a client device name - set_sta_name()
-   * --------------------------------------
    *
    * required paramater <sites>   = name or array of site names
    * required parameter <user_id> = id of the client device to be modified
@@ -292,8 +285,8 @@ class Controller {
   }
 
   /**
-   * 5 minutes site stats method - stat_5minutes_site()
-   * ---------------------------
+   * Fetch 5 minutes site stats method - stat_5minutes_site()
+   *
    * returns an array of 5-minute stats objects for the current site
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
@@ -331,8 +324,7 @@ class Controller {
   }
 
   /**
-   * Hourly site stats method - stat_hourly_site()
-   * ------------------------
+   * Fetch Hourly site stats method - stat_hourly_site()
    *
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
@@ -368,8 +360,7 @@ class Controller {
   }
 
   /**
-   * Daily site stats method - stat_daily_site()
-   * -----------------------
+   * Fetch Daily site stats method - stat_daily_site()
    *
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
@@ -405,8 +396,8 @@ class Controller {
   }
 
   /**
-   * 5 minutes stats method for a single access point or all access points - stat_5minutes_aps()
-   * ---------------------------------------------------------------------
+   * Fetch 5 minutes stats method for a single access point or all access points - stat_5minutes_aps()
+   *
    * returns an array of 5-minute stats objects
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
@@ -442,8 +433,7 @@ class Controller {
   }
 
   /**
-   * Hourly stats method for a single access point or all access points - stat_hourly_aps()
-   * ------------------------------------------------------------------
+   * Fetch Hourly stats method for a single access point or all access points - stat_hourly_aps()
    *
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
@@ -477,8 +467,7 @@ class Controller {
   }
 
   /**
-   * Daily stats method for a single access point or all access points - stat_daily_aps()
-   * -----------------------------------------------------------------
+   * Fetch Daily stats method for a single access point or all access points - stat_daily_aps()
    *
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
@@ -512,8 +501,8 @@ class Controller {
   }
 
   /**
-   * 5 minutes stats method for a single user/client device - stat_5minutes_user()
-   * ------------------------------------------------------
+   * Fetch 5 minutes stats method for a single user/client device - stat_5minutes_user()
+   *
    * returns an array of 5-minute stats objects
    * required parameter <mac>     = MAC address of user/client device to return stats for
    * optional parameter <start>   = Unix timestamp in milliseconds
@@ -551,8 +540,8 @@ class Controller {
   }
 
   /**
-   * Hourly stats method for a a single user/client device - stat_hourly_user()
-   * -----------------------------------------------------
+   * Fetch Hourly stats method for a a single user/client device - stat_hourly_user()
+   *
    * returns an array of hourly stats objects
    * required parameter <mac>     = MAC address of user/client device to return stats for
    * optional parameter <start>   = Unix timestamp in milliseconds
@@ -588,8 +577,8 @@ class Controller {
   }
 
   /**
-   * Daily stats method for a single user/client device - stat_daily_user()
-   * --------------------------------------------------
+   * Fetch Daily stats method for a single user/client device - stat_daily_user()
+   *
    * returns an array of daily stats objects
    * required parameter <mac>     = MAC address of user/client device to return stats for
    * optional parameter <start>   = Unix timestamp in milliseconds
@@ -627,8 +616,8 @@ class Controller {
   }
 
   /**
-   * 5 minutes gateway stats method - stat_5minutes_gateway()
-   * -------------------------------
+   * Fetch 5 minutes gateway stats method - stat_5minutes_gateway()
+   *
    * returns an array of 5-minute stats objects for the gateway belonging to the current site
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
@@ -666,8 +655,8 @@ class Controller {
   }
 
   /**
-   * Hourly gateway stats method - stat_hourly_gateway()
-   * ----------------------------
+   * Fetch Hourly gateway stats method - stat_hourly_gateway()
+   *
    * returns an array of hourly stats objects for the gateway belonging to the current site
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
@@ -702,8 +691,8 @@ class Controller {
   }
 
   /**
-   * Daily gateway stats method - stat_daily_gateway()
-   * ---------------------------
+   * Fetch Daily gateway stats method - stat_daily_gateway()
+   *
    * returns an array of daily stats objects for the gateway belonging to the current site
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
@@ -738,8 +727,8 @@ class Controller {
   }
 
   /**
-   * Method to fetch speed test results - stat_speedtest_results()
-   * ----------------------------------
+   * Fetch speed test results method - stat_speedtest_results()
+   *
    * returns an array of speed test result objects
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
@@ -768,8 +757,8 @@ class Controller {
   }
 
   /**
-   * Method to fetch IPS/IDS event - stat_ips_events
-   * -----------------------------
+   * Fetch IPS/IDS events methods - stat_ips_events
+   *
    * returns an array of IPS/IDS event objects
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
@@ -801,8 +790,8 @@ class Controller {
   }
 
   /**
-   * Show all login sessions - stat_sessions()
-   * -----------------------
+   * Fetch login sessions - stat_sessions()
+   *
    * returns an array of login session objects for all devices or a single device
    * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
@@ -838,8 +827,7 @@ class Controller {
   }
 
   /**
-   * Show latest 'n' login sessions for a single client device - stat_sta_sessions_latest()
-   * ---------------------------------------------------------
+   * Fetch latest 'n' login sessions for a single client device - stat_sta_sessions_latest()
    *
    * required paramater <sites> = name or array of site names
    * required parameter <mac>   = client MAC address
@@ -859,8 +847,7 @@ class Controller {
   }
 
   /**
-   * Show all authorizations - stat_auths()
-   * -----------------------
+   * Fetch authorizations - stat_auths()
    *
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
@@ -881,8 +868,7 @@ class Controller {
   }
 
   /**
-   * List all client devices ever connected to the site - stat_allusers()
-   * --------------------------------------------------
+   * Fetch client devices that connected to the site within given timeframe - stat_allusers()
    *
    * optional parameter <historyhours> = hours to go back (default is 8760 hours or 1 year)
    *
@@ -904,7 +890,6 @@ class Controller {
 
   /**
    * List all blocked client devices ever connected to the site
-   * ----------------------------------------------------------
    *
    * optional parameter <historyhours> = hours to go back (default is 8760 hours or 1 year)
    *
@@ -925,10 +910,12 @@ class Controller {
   }
 
   /**
-   * List guest devices - list_guests()
-   * ------------------
+   * Fetch guest devices - list_guests()
    *
    * optional parameter <within> = time frame in hours to go back to list guests with valid access (default = 24*365 hours)
+   *
+   * NOTES:
+   * - defaults to the past 7*24 hours
    *
    */
   getGuests(sites, cb, within) {
@@ -940,8 +927,8 @@ class Controller {
   }
 
   /**
-   * List online client device(s) - list_clients()
-   * ----------------------------
+   * Fetch online client device(s) - list_clients()
+   *
    * returns an array of online client device objects, or in case of a single device request, returns a single client device object
    *
    * required paramater <sites>   = name or array of site names
@@ -956,8 +943,7 @@ class Controller {
   }
 
   /**
-   * Get details for a single client device - stat_client()
-   * --------------------------------------
+   * Fetch details for a single client device - stat_client()
    *
    * required paramater <sites>   = name or array of site names
    * optional parameter <client_mac> = the MAC address of a single online client device for which the call must be made
@@ -972,7 +958,6 @@ class Controller {
 
   /**
    * Assign client device to another group - set_usergroup()
-   * -------------------------------------
    *
    * required paramater <sites>    = name or array of site names
    * required parameter <user_id>  = id of the user device to be modified
@@ -985,7 +970,7 @@ class Controller {
 
   /**
    * Update client fixedip (using REST) - edit_client_fixedip()
-   * ----------------------------------
+   *
    * returns an array containing a single object with attributes of the updated client on success
    * required parameter <client_id>   = _id of the client
    * required parameter <use_fixedip> = boolean defining whether if use_fixedip is true or false
@@ -1011,8 +996,7 @@ class Controller {
   }
 
   /**
-   * List user groups - list_usergroups()
-   * ----------------
+   * Fetch user groups - list_usergroups()
    *
    * required paramater <sites>   = name or array of site names
    */
@@ -1022,7 +1006,7 @@ class Controller {
 
   /**
    * Create user group (using REST) - create_usergroup()
-   * ------------------------------
+   *
    * returns an array containing a single object with attributes of the new usergroup ("_id", "name", "qos_rate_max_down", "qos_rate_max_up", "site_id") on success
    *
    * required paramater <sites>      = name or array of site names
@@ -1042,7 +1026,7 @@ class Controller {
 
   /**
    * Modify user group (using REST) - edit_usergroup()
-   * ------------------------------
+   *
    * returns an array containing a single object with attributes of the updated usergroup on success
    *
    * required paramater <sites>      = name or array of site names
@@ -1066,11 +1050,11 @@ class Controller {
 
   /**
    * Delete user group (using REST) - delete_usergroup()
-   * ------------------------------
+   *
    * returns true on success
    *
    * required paramater <sites>    = name or array of site names
-   * required parameter <group_id> = _id value of the user group
+   * required parameter <group_id> = _id value of the user group to delete
    *
    */
   deleteUserGroup(sites, group_id, cb) {
@@ -1078,8 +1062,68 @@ class Controller {
   }
 
   /**
+   * Fetch AP groups - list_apgroups()
+   *
+   * @return array returns an array containing the current AP groups on success
+   *
+   * required paramater <sites>    = name or array of site names
+   *
+   */
+  getAPGroups(sites, cb) {
+    this._request('/v2/api/site/<SITE>/apgroups', null, sites, cb);
+  }
+
+  /**
+   * Create AP group - create_apgroup()
+   *
+   * @param  string $group_name  name to assign to the AP group
+   * @param  array  $device_macs optional, array containing the MAC addresses (strings) of the APs to add to the new group
+   * @return object              returns a single object with attributes of the new AP group on success
+   *
+   */
+  createAPGroup(sites, group_name, cb, device_macs) {
+    const payload = {name: group_name};
+
+    if (typeof (device_macs) !== 'undefined') {
+      payload.device_macs = device_macs;
+    }
+
+    this._request('/v2/api/site/<SITE>/apgroups', payload, sites, cb);
+  }
+
+  /**
+   * Modify AP group - edit_apgroup()
+   *
+   * @param  string $group_id    _id value of the AP group to modify
+   * @param  string $group_name  name to assign to the AP group
+   * @param  array  $device_macs array containing the members of the AP group which overwrites the existing
+   *                             group_members (passing an empty array will clear the AP member list)
+   * @return object              returns a single object with attributes of the updated AP group on success
+   *
+   */
+  editAPGroup(sites, group_id, group_name, device_macs, cb) {
+    const payload = {_id: group_id,
+      attr_no_delete: false,
+      name: group_name,
+      device_macs};
+
+    this._request('/v2/api/site/<SITE>/apgroups/' + group_id.trim(), payload, sites, cb, 'PUT');
+  }
+
+  /**
+   * Delete AP group - delete_apgroup()
+   *
+   * @param  string $group_id _id value of the AP group to delete
+   * @return bool             returns true on success
+   *
+   */
+  deleteAPGroup(sites, group_id, cb) {
+    this._request('/v2/api/site/<SITE>/apgroups/' + group_id.trim(), null, sites, cb, 'DELETE');
+  }
+
+  /**
    * List firewall groups (using REST) - list_firewallgroups()
-   * ---------------------------------
+   *
    * returns an array containing the current firewall groups or the selected firewall group on success
    * optional parameter <group_id> = _id value of the single firewall group to list
    */
@@ -1093,7 +1137,7 @@ class Controller {
 
   /**
    * Create firewall group (using REST) - create_firewallgroup()
-   * ----------------------------------
+   *
    * returns an array containing a single object with attributes of the new firewall group on succe  ss
    * required parameter <group_name>    = name to assign to the firewall group
    * required parameter <group_type>    = firewall group type; valid values are address-group, ipv6  -address-group, port-group
@@ -1114,7 +1158,7 @@ class Controller {
 
   /**
    * Modify firewall group (using REST) - edit_firewallgroup
-   * ----------------------------------
+   *
    * returns an array containing a single object with attributes of the updated firewall group on s  uccess
    * required parameter <group_id>      = _id value of the firewall group to modify
    * required parameter <site_id>       = site_id value of the firewall group to modify
@@ -1142,7 +1186,7 @@ class Controller {
 
   /**
    * Delete firewall group (using REST) - delete_firewallgroup()
-   * ----------------------------------
+   *
    * returns true on success
    * required parameter <group_id> = _id value of the firewall group to delete
    */
@@ -1152,7 +1196,7 @@ class Controller {
 
   /**
    * List firewall rules (using REST) - list_firewallrules()
-   * --------------------------------
+   *
    * returns an array containing the current firewall rules on success
    */
   getFirewallRules(sites, cb) {
@@ -1161,7 +1205,7 @@ class Controller {
 
   /**
    * List static routing settings (using REST) - list_routing()
-   * -----------------------------------------
+   *
    * returns an array of static routes and their settings
    * optional parameter <route_id> = string; _id value of the static route to get settings for
    */
@@ -1175,7 +1219,6 @@ class Controller {
 
   /**
    * List health metrics - list_health()
-   * -------------------
    *
    * required paramater <sites> = name or array of site names
    *
@@ -1186,7 +1229,7 @@ class Controller {
 
   /**
    * List dashboard metrics - list_dashboard()
-   * ----------------------
+   *
    * returns an array of dashboard metric objects (available since controller version 4.9.1.alpha)
    * required paramater <sites> = name or array of site names
    * optional parameter <five_minutes> = boolean; if true, return stats based on 5 minute intervals,
@@ -1203,7 +1246,7 @@ class Controller {
 
   /**
    * List client devices - list_users()
-   * -------------------
+   *
    * returns an array of known client device objects
    * required paramater <sites> = name or array of site names
    */
@@ -1213,7 +1256,6 @@ class Controller {
 
   /**
    * List access points and other devices under management of the controller (USW and/or USG devices) - list_devices()
-   * ------------------------------------------------------------------------------------------------
    *
    * required paramater <sites>      = name or array of site names
    * optional paramater <device_mac> = the MAC address of a single device for which the call must be made
@@ -1228,7 +1270,7 @@ class Controller {
 
   /**
    * List (device) tags (using REST) - list_tags()
-   * -------------------------------
+   *
    * returns an array of known device tag objects
    *
    * NOTES: this endpoint was introduced with controller versions 5.5.X
@@ -1239,7 +1281,7 @@ class Controller {
 
   /**
    * List rogue/neighboring access points - list_rogueaps()
-   * ------------------------------------
+   *
    * returns an array of rogue/neighboring access point objects
    * optional parameter <within> = hours to go back to list discovered "rogue" access points (default = 24 hours)
    *
@@ -1254,7 +1296,7 @@ class Controller {
 
   /**
    * List known rogue access points - list_known_rogueaps()
-   * ------------------------------
+   *
    * returns an array of known rogue access point objects
    */
   getKnownRogueAccessPoints(sites, cb) {
@@ -1263,7 +1305,7 @@ class Controller {
 
   /**
    * Generate backup - generate_backup()
-   * ---------------
+   *
    * returns a URL from where the backup file can be downloaded once generated
    *
    * NOTES:
@@ -1276,7 +1318,7 @@ class Controller {
 
   /**
    * List auto backups - list_backups()
-   * -----------------
+   *
    * return an array containing objects with backup details on success
    */
   getBackups(sites, cb) {
@@ -1285,7 +1327,7 @@ class Controller {
 
   /**
    * Delete a backup file
-   * --------------------
+   *
    * return true on success
    * required parameter <filename> = string; filename of backup to delete
    */
@@ -1295,7 +1337,7 @@ class Controller {
 
   /**
    * List sites
-   * ----------
+   *
    * calls callback function(err, result) with an array of the sites
    * registered to the UniFi controller
    */
@@ -1305,7 +1347,7 @@ class Controller {
 
   /**
    * List sites stats
-   * ----------------
+   *
    * calls callback function(err, result) with an array of sysinfo information
    * for all sites registered to the UniFi controller
    *
@@ -1317,7 +1359,6 @@ class Controller {
 
   /**
    * Create a site - create_site()
-   * -------------
    *
    * required parameter <description> = the long name for the new site
    *
@@ -1336,7 +1377,7 @@ class Controller {
 
   /**
    * Delete a site - delete_site()
-   * -------------
+   *
    * return true on success
    * required parameter <site_id> = 24 char string; _id value of the site to delete
    *
@@ -1355,7 +1396,7 @@ class Controller {
 
   /**
    * Change the current site's name - set_site_name()
-   * ------------------------------
+   *
    * return true on success
    * required parameter <site_name> = string; the new long name for the current site
    *
@@ -1370,7 +1411,7 @@ class Controller {
 
   /**
    * Set site country - set_site_country()
-   * ----------------
+   *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "country" key.
    *                                Valid country codes can be obtained using the list_country_codes() function/method.
@@ -1383,7 +1424,7 @@ class Controller {
 
   /**
    * Set site locale - set_site_locale()
-   * ---------------
+   *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "locale" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
@@ -1395,7 +1436,7 @@ class Controller {
 
   /**
    * Set site snmp - set_site_snmp()
-   * -------------
+   *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "snmp" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
@@ -1407,7 +1448,7 @@ class Controller {
 
   /**
    * Set site mgmt - set_site_mgmt()
-   * -------------
+   *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "mgmt" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
@@ -1419,7 +1460,7 @@ class Controller {
 
   /**
    * Set site guest access - set_site_guest_access()
-   * ---------------------
+   *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "guest_access" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
@@ -1431,7 +1472,7 @@ class Controller {
 
   /**
    * Set site ntp - set_site_ntp()
-   * ------------
+   *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "ntp" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
@@ -1443,7 +1484,7 @@ class Controller {
 
   /**
    * Set site connectivity - set_site_connectivity()
-   * ---------------------
+   *
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_settings() for the "connectivity" key.
    *                                Do not include the _id property, it will be assigned by the controller and returned upon success.
@@ -1455,7 +1496,6 @@ class Controller {
 
   /**
    * List admins - list_admins()
-   * -----------
    *
    * required paramater <sites> = name or array of site names
    *
@@ -1466,7 +1506,7 @@ class Controller {
 
   /**
    * List all admins - list_all_admins()
-   * ---------------
+   *
    * returns an array containing administrator objects for all sites
    */
   listAllAdmins(cb) {
@@ -1475,7 +1515,7 @@ class Controller {
 
   /**
    * Invite a new admin for access to the current site - invite_admin()
-   * -------------------------------------------------
+   *
    * returns true on success
    * required parameter <name>           = string, name to assign to the new admin user
    * required parameter <email>          = email address to assign to the new admin user
@@ -1539,7 +1579,7 @@ class Controller {
 
   /**
    * Assign an existing admin to the current site - assign_existing_admin()
-   * --------------------------------------------
+   *
    * returns true on success
    * required parameter <admin_id>       = 24 char string; _id value of the admin user to assign, can be obtained using the
    *                                       list_all_admins() method/function
@@ -1591,7 +1631,7 @@ class Controller {
 
   /**
    * Revoke an admin from the current site - revoke_admin()
-   * -------------------------------------
+   *
    * returns true on success
    * required parameter <admin_id> = _id value of the admin to revoke, can be obtained using the
    *                                 list_all_admins() method/function
@@ -1609,7 +1649,6 @@ class Controller {
 
   /**
    * List wlan_groups - list_wlan_groups()
-   * ----------------
    *
    * required paramater <sites> = name or array of site names
    */
@@ -1619,7 +1658,7 @@ class Controller {
 
   /**
    * Show sysinfo - stat_sysinfo()
-   * ------------
+   *
    * returns an array of known sysinfo data via callback function(err, result)
    * for all sites specified as a function parameter
    */
@@ -1629,7 +1668,7 @@ class Controller {
 
   /**
    * Get controller status - stat_status()
-   * ---------------------
+   *
    * returns true upon success (controller is online)
    *
    * NOTES: in order to get useful results (e.g. controller version) you can call get_last_results_raw()
@@ -1641,7 +1680,7 @@ class Controller {
 
   /**
    * List self - list_self()
-   * ---------
+   *
    * returns an array of information about the logged in user
    */
   getSelf(sites, cb) {
@@ -1650,7 +1689,6 @@ class Controller {
 
   /**
    * List vouchers - stat_voucher()
-   * -------------
    *
    * optional parameter <create_time> = Unix timestamp in seconds
    */
@@ -1665,7 +1703,7 @@ class Controller {
 
   /**
    * List payments - stat_payment()
-   * -------------
+   *
    * returns an array of hotspot payments
    */
   getPayments(sites, cb, within) {
@@ -1676,7 +1714,6 @@ class Controller {
 
   /**
    * Create hotspot operator (using REST) - create_hotspotop()
-   * ------------------------------------
    *
    * required parameter <name>       = name for the hotspot operator
    * required parameter <x_password> = clear text password for the hotspot operator
@@ -1695,7 +1732,7 @@ class Controller {
 
   /**
    * List hotspot operators (using REST) - list_hotspotop()
-   * -----------------------------------
+   *
    * returns an array of hotspot operators
    */
   getHotspotOperators(sites, cb) {
@@ -1704,7 +1741,7 @@ class Controller {
 
   /**
    * Create voucher(s) - create_voucher()
-   * -----------------
+   *
    * returns an array containing a single object which contains the create_time(stamp) of the voucher(s) created
    *
    * required parameter <minutes> = minutes the voucher is valid after activation (expiration time)
@@ -1753,7 +1790,7 @@ class Controller {
 
   /**
    * Revoke voucher - revoke_voucher()
-   *---------------
+   *
    * return TRUE on success
    *
    * required parameter <voucher_id> = 24 char string; _id value of the voucher to revoke
@@ -1767,7 +1804,7 @@ class Controller {
 
   /**
    * Extend guest validity - extend_guest_validity()
-   * ---------------------
+   *
    * return TRUE on success
    *
    * required parameter <guest_id> = 24 char string; _id value of the guest to extend validity
@@ -1781,7 +1818,7 @@ class Controller {
 
   /**
    * List port forwarding stats - list_portforward_stats()
-   * --------------------------
+   *
    * returns an array of port forwarding stats
    */
   getPortForwardingStats(sites, cb) {
@@ -1790,7 +1827,7 @@ class Controller {
 
   /**
    * List DPI stats - list_dpi_stats()
-   * --------------
+   *
    * returns an array of DPI stats
    */
   getDPIStats(sites, cb) {
@@ -1799,7 +1836,7 @@ class Controller {
 
   /**
    * List filtered DPI stats
-   * -----------------------
+   *
    * returns an array of fileterd DPI stats
    * optional parameter <type>       = whether to returns stats by app or by category, valid values  :
    *                                   'by_cat' or 'by_app'
@@ -1822,10 +1859,10 @@ class Controller {
 
   /**
    * Clear DPI stats
-   * --------------
+   *
    * clears stats of DPI
    */
-  ClearDPIStatus(sites, cb) {
+  clearDPIStatus(sites, cb) {
     const json = {
       cmd: 'clear-dpi'
     };
@@ -1834,7 +1871,7 @@ class Controller {
 
   /**
    * List current channels - list_current_channels()
-   * ---------------------
+   *
    * returns an array of currently allowed channels
    */
   getCurrentChannels(sites, cb) {
@@ -1843,7 +1880,7 @@ class Controller {
 
   /**
    * List country codes - list_country_codes()
-   * ------------------
+   *
    * returns an array of available country codes
    *
    * NOTES:
@@ -1856,7 +1893,7 @@ class Controller {
 
   /**
    * List port forwarding settings - list_portforwarding()
-   * -----------------------------
+   *
    * returns an array of port forwarding settings
    */
   getPortForwarding(sites, cb) {
@@ -1865,7 +1902,7 @@ class Controller {
 
   /**
    * List dynamic DNS settings - list_dynamicdns()
-   * -------------------------
+   *
    * returns an array of dynamic DNS settings
    */
   getDynamicDNS(sites, cb) {
@@ -1874,7 +1911,7 @@ class Controller {
 
   /**
    * Create dynamic DNS settings, base (using REST) - create_dynamicdns()
-   * ----------------------------------------------
+   *
    * return true on success
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the site, must be a
    *                                (partial) object/array structured in the same manner as is returned by list_dynamicdns() for the site.
@@ -1885,7 +1922,7 @@ class Controller {
 
   /**
    * Update site dynamic DNS, base (using REST) - set_dynamicdns
-   * ------------------------------------------
+   *
    * return true on success
    * required parameter <dynamicdns_id> = 24 char string; _id of the settings which can be found with the list_dynamicdns() function
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the site, must be a
@@ -1897,7 +1934,7 @@ class Controller {
 
   /**
    * List port configurations - list_portconf()
-   * ------------------------
+   *
    * returns an array of port configurations
    */
   getPortConfig(sites, cb) {
@@ -1906,7 +1943,7 @@ class Controller {
 
   /**
    * List VoIP extensions - list_extensions()
-   * --------------------
+   *
    * returns an array of VoIP extensions
    */
   getVoipExtensions(sites, cb) {
@@ -1915,7 +1952,7 @@ class Controller {
 
   /**
    * List site settings - list_settings()
-   * ------------------
+   *
    * returns an array of site configuration settings
    */
   getSiteSettings(sites, cb) {
@@ -1924,7 +1961,6 @@ class Controller {
 
   /**
    * Adopt a device to the selected site - adopt_device()
-   * -----------------------------------
    *
    * required parameter <mac> = device MAC address
    */
@@ -1937,7 +1973,7 @@ class Controller {
 
   /**
    * Reboot a device - restart_device()
-   * ---------------
+   *
    * return true on success
    * required parameter <mac>  = device MAC address
    * optional parameter <reboot_type> = string; two options: 'soft' or 'hard', defaults to soft
@@ -1959,7 +1995,7 @@ class Controller {
 
   /**
    * Force provision of a device - force_provision()
-   * ---------------------------
+   *
    * return true on success
    * required parameter <mac> = device MAC address
    */
@@ -1972,7 +2008,7 @@ class Controller {
 
   /**
    * Reboot a UniFi CloudKey - reboot_cloudkey()
-   * -----------------------
+   *
    * return true on success
    *
    * This API call does nothing on UniFi controllers *not* running on a UniFi CloudKey device
@@ -1983,7 +2019,6 @@ class Controller {
 
   /**
    * Disable/enable an access point (using REST) - disable_ap()
-   * -------------------------------------------
    *
    * required parameter <ap_id>   = 24 char string; value of _id for the access point which can be obtained from the device list
    * required parameter <disable> = boolean; TRUE will disable the device, FALSE will enable the device
@@ -1999,7 +2034,6 @@ class Controller {
 
   /**
    * Override LED mode for a device (using REST) - led_override()
-   * -------------------------------------------
    *
    * required parameter <device_id>     = 24 char string; value of _id for the device which can be obtained from the device list
    * required parameter <override_mode> = string, off/on/default; "off" will disable the LED of the device,
@@ -2012,7 +2046,6 @@ class Controller {
 
   /**
    * Toggle flashing LED of an access point for locating purposes - locate_ap()
-   * ------------------------------------------------------------
    *
    * required parameter <mac> = device MAC address
    * required parameter <enable> = boolean; true will enable flashing LED, false will disable
@@ -2026,7 +2059,6 @@ class Controller {
 
   /**
    * Toggle LEDs of all the access points ON or OFF - site_leds()
-   * ----------------------------------------------
    *
    * required parameter <enable> = boolean; true will switch LEDs of all the access points ON, false will switch them OFF
    */
@@ -2036,7 +2068,6 @@ class Controller {
 
   /**
    * Update access point radio settings - set_ap_radiosettings()
-   * ----------------------------------
    *
    * required parameter <ap_id>   = value of _id for the access point which can be obtained from the device list
    * required parameter <radio>   = (default=ng)
@@ -2060,7 +2091,7 @@ class Controller {
 
   /**
    * Assign access point to another WLAN group - set_ap_wlangroup()
-   * -----------------------------------------
+   *
    * return true on success
    * required parameter <type_id>   = string; WLAN type, can be either 'ng' (for WLANs 2G (11n/b/g)  ) or 'na' (WLANs 5G (11n/a/ac))
    * required parameter <device_id> = string; _id value of the access point to be modified
@@ -2080,7 +2111,7 @@ class Controller {
 
   /**
    * Update guest login settings - set_guestlogin_settings()
-   * ---------------------------
+   *
    * return true on success
    * required parameter <portal_enabled>    = boolean; enable/disable the captive portal
    * required parameter <portal_customized> = boolean; enable/disable captive portal customizations
@@ -2111,7 +2142,7 @@ class Controller {
 
   /**
    * Update guest login settings, base - set_guestlogin_settings_base()
-   * ---------------------------------
+   *
    * return true on success
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the guest login, must be a (partial)
    *                                object/array structured in the same manner as is returned by list_settings() for the "guest_access" section.
@@ -2122,7 +2153,7 @@ class Controller {
 
   /**
    * Update IPS/IDS settings, base - set_ips_settings_base()
-   * -----------------------------
+   *
    * return true on success
    * required parameter <payload> = stdClass object or associative array containing the IPS/IDS settings to apply, must be a (partial)
    *                                object/array structured in the same manner as is returned by list_settings() for the "ips" section.
@@ -2133,7 +2164,7 @@ class Controller {
 
   /**
    * Update "Super Management" settings, base - set_super_mgmt_settings_base()
-   * ----------------------------------------
+   *
    * return true on success
    * required parameter <settings_id> = 24 char string; value of _id for the site settings section where key = "super_mgmt", settings can be obtained
    *                                    using the list_settings() function
@@ -2146,7 +2177,7 @@ class Controller {
 
   /**
    * Update "Super SMTP" settings, base - set_super_smtp_settings_base()
-   * ----------------------------------
+   *
    * return true on success
    * required parameter <settings_id> = 24 char string; value of _id for the site settings section where key = "super_smtp", settings can be obtained
    *                                    using the list_settings() function
@@ -2159,7 +2190,7 @@ class Controller {
 
   /**
    * Update "Super Controller Identity" settings, base - set_super_identity_settings_base()
-   * -------------------------------------------------
+   *
    * return true on success
    * required parameter <settings_id> = 24 char string; value of _id for the site settings section where key = "super_identity", settings can be obtained
    *                                    using the list_settings() function
@@ -2172,7 +2203,6 @@ class Controller {
 
   /**
    * Rename access point - rename_ap()
-   * -------------------
    *
    * required parameter <ap_id>  = value of _id for the access point which can be obtained from the device list
    * required parameter <apname> = New name
@@ -2184,7 +2214,7 @@ class Controller {
 
   /**
    * Move a device to another site - move_device()
-   * -----------------------------
+   *
    * return true on success
    * required parameter <mac>     = string; MAC address of the device to move
    * required parameter <site_id> = 24 char string; _id of the site to move the device to
@@ -2200,7 +2230,7 @@ class Controller {
 
   /**
    * Delete a device from the current site - delete_device()
-   * -------------------------------------
+   *
    * return true on success
    * required parameter <mac>     = string; MAC address of the device to move
    */
@@ -2214,7 +2244,7 @@ class Controller {
 
   /**
    * List network settings (using REST) - list_networkconf()
-   * ----------------------------------
+   *
    * returns an array of (non-wireless) networks and their settings
    * optional parameter <network_id> = string; _id value of the network to get settings for
    */
@@ -2228,7 +2258,7 @@ class Controller {
 
   /**
    * Create a network (using REST) - create_network()
-   * -----------------------------
+   *
    * return an array with a single object containing details of the new network on success, else return false
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
    *                                object structured in the same manner as is returned by list_networkconf() for the specific network type.
@@ -2240,7 +2270,7 @@ class Controller {
 
   /**
    * Update network settings, base (using REST) - set_networksettings_base()
-   * ------------------------------------------
+   *
    * return true on success
    * required parameter <network_id> = the "_id" value for the network you wish to update
    * required parameter <payload>    = stdClass object or associative array containing the configuration to apply to the network, must be a (partial)
@@ -2252,7 +2282,7 @@ class Controller {
 
   /**
    * Delete a network (using REST) - delete_network()
-   * -----------------------------
+   *
    * return true on success
    * required parameter <network_id> = 24 char string; _id value of the network which can be found with the list_networkconf() function
    */
@@ -2262,7 +2292,7 @@ class Controller {
 
   /**
    * List wlan settings (using REST) - list_wlanconf()
-   * -------------------------------
+   *
    * returns an array of wireless networks and their settings, or an array containing a single wireless network when using
    * the <wlan_id> parameter
    * required paramater <sites>   = name or array of site names
@@ -2278,7 +2308,6 @@ class Controller {
 
   /**
    * Create a wlan - create_wlan()
-   * -------------
    *
    * required parameter <name>             = string; SSID
    * required parameter <x_passphrase>     = string; new pre-shared key, minimal length is 8 characters, maximum length is 63,
@@ -2327,7 +2356,7 @@ class Controller {
 
   /**
    * Update wlan settings, base (using REST) - set_wlansettings_base()
-   * ---------------------------------------
+   *
    * return true on success
    * required paramater <sites>   = name or array of site names
    * required parameter <wlan_id> = the "_id" value for the WLAN you wish to update
@@ -2340,7 +2369,6 @@ class Controller {
 
   /**
    * Update basic wlan settings - set_wlansettings()
-   * --------------------------
    *
    * required parameter <wlan_id>
    * optional parameter <x_passphrase> = new pre-shared key, minimal length is 8 characters, maximum length is 63,
@@ -2364,7 +2392,6 @@ class Controller {
 
   /**
    * Disable/Enable wlan - disable_wlan()
-   * -------------------
    *
    * required parameter <wlan_id>
    * required parameter <disable> = boolean; true disables the wlan, false enables it
@@ -2378,7 +2405,6 @@ class Controller {
 
   /**
    * Delete a wlan (using REST) - delete_wlan()
-   * --------------------------
    *
    * required parameter <wlan_id> = 24 char string; _id of the wlan that can be found with the list_wlanconf() function
    */
@@ -2388,7 +2414,6 @@ class Controller {
 
   /**
    * Update MAC filter for a wlan - set_wlan_mac_filter()
-   * ----------------------------
    *
    * required parameter <wlan_id>            = the "_id" value for the WLAN you wish to update
    * required parameter <mac_filter_policy>  = string, "allow" or "deny"; default MAC policy to apply
@@ -2409,7 +2434,6 @@ class Controller {
 
   /**
    * List events - list_events()
-   * -----------
    *
    * required paramater <sites>   = name or array of site names
    * optional parameter <historyhours> = hours to go back, default value is 720 hours
@@ -2443,7 +2467,6 @@ class Controller {
 
   /**
    * List alarms - list_alarms()
-   * -----------
    *
    * required paramater <sites>   = name or array of site names
    * optional parameter <payload> = json payload of flags to filter by
@@ -2456,7 +2479,6 @@ class Controller {
 
   /**
    * Count alarms - count_alarms()
-   * ------------
    * returns an array containing the alarm count
    * required paramater <sites>   = name or array of site names
    * optional parameter <payload> = json payload of flags to filter by
@@ -2469,7 +2491,7 @@ class Controller {
 
   /**
    * Archive alarms(s) - archive_alarm()
-   * -----------------
+   *
    * return true on success
    * optional parameter <alarm_id> = 24 char string; _id of the alarm to archive which can be found with the list_alarms() function,
    *                                 if not provided, *all* un-archived alarms for the current site will be archived!
@@ -2487,8 +2509,34 @@ class Controller {
   }
 
   /**
+   * Check controller update - check_controller_update()
+   *
+   * NOTE:
+   * triggers an update of the controller cached known latest version.
+   *
+   * @return array returns an array with a single object containing details of the current known latest controller version info
+   *               on success, else returns false
+   */
+  checkControllerUpdate(sites, cb) {
+    this._request('/api/s/<SITE>/stat/fwupdate/latest-version', null, sites, cb);
+  }
+
+  /**
+   * Check firmware update - check_firmware_update()
+   *
+   * NOTE:
+   * triggers a Device Firmware Update in Classic Settings > System settings > Maintenance
+   *
+   * @return bool returns true upon success
+   */
+  checkFirmwareUpdate(sites, cb) {
+    const payload = {cmd: 'check-firmware-update'};
+    this._request('/api/s/<SITE>/cmd/productinfo', payload, sites, cb);
+  }
+
+  /**
    * Upgrade a device to the latest firmware - upgrade_device()
-   * ---------------------------------------
+   *
    * return true on success
    * required parameter <device_mac> = MAC address of the device to upgrade
    *
@@ -2501,7 +2549,7 @@ class Controller {
 
   /**
    * Upgrade a device to a specific firmware file - upgrade_device_external()
-   * --------------------------------------------
+   *
    * return true on success
    * required parameter <firmware_url> = URL for the firmware file to upgrade the device to
    * required parameter <device_mac>   = MAC address of the device to upgrade
@@ -2516,7 +2564,7 @@ class Controller {
 
   /**
    * Start rolling upgrade - start_rolling_upgrade()
-   * ---------------------
+   *
    * return true on success
    *
    * NOTES:
@@ -2529,7 +2577,7 @@ class Controller {
 
   /**
    * Cancel rolling upgrade - cancel_rolling_upgrade()
-   * ----------------------
+   *
    * return true on success
    */
   cancelRollingUpgrade(sites, cb) {
@@ -2538,7 +2586,7 @@ class Controller {
 
   /**
    * List firmware versions - list_firmware()
-   * ----------------------
+   *
    * returns an array of firmware versions
    * optional parameter <type> = string; "available" or "cached", determines which firmware types to return
    */
@@ -2553,7 +2601,7 @@ class Controller {
 
   /**
    * Power-cycle the PoE output of a switch port - power_cycle_switch_port()
-   * -------------------------------------------
+   *
    * return true on success
    * required parameter <switch_mac> = string; main MAC address of the switch
    * required parameter <port_idx>   = integer; port number/index of the port to be affected
@@ -2573,7 +2621,7 @@ class Controller {
 
   /**
    * Trigger an RF scan by an AP
-   * ---------------------------
+   *
    * return true on success
    * required parameter <ap_mac> = MAC address of the AP
    */
@@ -2583,7 +2631,7 @@ class Controller {
 
   /**
    * Trigger a speedtest on a USG
-   * ----------------------------
+   *
    * return true on success
    */
   runSpeedTest(sites, cb) {
@@ -2592,7 +2640,7 @@ class Controller {
 
   /**
    * Get the current state of a running speedtest on a USG
-   * -----------------------------------------------------
+   *
    * returns status of speedtest
    */
   getSpeedTestStatus(sites, cb) {
@@ -2601,7 +2649,7 @@ class Controller {
 
   /**
    * Check the RF scanning state of an AP - spectrum_scan_state()
-   * ------------------------------------
+   *
    * returns an object with relevant information (results if available) regarding the RF scanning state of the AP
    * required parameter <ap_mac> = MAC address of the AP
    */
@@ -2611,7 +2659,7 @@ class Controller {
 
   /**
    * Update device settings, base (using REST) - set_device_settings_base()
-   * -----------------------------------------
+   *
    * required paramater <sites>     = name or array of site names
    * required parameter <device_id> = 24 char string; _id of the device which can be found with the list_devices() function
    * required parameter <payload>   = stdClass object or associative array containing the configuration to apply to the device, must be a
@@ -2623,7 +2671,7 @@ class Controller {
 
   /**
    * List Radius profiles (using REST) - list_radius_profiles()
-   * -----------------------------------
+   *
    * returns an array of objects containing all Radius profiles for the current site
 	 *
    * NOTES:
@@ -2635,7 +2683,7 @@ class Controller {
 
   /**
    * List Radius user accounts (using REST) - list_radius_accounts()
-   * --------------------------------------
+   *
    * returns an array of objects containing all Radius accounts for the current site
 	 *
    * NOTES:
@@ -2647,7 +2695,7 @@ class Controller {
 
   /**
    * Create a Radius user account (using REST) - create_radius_account()
-   * -----------------------------------------
+   *
    * returns an array containing a single object for the newly created account upon success, else returns false
    * required parameter <name>               = string; name for the new account
    * required parameter <x_password>         = string; password for the new account
@@ -2702,7 +2750,7 @@ class Controller {
 
   /**
    * Update Radius account, base (using REST) - set_radius_account_base()
-   * ----------------------------------------
+   *
    * return true on success
    * required parameter <account_id> = 24 char string; _id of the account which can be found with the list_radius_accounts() function
    * required parameter <payload>    = stdClass object or associative array containing the new profile to apply to the account, must be a (partial)
@@ -2717,7 +2765,7 @@ class Controller {
 
   /**
    * Delete a Radius account (using REST) - delete_radius_account()
-   * ------------------------------------
+   *
    * return true on success
    * required parameter <account_id> = 24 char string; _id of the account which can be found with the list_radius_accounts() function
    *
@@ -2730,7 +2778,7 @@ class Controller {
 
   /**
    * Execute specific stats command - cmd_stat()
-   * ------------------------------
+   *
    * return true on success
    * required parameter <command>  = string; command to execute, known valid values
    *                                 'reset-dpi': reset all DPI counters for the current site
@@ -2743,7 +2791,7 @@ class Controller {
 
   /**
    * Toggle Element Adoption ON or OFF - set_element_adoption()
-   * ---------------------------------
+   *
    * return true on success
    * required parameter <enable> = boolean; true will enable Element Adoption, false will disable Element Adoption
    */
@@ -2755,7 +2803,6 @@ class Controller {
 
   /**
    * Upgrade External Firmware (5.4.9+)
-   * -------------------------
    *
    * required paramater <sites>        = name or array of site names
    * required parameter <mac>          = device MAC address
@@ -2771,7 +2818,7 @@ class Controller {
 
   /**
    * Custom API request - custom_api_request()
-   * ------------------
+   *
    * returns results as requested, returns false on incorrect parameters
    * required parameter <path>         = string; suffix of the URL (following the port number) to pass request to, *must* start with a "/" character
 request to, *must* start with a "/" character
@@ -2864,6 +2911,17 @@ request to, *must* start with a "/" character
             callback(null);
           } else if (typeof (body) !== 'undefined' && typeof (body.meta) !== 'undefined' && body.meta.rc === 'error') {
             callback(body.meta.msg);
+          } else if (url.startsWith('/v2/api/') === true) {
+            // To deal with a response coming from the new v2 API
+            if (typeof (body) !== 'undefined' && typeof (body.errorCode) !== 'undefined') {
+              if (typeof (body.message) === 'undefined') {
+                callback(null);
+              } else {
+                callback(body.message);
+              }
+            } else {
+              callback(body);
+            }
           } else {
             callback(null);
           }
