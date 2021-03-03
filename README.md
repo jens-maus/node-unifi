@@ -35,37 +35,37 @@ ackward language constructs. The following example should give a brief introduct
 how to use node-unifi in your own applications:
 
 ```js
-var unifi = require('node-unifi');
+/* eslint-disable max-nested-callbacks */
+const unifi = require('node-unifi');
 
-var controller = new unifi.Controller("127.0.0.1", 8443);
+const controller = new unifi.Controller('127.0.0.1', 8443);
 
 // LOGIN
-controller.login("admin", "PASSWORD", function(err) {
-
-  if(err) {
-    console.log('ERROR: ' + err);
+controller.login('admin', 'PASSWORD', error => {
+  if (error) {
+    console.log('ERROR: ' + error);
     return;
   }
 
   // GET SITE STATS
-  controller.getSitesStats(function(err, sites) {
+  controller.getSitesStats((error, sites) => {
     console.log('getSitesStats: ' + sites[0].name + ' : ' + sites.length);
     console.log(JSON.stringify(sites));
 
     // GET SITE SYSINFO
-    controller.getSiteSysinfo(sites[0].name, function(err, sysinfo) {
+    controller.getSiteSysinfo(sites[0].name, (error, sysinfo) => {
       console.log('getSiteSysinfo: ' + sysinfo.length);
       console.log(JSON.stringify(sysinfo));
 
       // GET CLIENT DEVICES
-      controller.getClientDevices(sites[0].name, function(err, client_data) {
-        console.log('getClientDevices: ' + client_data[0].length);
-        console.log(JSON.stringify(client_data));
+      controller.getClientDevices(sites[0].name, (error, clientData) => {
+        console.log('getClientDevices: ' + clientData[0].length);
+        console.log(JSON.stringify(clientData));
 
         // GET ALL USERS EVER CONNECTED
-        controller.getAllUsers(sites[0].name, function(err, users_data) {
-          console.log('getAllUsers: ' + users_data[0].length);
-          console.log(JSON.stringify(users_data));
+        controller.getAllUsers(sites[0].name, (error, usersData) => {
+          console.log('getAllUsers: ' + usersData[0].length);
+          console.log(JSON.stringify(usersData));
 
           // FINALIZE, LOGOUT AND FINISH
           controller.logout();
