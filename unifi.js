@@ -2627,23 +2627,11 @@ class Controller {
     const json = {_sort: '-time',
       type: null};
 
-    if (typeof (historyhours) === 'undefined') {
-      json.within = 720;
-    } else {
-      json.within = historyhours;
-    }
+    json.within = typeof (historyhours) === 'undefined' ? 720 : historyhours;
 
-    if (typeof (start) === 'undefined') {
-      json._start = 0;
-    } else {
-      json._start = start;
-    }
+    json._start = typeof (start) === 'undefined' ? 0 : start;
 
-    if (typeof (limit) === 'undefined') {
-      json._limit = 3000;
-    } else {
-      json._limit = limit;
-    }
+    json._limit = typeof (limit) === 'undefined' ? 3000 : limit;
 
     this._request('/api/s/<SITE>/stat/event', json, sites, cb);
   }
@@ -3076,16 +3064,36 @@ class Controller {
           options.json = json;
         } else if (typeof (method) === 'undefined') {
           reqfunc = request.get;
-        } else if (method === 'DELETE') {
-          reqfunc = request.del;
-        } else if (method === 'POST') {
-          reqfunc = request.post;
-        } else if (method === 'PUT') {
-          reqfunc = request.put;
-        } else if (method === 'PATCH') {
-          reqfunc = request.patch;
         } else {
-          reqfunc = request.get;
+          switch (method) {
+            case 'DELETE': {
+              reqfunc = request.del;
+
+              break;
+            }
+
+            case 'POST': {
+              reqfunc = request.post;
+
+              break;
+            }
+
+            case 'PUT': {
+              reqfunc = request.put;
+
+              break;
+            }
+
+            case 'PATCH': {
+              reqfunc = request.patch;
+
+              break;
+            }
+
+            default: {
+              reqfunc = request.get;
+            }
+          }
         }
 
         reqfunc(options, (error, response, body) => {
