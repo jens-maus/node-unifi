@@ -23,23 +23,23 @@
  * The source code is distributed under the MIT license
  *
  */
-let request = require('request');
+const nodeFetch = require('node-fetch');
+const tough = require('tough-cookie');
 const async = require('async');
 
-// Make sure we setup request correctly for our
-// processing
-request = request.defaults({jar: true,
-  json: true,
-  strictSSL: false
-});
+/// ///////////////////////////////////////////////////////////
+// PUBLIC CLASS
 
 class Controller {
   /** CONSTRUCTOR */
   constructor(hostname, port) {
+    // Initialize our private class
+    this.private = new ControllerPrivate();
+
     this._baseurl = 'https://127.0.0.1:8443';
     this._unifios = false;
     this._csrfToken = null;
-    this._cookies = null;
+    this._fetch = null;
 
     // Format a new baseurl based on the arguments
     if (typeof (hostname) !== 'undefined' && typeof (port) !== 'undefined') {
@@ -56,11 +56,32 @@ class Controller {
    */
   login(username, password, cb) {
     // Find out if this is a UnifiOS driven controller or not.
-    async.series([
-      callback => {
-        // We have to use a custom cookie jar for this request - otherwise the login fails on Unifi
-        this._cookies = request.jar();
-        request({method: 'GET', followRedirect: false, uri: this._baseurl + '/', jar: this._cookies}, (error, response, body) => {
+
+    // We have to use a custom cookie jar for this request - otherwise the login fails on Unifi
+    this._fetch = require('fetch-cookie')(nodeFetch, new tough.CookieJar());
+
+    // Check if UniFiOS device or not
+    this._fetch(this._baseurl + '/', {method: 'GET', follow: 0})
+      .then(response => {
+        // If the statusCode is 200 and a x-csrf-token is supplied this is a
+        // UniFiOS device (e.g. UDM-Pro)
+        if (response.status === 200 && typeof (response.headers.get('x-csrf-token')) !== 'undefined') {
+          this._unifios = true;
+          this._csrfToken = response.headers.get('x-csrf-token');
+        } else {
+          this._unifios = false;
+          this._csrfToken = null;
+        }
+
+        return response;
+      })
+      .then(response => response.text())
+      .then()
+
+      .catch(error => {});
+
+    /*
+        Request({method: 'GET', followRedirect: false, uri: this._baseurl + '/', jar: this._cookies}, (error, response, body) => {
           if (!error) {
             // If the statusCode is 200 and a x-csrf-token is supplied this is a
             // UniFiOS device (e.g. UDM-Pro)
@@ -84,6 +105,7 @@ class Controller {
         }, null, cb);
       }
     ]);
+*/
   }
 
   /**
@@ -94,7 +116,7 @@ class Controller {
   logout(cb) {
     this._request(this._unifios ? '/api/auth/logout' : '/logout', {}, null, (error, result) => {
       if (!error) {
-        this._cookies = null;
+        this._fetch = null;
         this._csrfToken = null;
         this._unifios = false;
       }
@@ -3137,4 +3159,8 @@ class Controller {
   }
 }
 
-exports.Controller = Controller;
+/// ///////////////////////////////////////////////////////////
+// PRIVATE CLASS
+class ControllerPrivate {}
+
+module.exports = {Controller};
