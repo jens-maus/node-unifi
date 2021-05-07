@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.68
+ * Based/Compatible to UniFi-API-client class: v1.1.70
  *
  * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
  *
@@ -232,7 +232,6 @@ class Controller {
 
     if (typeof (note) !== 'undefined') {
       new_user.note = note;
-      new_user.noted = true;
     }
 
     if (typeof (is_guest) !== 'undefined') {
@@ -257,13 +256,11 @@ class Controller {
    * - when note is empty or not set, the existing note for the client-device is removed and "noted" attribute set to false
    */
   setClientNote(sites, user_id, cb, note) {
-    let noted = 1;
     if (typeof (note) === 'undefined') {
       note = '';
-      noted = 0;
     }
 
-    this._request('/api/s/<SITE>/upd/user/' + user_id.trim(), {note, noted}, sites, cb);
+    this._request('/api/s/<SITE>/upd/user/' + user_id.trim(), {note}, sites, cb);
   }
 
   /**
@@ -2314,7 +2311,7 @@ class Controller {
       expire_unit,
       _id: section_id};
 
-    this._request('/api/s/<SITE>/set/setting/guest_access/', json, sites, cb);
+    this._request('/api/s/<SITE>/set/setting/guest_access/' + section_id.trim(), json, sites, cb);
   }
 
   /**
@@ -2324,8 +2321,10 @@ class Controller {
    * required parameter <payload> = stdClass object or associative array containing the configuration to apply to the guest login, must be a (partial)
    *                                object/array structured in the same manner as is returned by list_settings() for the "guest_access" section.
    */
-  setGuestLoginSettingsBase(sites, payload, cb) {
-    this._request('/api/s/<SITE>/set/setting/guest_access', payload, sites, cb);
+  setGuestLoginSettingsBase(sites, payload, cb, section_id) {
+    section_id = typeof (section_id) === 'undefined' ? '' : '/' + section_id;
+
+    this._request('/api/s/<SITE>/set/setting/guest_access' + section_id.trim(), payload, sites, cb);
   }
 
   /**
@@ -2970,6 +2969,30 @@ class Controller {
     const payload = {enabled: enable};
 
     this._request('/api/s/<SITE>/set/setting/element_adopt', payload, sites, cb);
+  }
+
+  /**
+   * List device states - list_device_states()
+   *
+   * NOTE:
+   * this function returns a partial implementation of the codes listed here
+   * https://help.ui.com/hc/en-us/articles/205231710-UniFi-UAP-Status-Meaning-Definitions
+   *
+   * @return array containing translations of UniFi device "state" values to humanized form
+   */
+  getDeviceStates(sites, cb) {
+    cb(null, {deviceState: {
+      0: 'offline',
+      1: 'connected',
+      2: 'pending adoption',
+      4: 'updating',
+      5: 'provisioning',
+      6: 'unreachable',
+      7: 'adopting',
+      9: 'adoption error',
+      11: 'isolated'
+    }
+    });
   }
 
   /**
