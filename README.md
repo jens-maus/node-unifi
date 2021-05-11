@@ -19,7 +19,8 @@ Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http:
 
 ## Requirements
 * Installed [UniFi-Controller](https://www.ubnt.com/download/unifi) version v4, v5 or v6, CloudKey Gen1, Gen2 or UDM-Pro.
-* Working UniFi-device environment
+* direct network connectivity between this server and the host and port (normally TCP port 8443 or 443) where the UniFi Controller is running
+* you must use **local accounts**, not UniFi Cloud accounts nor 2FA, to access the UniFi Controller API through this class
 
 ## Installation
 node-unifi can be installed using the following npm command:
