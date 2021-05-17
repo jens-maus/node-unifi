@@ -102,7 +102,7 @@ class Controller {
       if (typeof (cb) === 'function') {
         cb(error, result);
       }
-    });
+    }, this._unifios ? 'POST' : 'GET');
   }
 
   /**
