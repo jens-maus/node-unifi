@@ -17,10 +17,13 @@
     "url": "git+https://github.com/jens-maus/node-unifi.git"
   },
   "dependencies": {
-    "node-fetch": "^2.6.1",
-    "fetch-cookie": "^0.11.0",
+    "axios": "^0.21.1",
+    "axios-cookiejar-support": "^1.0.1",
+    "eventemitter2": "^6.4.4",
+    "https": "^1.0.0",
     "tough-cookie": "^4.0.0",
-    "async": "^3.2.0"
+    "url": "^0.11.0",
+    "ws": "^7.4.3"
   },
   "devDependencies": {
     "eslint": ">=7.26.0",

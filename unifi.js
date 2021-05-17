@@ -23,89 +23,141 @@
  * The source code is distributed under the MIT license
  *
  */
-const nodeFetch = require('node-fetch');
+'use strict';
+
+const url = require('url');
+const EventEmitter = require('eventemitter2').EventEmitter2;
+const https = require('https');
+const WebSocket = require('ws');
+const axios = require('axios');
+const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
-const async = require('async');
+axiosCookieJarSupport(axios);
 
 /// ///////////////////////////////////////////////////////////
 // PUBLIC CLASS
 
-class Controller {
+class Controller extends EventEmitter {
   /** CONSTRUCTOR */
-  constructor(hostname, port) {
-    // Initialize our private class
-    this.private = new ControllerPrivate();
+  constructor(options) {
+    super({
+      wildcard: true
+    });
 
-    this._baseurl = 'https://127.0.0.1:8443';
+    // Parse opts
+    this.opts = options || {};
+    this.opts.host = this.opts.host || 'unifi';
+    this.opts.port = this.opts.port || 8443;
+    this.opts.username = this.opts.username || 'admin';
+    this.opts.password = this.opts.password || 'ubnt';
+    this.opts.site = this.opts.site || 'default';
+    this.opts.insecure = this.opts.insecure || false;
+
+    this._baseurl = new URL(`https://${options.host}:${options.port}`);
+    this._cookieJar = new tough.CookieJar();
     this._unifios = false;
-    this._csrfToken = null;
-    this._fetch = null;
-
-    // Format a new baseurl based on the arguments
-    if (typeof (hostname) !== 'undefined' && typeof (port) !== 'undefined') {
-      this._baseurl = 'https://' + hostname + ':' + port;
-    }
+    this._isClosed = true;
+    this._autoReconnectInterval = 5 * 1000; // Ms
+    this._isInit = false;
   }
 
   /** PUBLIC METHODS */
+
+  /**
+   * Init
+   */
+  init() {
+    return new Promise((resolve, reject) => {
+      if (this._isInit) {
+        resolve(true);
+      } else {
+        this._instance = axios.create({
+          jar: this._cookieJar,
+          withCredentials: true,
+          httpsAgent: new https.Agent({rejectUnauthorized: false, requestCert: true, keepAlive: true})
+        });
+        this._instance.get(this._baseurl.toString()).then(response => {
+          if (response.headers['x-csrf-token']) {
+            this._xcsrftoken = response.headers['x-csrf-token'];
+            this._instance.defaults.headers.common['X-CSRF-Token'] = this._xcsrftoken;
+            this._unifios = true;
+            console.log('unifios');
+          } else {
+            this._unifios = false;
+            console.log('non unifios');
+          }
+
+          // DEBUG
+          /*
+          this._instance.interceptors.request.use(request => {
+            console.dir({ 'Starting Request': request }, { depth: null })
+            return request
+          })
+          this._instance.interceptors.response.use(response => {
+            console.dir({ 'Response:': response }, { depth: null })
+            return response
+          })
+          */
+
+          this._isInit = true;
+          this.connect().then(response => {
+            console.log('connect success');
+            resolve(true);
+          }).catch(error => {
+            reject(error);
+          });
+        }).catch(error => {
+          reject(error);
+        });
+      }
+    });
+  }
+
+  connect(reconnect = false) {
+    return new Promise((resolve, reject) => {
+      this._isClosed = false;
+      this.login(reconnect).then(() => {
+        console.log('login done');
+        // This._listen();
+        console.log('login go');
+        resolve(true);
+      }).catch(error => {
+        reject(error);
+      });
+    });
+  }
+
+  close() {
+    this._isClosed = true;
+    this._ws.site.close();
+    this._ws.super.close();
+    this._ws.system.close();
+  }
 
   /**
    * Login to the UniFi controller - login()
    *
    * returns true upon success
    */
-  login(username, password, cb) {
-    // Find out if this is a UnifiOS driven controller or not.
-
-    // We have to use a custom cookie jar for this request - otherwise the login fails on Unifi
-    this._fetch = require('fetch-cookie')(nodeFetch, new tough.CookieJar());
-
-    // Check if UniFiOS device or not
-    this._fetch(this._baseurl + '/', {method: 'GET', follow: 0})
-      .then(response => {
-        // If the statusCode is 200 and a x-csrf-token is supplied this is a
-        // UniFiOS device (e.g. UDM-Pro)
-        if (response.status === 200 && typeof (response.headers.get('x-csrf-token')) !== 'undefined') {
-          this._unifios = true;
-          this._csrfToken = response.headers.get('x-csrf-token');
-        } else {
-          this._unifios = false;
-          this._csrfToken = null;
-        }
-
-        return response;
-      })
-      .then(response => response.text())
-      .then()
-
-      .catch(error => {});
-
-    /*
-        Request({method: 'GET', followRedirect: false, uri: this._baseurl + '/', jar: this._cookies}, (error, response, body) => {
-          if (!error) {
-            // If the statusCode is 200 and a x-csrf-token is supplied this is a
-            // UniFiOS device (e.g. UDM-Pro)
-            if (response.statusCode === 200 && typeof (response.headers['x-csrf-token']) !== 'undefined') {
-              this._unifios = true;
-              this._csrfToken = response.headers['x-csrf-token'];
-            } else {
-              this._unifios = false;
-              this._csrfToken = null;
-            }
-          }
-
-          return callback(error, body);
-        });
-      },
-      () => {
-        // If this is a unifios system we use /api/auth instead
-        this._request(this._unifios ? '/api/auth/login' : '/api/login', {
-          username,
-          password
-        }, null, cb);
+  login(reconnect = false) {
+    return new Promise((resolve, reject) => {
+      let endpointUrl = `${this._baseurl.href}api/login`;
+      if (this._unifios) {
+        endpointUrl = `${this._baseurl.href}api/auth/login`;
       }
-    ]);
-*/
+
+      this._instance.post(endpointUrl, {
+        username: this.opts.username,
+        password: this.opts.password
+      }).then(() => {
+        console.log('login done1');
+        resolve(true);
+      }).catch(error => {
+        if (!reconnect) {
+          this._reconnect();
+        }
+      });
+    });
   }
 
   /**
@@ -113,18 +165,12 @@ class Controller {
    *
    * returns true upon success
    */
-  logout(cb) {
-    this._request(this._unifios ? '/api/auth/logout' : '/logout', {}, null, (error, result) => {
-      if (!error) {
-        this._fetch = null;
-        this._csrfToken = null;
-        this._unifios = false;
-      }
+  logout() {
+    if (this._unifios === true) {
+      return this._request('/api/auth/logout', '', 'POST');
+    }
 
-      if (typeof (cb) === 'function') {
-        cb(error, result);
-      }
-    });
+    return this._request('/logout');
   }
 
   /**
@@ -1232,8 +1278,8 @@ class Controller {
    *
    * @return array  containing the current AP groups on success
    */
-  getAPGroups(sites, cb) {
-    this._request('/v2/api/site/<SITE>/apgroups', null, sites, cb);
+  getAPGroups() {
+    return this._request('/v2/api/site/<SITE>/apgroups');
   }
 
   /**
@@ -1516,8 +1562,8 @@ class Controller {
    *
    * NOTES: endpoint was introduced with controller version 5.2.9
    */
-  getSitesStats(cb) {
-    this._request('/api/stat/sites', null, null, cb);
+  getSitesStats() {
+    return this._request('/api/stat/sites');
   }
 
   /**
@@ -1823,8 +1869,8 @@ class Controller {
    *
    * @return array  containing known sysinfo data
    */
-  getSiteSysinfo(sites, cb) {
-    this._request('/api/s/<SITE>/stat/sysinfo', null, sites, cb);
+  getSiteSysinfo() {
+    return this._request('/api/s/<SITE>/stat/sysinfo');
   }
 
   /**
@@ -3061,10 +3107,29 @@ class Controller {
 
   /**
    * Private function to send out a generic URL request to a UniFi-Controller
-   * for multiple sites (if wanted) and returning data via the callback function
    */
-  _request(url, json, sites, cb, method) {
-    const getbaseurl = () => {
+  _request(path, body = '', method = 'get') {
+    return new Promise((resolve, reject) => {
+      this._ensureLoggedIn().then(() => {
+        console.log(this._url(path));
+        this._instance.request({
+          url: this._url(path),
+          method,
+          data: body
+        }).then(response => {
+          // Console.log(response);
+          resolve(response.data);
+        }).catch(error => {
+          reject(error);
+        });
+      }).catch(error => {
+        reject(error);
+      });
+    });
+  }
+
+  /*
+    Const getbaseurl = () => {
       if (this._unifios === false || url.includes('login') || url.includes('logout')) {
         return this._baseurl;
       }
@@ -3180,10 +3245,114 @@ class Controller {
       }
     );
   }
+*/
+
+  _listen() {
+    console.log(this._baseurl.href);
+    this._cookieJar.getCookieString(this._baseurl.href).then(cookies => {
+      console.log('got cookies');
+      let eventsUrl = `wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`;
+
+      if (this._unifios) {
+        eventsUrl = `wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`;
+      }
+
+      this._ws = new WebSocket(eventsUrl, {
+        perMessageDeflate: false,
+        rejectUnauthorized: !this.opts.insecure,
+        headers: {
+          Cookie: cookies
+        }
+      });
+
+      const pingpong = setInterval(() => {
+        this._ws.send('ping');
+      }, 15000);
+
+      this._ws.on('open', () => {
+        this._isReconnecting = false;
+        this.emit('ctrl.connect');
+      });
+
+      this._ws.on('message', data => {
+        if (data === 'pong') {
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(data);
+          if ('data' in parsed && Array.isArray(parsed.data)) {
+            for (const entry of parsed.data) {
+              this._event(entry);
+            }
+          }
+        } catch (error) {
+          this.emit('ctrl.error', error);
+        }
+      });
+
+      this._ws.on('close', () => {
+        this.emit('ctrl.close');
+        clearInterval(pingpong);
+        this._reconnect();
+      });
+
+      this._ws.on('error', error => {
+        this.emit('ctrl.error', error);
+        clearInterval(pingpong);
+        this._reconnect();
+      });
+    });
+  }
+
+  _reconnect() {
+    if (!this._isReconnecting && !this._isClosed) {
+      this._isReconnecting = true;
+      setTimeout(() => {
+        this.emit('ctrl.reconnect');
+        this._isReconnecting = false;
+        this.connect(true).catch(() => {
+          console.dir('_reconnect() encountered an error');
+        });
+      }, this._autoReconnectInterval);
+    }
+  }
+
+  _event(data) {
+    console.log('EVENT: ' + JSON.parse(data));
+    if (data && data.key) {
+      // TODO clarifiy what to do with events without key...
+      const match = data.key.match(/EVT_([A-Z]{2})_(.*)/);
+      if (match) {
+        const [, group, event] = match;
+        this.emit([group.toLowerCase(), event.toLowerCase()].join('.'), data);
+      }
+    }
+  }
+
+  _ensureLoggedIn() {
+    return new Promise((resolve, reject) => {
+      this._instance.get(`${this._baseurl.href}api/${this._unifios ? 'users/' : ''}self`).then(() => {
+        resolve(true);
+      }).catch(() => {
+        this._login().then(() => {
+          resolve(true);
+        }).catch(error => {
+          reject(error);
+        });
+      });
+    });
+  }
+
+  _url(path) {
+    if (this._unifios === true &&
+        path.endsWith('/logout') === false &&
+        path.endsWith('/login') === false) {
+      return `${this._baseurl.href}proxy/network${path.replace('<SITE>', this.opts.site)}`;
+    }
+
+    return `${this._baseurl.href}${path.replace('<SITE>', this.opts.site).slice(1)}`;
+  }
 }
 
-/// ///////////////////////////////////////////////////////////
-// PRIVATE CLASS
-class ControllerPrivate {}
-
-module.exports = {Controller};
+module.exports = Controller;

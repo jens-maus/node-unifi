@@ -7,10 +7,42 @@ const port = process.argv[3]; // Controller port
 const username = process.argv[4]; // Controller username
 const password = process.argv[5]; // Controller password
 
-const unifi = require('../unifi.js');
+const Unifi = require('../unifi.js');
 
-const controller = new unifi.Controller(ip, port);
+const unifi = new Unifi({
+  host: ip,
+  port,
+  username,
+  password
+});
 
+unifi.init()
+  .then(result => {
+    console.log('GOT IT1: ' + result);
+    return unifi.getSitesStats();
+  })
+  .then(result => {
+    console.log('GOT IT2: ' + JSON.stringify(result));
+    return unifi.getSiteSysinfo();
+  })
+  .then(result => {
+    console.log('GOT IT3: ' + JSON.stringify(result));
+    return unifi.getAPGroups();
+  })
+  .then(result => {
+    console.log('GOT IT4: ' + JSON.stringify(result));
+    return unifi.logout();
+  })
+  .then(result => {
+    console.log('GOT IT5: ' + JSON.stringify(result));
+  })
+  .catch(error => {
+    console.log('ERROR: ' + error);
+  });
+
+console.log('DONE');
+
+/*
 // LOGIN
 controller.login(username, password, error => {
   if (error) {
@@ -44,3 +76,4 @@ controller.login(username, password, error => {
     });
   });
 });
+*/
