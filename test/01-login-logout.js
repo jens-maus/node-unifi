@@ -485,10 +485,7 @@ describe('Running tests', () => {
     controller.getAllAuthorizations()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length <= 0) {
-          console.log("GO");
-          console.log(JSON.stringify(result));
-          console.log("DONE");
-          done(new Error('ERROR: getAllAuthorizations()'));
+          done(new Error('getAllAuthorizations(): ' + JSON.stringify(result)));
         } else {
           console.log(JSON.stringify(result));
           done();
