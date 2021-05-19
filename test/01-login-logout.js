@@ -78,7 +78,12 @@ describe('Running tests', () => {
   });
 
   // UN-AUTHORIZE GUEST
-  it('unauthorizeGuest()', done => {
+  it('unauthorizeGuest()', async done => {
+    // Wait 2 seconds
+    await new Promise(resolve => {
+      setTimeout(resolve, 2000);
+    });
+
     controller.unauthorizeGuest('aa:bb:CC:DD:EE:FF')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
@@ -94,7 +99,7 @@ describe('Running tests', () => {
 
   // Reconnect a client device
   it('reconnectClient()', done => {
-    controller.unauthorizeGuest('aa:bb:CC:DD:EE:FF')
+    controller.reconnectClient('aa:bb:CC:DD:EE:FF')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done('ERROR: reconnectClient()');
