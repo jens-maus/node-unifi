@@ -49,6 +49,23 @@ describe('Running tests', () => {
     }
   });
 
+  // GET SITE SYSINFO
+  it('getSiteSysinfo()', done => {
+    controller.getSiteSysinfo()
+      .then(sysinfo => {
+        if (typeof (sysinfo) === 'undefined' || sysinfo.length <= 0) {
+          done(new Error('getSiteSysinfo(): ' + JSON.stringify(sysinfo)));
+        } else {
+          console.log(`      UniFi-Controller: ${sysinfo[0].version} (${sysinfo[0].build})`);
+          sysinfo[0].timezone.should.equal('Europe/Berlin');
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
   // GET SITE STATS
   it('getSitesStats()', done => {
     controller.getSitesStats()
@@ -483,23 +500,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined') {
           done(new Error('forgetClient(): ' + JSON.stringify(result)));
         } else {
-          done();
-        }
-      })
-      .catch(error => {
-        done(error);
-      });
-  });
-
-  // GET SITE SYSINFO
-  it('getSiteSysinfo()', done => {
-    controller.getSiteSysinfo()
-      .then(sysinfo => {
-        if (typeof (sysinfo) === 'undefined' || sysinfo.length <= 0) {
-          done(new Error('getSiteSysinfo(): ' + JSON.stringify(sysinfo)));
-        } else {
-          console.log(`      UniFi-Controller: ${sysinfo.version} (${sysinfo.build})`);
-          sysinfo[0].timezone.should.equal('Europe/Berlin');
           done();
         }
       })
