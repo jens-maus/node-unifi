@@ -56,7 +56,8 @@ describe('Running tests', () => {
         if (typeof (sites) === 'undefined' || sites.length <= 0) {
           done(new Error('getSitesStats(): ' + JSON.stringify(sites)));
         } else {
-          console.log(JSON.stringify(sites));
+          sites[0].name.should.equal('default');
+          sites[0].desc.should.equal('Default');
           done();
         }
       })
@@ -69,7 +70,7 @@ describe('Running tests', () => {
   it('authorizeGuest()', done => {
     controller.authorizeGuest('aa:bb:CC:DD:EE:FF', 100, 20, 30, 40, 'aa:bb:cc:dd:ee:fa')
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length < 0) {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('authorizeGuest(): ' + JSON.stringify(result)));
         } else {
           result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -90,9 +91,10 @@ describe('Running tests', () => {
   it('unauthorizeGuest()', done => {
     controller.unauthorizeGuest('aa:bb:CC:DD:EE:FF')
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length < 0) {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('unauthorizeGuest(): ' + JSON.stringify(result)));
         } else {
+          console.log(JSON.stringify(result));
           done();
         }
       })
@@ -105,7 +107,7 @@ describe('Running tests', () => {
   it('blockClient()', done => {
     controller.blockClient('aa:bb:CC:DD:EE:FF')
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length < 0) {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('blockClient(): ' + JSON.stringify(result)));
         } else {
           result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -122,7 +124,7 @@ describe('Running tests', () => {
   it('unblockClient()', done => {
     controller.unblockClient('aa:bb:CC:DD:EE:FF')
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length < 0) {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('unblockClient(): ' + JSON.stringify(result)));
         } else {
           result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -140,7 +142,7 @@ describe('Running tests', () => {
   it('getUserGroups()', done => {
     controller.getUserGroups()
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length < 0) {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('getUserGroups(): ' + JSON.stringify(result)));
         } else {
           result[0].name.should.equal('Default');
@@ -159,7 +161,7 @@ describe('Running tests', () => {
   it('createUser()', done => {
     controller.createUser('FF:EE:DD:CC:bb:aa', defaultGroupID, 'createUserTest', 'createUserTest note', true, false)
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length < 0) {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('createUser(): ' + JSON.stringify(result)));
         } else if (typeof (result[0].meta.msg) === 'undefined') {
           result[0].meta.rc.should.equal('ok');
@@ -183,7 +185,7 @@ describe('Running tests', () => {
   it('setClientNote()', done => {
     controller.setClientNote(createdUserID, 'createUserTest note changed')
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length < 0) {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('setClientNote(): ' + JSON.stringify(result)));
         } else {
           result[0].note.should.equal('createUserTest note changed');
@@ -203,7 +205,7 @@ describe('Running tests', () => {
   it('setClientName()', done => {
     controller.setClientName(createdUserID, 'createUserTest changed')
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length < 0) {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('setClientName(): ' + JSON.stringify(result)));
         } else {
           result[0].note.should.equal('createUserTest note changed');
@@ -226,7 +228,8 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('get5minSiteStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
+          console.log(result.length);
+          console.log(JSON.stringify(result));
           done();
         }
       })
@@ -599,7 +602,7 @@ describe('Running tests', () => {
   it('getSelf()', done => {
     controller.getSelf()
       .then(self_data => {
-        if (typeof (self_data) === 'undefined' || self_data.length < 0) {
+        if (typeof (self_data) === 'undefined' || self_data.length <= 0) {
           done(new Error('getSelf(): ' + JSON.stringify(self_data)));
         } else {
           self_data[0].email.should.equal('demo@ubnt.com');
