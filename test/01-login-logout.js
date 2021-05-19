@@ -26,13 +26,12 @@ if (process.env.CONTROLLER_PASS) {
 
 // Run the tests
 describe('Running tests', () => {
-  // Slow down tests a bit to get the controller time to
+  // Slow down tests a bit to get the unifi controller time to
   // process
   beforeEach(async () => {
     await new Promise(resolve => {
-      setTimeout(resolve, 1000);
+      setTimeout(resolve, 500);
     });
-    console.log('----------------------');
   });
 
   const controller = new unifi.Controller({host: CONTROLLER_IP, port: CONTROLLER_PORT});
@@ -55,8 +54,9 @@ describe('Running tests', () => {
     controller.getSitesStats()
       .then(sites => {
         if (typeof (sites) === 'undefined' || sites.length <= 0) {
-          done('ERROR: getSitesStats()');
+          done(new Error('getSitesStats(): ' + JSON.stringify(sites)));
         } else {
+          console.log(JSON.strinify(sites));
           done();
         }
       })
@@ -70,7 +70,7 @@ describe('Running tests', () => {
     controller.authorizeGuest('aa:bb:CC:DD:EE:FF', 100, 20, 30, 40, 'aa:bb:cc:dd:ee:fa')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: authorizeGuest()');
+          done(new Error('authorizeGuest(): ' + JSON.stringify(result)));
         } else {
           result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
           result[0].end.should.aboveOrEqual(result[0].start + (100 * 60));
@@ -91,7 +91,7 @@ describe('Running tests', () => {
     controller.unauthorizeGuest('aa:bb:CC:DD:EE:FF')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: unauthorizeGuest()');
+          done(new Error('unauthorizeGuest(): ' + JSON.stringify(result)));
         } else {
           done();
         }
@@ -106,7 +106,7 @@ describe('Running tests', () => {
     controller.blockClient('aa:bb:CC:DD:EE:FF')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: blockClient()');
+          done(new Error('blockClient(): ' + JSON.stringify(result)));
         } else {
           result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
           result[0].blocked.should.equal(true);
@@ -123,7 +123,7 @@ describe('Running tests', () => {
     controller.unblockClient('aa:bb:CC:DD:EE:FF')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: unblockClient()');
+          done(new Error('unblockClient(): ' + JSON.stringify(result)));
         } else {
           result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
           result[0].blocked.should.equal(false);
@@ -141,7 +141,7 @@ describe('Running tests', () => {
     controller.getUserGroups()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getUserGroups()');
+          done(new Error('getUserGroups(): ' + JSON.stringify(result)));
         } else {
           result[0].name.should.equal('Default');
           result[0].attr_no_delete.should.equal(true);
@@ -160,7 +160,7 @@ describe('Running tests', () => {
     controller.createUser('FF:EE:DD:CC:bb:aa', defaultGroupID, 'createUserTest', 'createUserTest note', true, false)
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: createUser()');
+          done(new Error('createUser(): ' + JSON.stringify(result)));
         } else if (typeof (result[0].meta.msg) === 'undefined') {
           result[0].meta.rc.should.equal('ok');
           result[0].data[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
@@ -184,7 +184,7 @@ describe('Running tests', () => {
     controller.setClientNote(createdUserID, 'createUserTest note changed')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: setClientNote()');
+          done(new Error('setClientNote(): ' + JSON.stringify(result)));
         } else {
           result[0].note.should.equal('createUserTest note changed');
           result[0].name.should.equal('createUserTest');
@@ -204,7 +204,7 @@ describe('Running tests', () => {
     controller.setClientName(createdUserID, 'createUserTest changed')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: setClientName()');
+          done(new Error('setClientName(): ' + JSON.stringify(result)));
         } else {
           result[0].note.should.equal('createUserTest note changed');
           result[0].name.should.equal('createUserTest changed');
@@ -224,7 +224,7 @@ describe('Running tests', () => {
     controller.get5minSiteStats()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: get5minSiteStats()');
+          done(new Error('get5minSiteStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -240,7 +240,7 @@ describe('Running tests', () => {
     controller.getHourlySiteStats()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getHourlySiteStats()');
+          done(new Error('getHourlySiteStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -256,7 +256,7 @@ describe('Running tests', () => {
     controller.getDailySiteStats()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getDailySiteStats()');
+          done(new Error('getDailySiteStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -272,7 +272,7 @@ describe('Running tests', () => {
     controller.get5minApStats()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: get5minApStats()');
+          done(new Error('get5minApStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -288,7 +288,7 @@ describe('Running tests', () => {
     controller.getHourlyApStats()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getHourlyApStats()');
+          done(new Error('getHourlyApStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -304,7 +304,7 @@ describe('Running tests', () => {
     controller.getDailyApStats()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getDailyApStats()');
+          done(new Error('getDailyApStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -320,7 +320,7 @@ describe('Running tests', () => {
     controller.get5minUserStats('ff:ee:dd:cc:bb:aa')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: get5minUserStats()');
+          done(new Error('get5minUserStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -336,7 +336,7 @@ describe('Running tests', () => {
     controller.getHourlyUserStats('ff:ee:dd:cc:bb:aa')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getHourlyUserStats()');
+          done(new Error('getHourlyUserStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -352,7 +352,7 @@ describe('Running tests', () => {
     controller.getDailyUserStats('ff:ee:dd:cc:bb:aa')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getDailyUserStats()');
+          done(new Error('getDailyUserStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -368,7 +368,7 @@ describe('Running tests', () => {
     controller.get5minGatewayStats()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: get5minGatewayStats()');
+          done(new Error('get5minGatewayStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -384,7 +384,7 @@ describe('Running tests', () => {
     controller.getHourlyGatewayStats()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getHourlyGatewayStats()');
+          done(new Error('getHourlyGatewayStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -400,7 +400,7 @@ describe('Running tests', () => {
     controller.getDailyGatewayStats()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getDailyGatewayStats()');
+          done(new Error('getDailyGatewayStats(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -416,7 +416,7 @@ describe('Running tests', () => {
     controller.getSpeedTestResults()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getSpeedTestResults()');
+          done(new Error('getSpeedTestResults(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -432,7 +432,7 @@ describe('Running tests', () => {
     controller.getIPSEvents()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getIPSEvents()');
+          done(new Error('getIPSEvents(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -448,7 +448,7 @@ describe('Running tests', () => {
     controller.getSessions()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getSessions()');
+          done(new Error('getSessions(): ' + JSON.stringify(result)));
         } else {
           console.log(result);
           done();
@@ -464,7 +464,7 @@ describe('Running tests', () => {
     controller.getLatestSessions('ff:ee:dd:cc:bb:aa')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
-          done('ERROR: getLatestSessions()');
+          done(new Error('getLatestSessions(): ' + JSON.stringify(result)));
         } else {
           done();
         }
@@ -481,7 +481,7 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('getAllAuthorizations(): ' + JSON.stringify(result)));
         } else {
-          console.log(JSON.stringify(result));
+          result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
           done();
         }
       })
@@ -495,7 +495,7 @@ describe('Running tests', () => {
     controller.forgetClient(['aa:bb:cc:dd:ee:ff', 'FF:EE:DD:CC:bb:aa'])
       .then(result => {
         if (typeof (result) === 'undefined') {
-          done('ERROR: forgetClient()');
+          done(new Error('forgetClient(): ' + JSON.stringify(result)));
         } else {
           done();
         }
@@ -510,7 +510,7 @@ describe('Running tests', () => {
     controller.getSiteSysinfo()
       .then(sysinfo => {
         if (typeof (sysinfo) === 'undefined' || sysinfo.length <= 0) {
-          done('ERROR: getSiteSysinfo()');
+          done(new Error('getSiteSysinfo(): ' + JSON.stringify(sysinfo)));
         } else {
           done();
         }
@@ -525,7 +525,7 @@ describe('Running tests', () => {
     controller.getClientDevices()
       .then(client_data => {
         if (typeof (client_data) === 'undefined' || client_data.length < 0) {
-          done('ERROR: getClientDevices()');
+          done(new Error('getClientDevices(): ' + JSON.stringify(client_data)));
         } else {
           done();
         }
@@ -540,7 +540,7 @@ describe('Running tests', () => {
     controller.getAllUsers()
       .then(users_data => {
         if (typeof (users_data) === 'undefined' || users_data.length < 0) {
-          done('ERROR: getAllUsers()');
+          done(new Error('getAllUsers(): ' + JSON.stringify(users_data)));
         } else {
           done();
         }
@@ -555,7 +555,7 @@ describe('Running tests', () => {
     controller.getAccessDevices()
       .then(access_data => {
         if (typeof (access_data) === 'undefined' || access_data.length < 0) {
-          done('ERROR: getAccessDevices()');
+          done(new Error('getAccessDevices(): ' + JSON.stringify(access_data)));
         } else {
           done();
         }
@@ -570,22 +570,7 @@ describe('Running tests', () => {
     controller.getSessions()
       .then(session_data => {
         if (typeof (session_data) === 'undefined' || session_data.length < 0) {
-          done('ERROR: getSessions()');
-        } else {
-          done();
-        }
-      })
-      .catch(error => {
-        done(error);
-      });
-  });
-
-  // GET ALL AUTHORIZATIONS
-  it('getAllAuthorizations()', done => {
-    controller.getAllAuthorizations()
-      .then(auth_data => {
-        if (typeof (auth_data) === 'undefined' || auth_data.length < 0) {
-          done('ERROR: getSessions()');
+          done(new Error('getSessions(): ' + JSON.stringify(session_data)));
         } else {
           done();
         }
@@ -600,7 +585,7 @@ describe('Running tests', () => {
     controller.getUsers()
       .then(user_data => {
         if (typeof (user_data) === 'undefined' || user_data.length < 0) {
-          done('ERROR: getUsers()');
+          done(new Error('getUsers(): ' + JSON.stringify(user_data)));
         } else {
           done();
         }
@@ -615,8 +600,9 @@ describe('Running tests', () => {
     controller.getSelf()
       .then(self_data => {
         if (typeof (self_data) === 'undefined' || self_data.length < 0) {
-          done('ERROR: getSelf()');
+          done(new Error('getSelf(): ' + JSON.stringify(self_data)));
         } else {
+          console.log(JSON.stringify(self_data));
           done();
         }
       })
