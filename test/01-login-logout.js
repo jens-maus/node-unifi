@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, beforeEach */
 /* eslint-disable camelcase, import/no-unassigned-import */
 
 require('should');
@@ -26,6 +26,15 @@ if (process.env.CONTROLLER_PASS) {
 
 // Run the tests
 describe('Running tests', () => {
+  // Slow down tests a bit to get the controller time to
+  // process
+  beforeEach(async () => {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
+    console.log('----------------------');
+  });
+
   const controller = new unifi.Controller({host: CONTROLLER_IP, port: CONTROLLER_PORT});
 
   // LOGIN
@@ -78,12 +87,7 @@ describe('Running tests', () => {
   });
 
   // UN-AUTHORIZE GUEST
-  it('unauthorizeGuest()', async done => {
-    // Wait 2 seconds
-    await new Promise(resolve => {
-      setTimeout(resolve, 1000);
-    });
-
+  it('unauthorizeGuest()', done => {
     controller.unauthorizeGuest('aa:bb:CC:DD:EE:FF')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
