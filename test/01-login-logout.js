@@ -485,7 +485,8 @@ describe('Running tests', () => {
     controller.getAllAuthorizations()
       .then(result => {
         if (typeof (result) === 'undefined' || result.length <= 0) {
-          done('ERROR: getAllAuthorizations()');
+          console.log(JSON.stringify(result));
+          done(new Error('ERROR: getAllAuthorizations()'));
         } else {
           done();
         }
