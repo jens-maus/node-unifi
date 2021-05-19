@@ -36,7 +36,7 @@ how to use node-unifi in your own applications:
 
 ```js
 const unifi = require('node-unifi');
-const controller = new unifi.Controller({'127.0.0.1', 8443, insecure: true});
+const controller = new unifi.Controller({host: '127.0.0.1', port: 8443, insecure: true});
 
 // LOGIN
 controller.login('admin', 'PASSWORD')
