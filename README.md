@@ -35,48 +35,49 @@ ackward language constructs. The following example should give a brief introduct
 how to use node-unifi in your own applications:
 
 ```js
-/* eslint-disable max-nested-callbacks */
 const unifi = require('node-unifi');
-
 const controller = new unifi.Controller('127.0.0.1', 8443);
 
 // LOGIN
-controller.login('admin', 'PASSWORD', error => {
-  if (error) {
-    console.log('ERROR: ' + error);
-    return;
-  }
-
+controller.login('admin', 'PASSWORD')
+  .then(result => {
+    console.log('login: ' + result);
+    return unifi.getSitesStats();
+  })
   // GET SITE STATS
-  controller.getSitesStats((error, sites) => {
-    console.log('getSitesStats: ' + sites[0].name + ' : ' + sites.length);
+  .then(sites => {
+    console.log('getSitesStats: ' + sites[0].name + ':' + sites.length);
     console.log(JSON.stringify(sites));
-
-    // GET SITE SYSINFO
-    controller.getSiteSysinfo(sites[0].name, (error, sysinfo) => {
-      console.log('getSiteSysinfo: ' + sysinfo.length);
-      console.log(JSON.stringify(sysinfo));
-
-      // GET CLIENT DEVICES
-      controller.getClientDevices(sites[0].name, (error, clientData) => {
-        console.log('getClientDevices: ' + clientData[0].length);
-        console.log(JSON.stringify(clientData));
-
-        // GET ALL USERS EVER CONNECTED
-        controller.getAllUsers(sites[0].name, (error, usersData) => {
-          console.log('getAllUsers: ' + usersData[0].length);
-          console.log(JSON.stringify(usersData));
-
-          // FINALIZE, LOGOUT AND FINISH
-          controller.logout();
-        });
-      });
-    });
+    return unifi.getSiteSysinfo();
+  })
+  // GET SITE SYSINFO
+  .then(sysinfo => {
+    console.log('getSiteSysinfo: ' + sysinfo.length);
+    console.log(JSON.stringify(sysinfo));
+    return unifi.getClientDevices();
+  })
+  // GET CLIENT DEVICES
+  .then(clientData => {
+    console.log('getClientDevices: ' + clientData.length);
+    console.log(JSON.stringify(clientData));
+    return unifi.getAllUsers();
+  })
+  // GET ALL USERS EVER CONNECTED
+  .then(usersData => {
+    console.log('getAllUsers: ' + usersData.length);
+    console.log(JSON.stringify(usersData));
+    return unifi.logout();
+  })
+  // LOGOUT
+  .then(result => {
+    console.log('logout: ' + JSON.stringify(result));
+  })
+  .catch(error => {
+    console.log('ERROR: ' + error);
   });
-});
 ```
 
-Please note that with every `controller.XXXXX()` function a callback function have to be specified which will be called with a potential error message and the result data (second argument) as soon as the request succeeded.
+Please note that every `controller.XXXXX()` function returns a `Promise`, thus `.then()` and `.catch()` can be used accordingly.
 
 ## References
 This nodejs package/class uses functionality/Know-How gathered from different third-party projects:
