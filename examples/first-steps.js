@@ -1,79 +1,48 @@
 #!/usr/bin/env node
-/* eslint-disable max-nested-callbacks */
 
-// get necessary data from cmd-line
-const ip = process.argv[2]; // Controller ip
+// Get necessary data from cmd-line
+const host = process.argv[2]; // Controller host/ip
 const port = process.argv[3]; // Controller port
 const username = process.argv[4]; // Controller username
 const password = process.argv[5]; // Controller password
 
 const Unifi = require('../unifi.js');
+const unifi = new Unifi.Controller({host, port});
 
-const unifi = new Unifi({
-  host: ip,
-  port,
-  username,
-  password
-});
-
-unifi.init()
+// LOGIN
+unifi.login(username, password)
   .then(result => {
-    console.log('GOT IT1: ' + result);
+    console.log('login: ' + result);
     return unifi.getSitesStats();
   })
-  .then(result => {
-    console.log('GOT IT2: ' + JSON.stringify(result));
+  // GET SITE STATS
+  .then(sites => {
+    console.log('getSitesStats: ' + sites[0].name + ':' + sites.length);
+    console.log(JSON.stringify(sites));
     return unifi.getSiteSysinfo();
   })
-  .then(result => {
-    console.log('GOT IT3: ' + JSON.stringify(result));
-    return unifi.getAPGroups();
+  // GET SITE SYSINFO
+  .then(sysinfo => {
+    console.log('getSiteSysinfo: ' + sysinfo.length);
+    console.log(JSON.stringify(sysinfo));
+    return unifi.getClientDevices();
   })
-  .then(result => {
-    console.log('GOT IT4: ' + JSON.stringify(result));
+  // GET CLIENT DEVICES
+  .then(clientData => {
+    console.log('getClientDevices: ' + clientData.length);
+    console.log(JSON.stringify(clientData));
+    return unifi.getAllUsers();
+  })
+  // GET ALL USERS EVER CONNECTED
+  .then(usersData => {
+    console.log('getAllUsers: ' + usersData.length);
+    console.log(JSON.stringify(usersData));
     return unifi.logout();
   })
+  // LOGOUT
   .then(result => {
-    console.log('GOT IT5: ' + JSON.stringify(result));
+    console.log('logout: ' + JSON.stringify(result));
   })
   .catch(error => {
     console.log('ERROR: ' + error);
   });
-
-console.log('DONE');
-
-/*
-// LOGIN
-controller.login(username, password, error => {
-  if (error) {
-    console.log('ERROR: ' + error);
-  }
-
-  // GET SITE STATS
-  controller.getSitesStats((error, sites) => {
-    console.log('getSitesStats: ' + sites[0].name + ' : ' + sites.length);
-    console.log(JSON.stringify(sites));
-
-    // GET SITE SYSINFO
-    controller.getSiteSysinfo(sites[0].name, (error, sysinfo) => {
-      console.log('getSiteSysinfo: ' + sysinfo.length);
-      console.log(JSON.stringify(sysinfo));
-
-      // GET CLIENT DEVICES
-      controller.getClientDevices(sites[0].name, (error, clientData) => {
-        console.log('getClientDevices: ' + clientData[0].length);
-        console.log(JSON.stringify(clientData));
-
-        // GET ALL USERS EVER CONNECTED
-        controller.getAllUsers(sites[0].name, (error, usersData) => {
-          console.log('getAllUsers: ' + usersData[0].length);
-          console.log(JSON.stringify(usersData));
-
-          // FINALIZE, LOGOUT AND FINISH
-          controller.logout();
-        });
-      });
-    });
-  });
-});
-*/
