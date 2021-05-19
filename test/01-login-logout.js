@@ -498,7 +498,8 @@ describe('Running tests', () => {
         if (typeof (sysinfo) === 'undefined' || sysinfo.length <= 0) {
           done(new Error('getSiteSysinfo(): ' + JSON.stringify(sysinfo)));
         } else {
-          console.log(JSON.stringify(sysinfo));
+          console.log(`      UniFi-Controller: ${sysinfo.version} (${sysinfo.build})`);
+          sysinfo[0].timezone.should.equal('Europe/Berlin');
           done();
         }
       })
