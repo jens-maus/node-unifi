@@ -7,7 +7,7 @@ const username = process.argv[4]; // Controller username
 const password = process.argv[5]; // Controller password
 
 const Unifi = require('../unifi.js');
-const unifi = new Unifi.Controller({host, port});
+const unifi = new Unifi.Controller({host, port, insecure: true});
 
 // LOGIN
 unifi.login(username, password)

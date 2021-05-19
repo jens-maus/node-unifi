@@ -2925,7 +2925,7 @@ class Controller extends EventEmitter {
         this._instance = axios.create({
           jar: this._cookieJar,
           withCredentials: true,
-          httpsAgent: new https.Agent({rejectUnauthorized: false, requestCert: true, keepAlive: true})
+          httpsAgent: new https.Agent({rejectUnauthorized: !this.opts.insecure, requestCert: true, keepAlive: true})
         });
         this._instance.get(this._baseurl.toString()).then(response => {
           if (response.headers['x-csrf-token']) {
