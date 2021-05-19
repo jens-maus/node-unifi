@@ -91,10 +91,9 @@ describe('Running tests', () => {
   it('unauthorizeGuest()', done => {
     controller.unauthorizeGuest('aa:bb:CC:DD:EE:FF')
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length <= 0) {
+        if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('unauthorizeGuest(): ' + JSON.stringify(result)));
         } else {
-          console.log(JSON.stringify(result));
           done();
         }
       })
@@ -228,8 +227,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('get5minSiteStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result.length);
-          console.log(JSON.stringify(result));
           done();
         }
       })
@@ -245,7 +242,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getHourlySiteStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -261,7 +257,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getDailySiteStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -277,7 +272,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('get5minApStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -293,7 +287,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getHourlyApStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -309,7 +302,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getDailyApStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -325,7 +317,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('get5minUserStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -341,7 +332,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getHourlyUserStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -357,7 +347,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getDailyUserStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -373,7 +362,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('get5minGatewayStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -389,7 +377,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getHourlyGatewayStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -405,7 +392,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getDailyGatewayStats(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -421,7 +407,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getSpeedTestResults(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -437,7 +422,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getIPSEvents(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -453,7 +437,6 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getSessions(): ' + JSON.stringify(result)));
         } else {
-          console.log(result);
           done();
         }
       })
@@ -515,6 +498,7 @@ describe('Running tests', () => {
         if (typeof (sysinfo) === 'undefined' || sysinfo.length <= 0) {
           done(new Error('getSiteSysinfo(): ' + JSON.stringify(sysinfo)));
         } else {
+          console.log(JSON.stringify(sysinfo));
           done();
         }
       })
