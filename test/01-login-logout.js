@@ -56,7 +56,7 @@ describe('Running tests', () => {
         if (typeof (sites) === 'undefined' || sites.length <= 0) {
           done(new Error('getSitesStats(): ' + JSON.stringify(sites)));
         } else {
-          console.log(JSON.strinify(sites));
+          console.log(JSON.stringify(sites));
           done();
         }
       })
@@ -602,7 +602,8 @@ describe('Running tests', () => {
         if (typeof (self_data) === 'undefined' || self_data.length < 0) {
           done(new Error('getSelf(): ' + JSON.stringify(self_data)));
         } else {
-          console.log(JSON.stringify(self_data));
+          self_data[0].email.should.equal('demo@ubnt.com');
+          self_data[0].site_role.should.equal('admin');
           done();
         }
       })
