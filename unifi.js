@@ -246,7 +246,6 @@ class Controller extends EventEmitter {
   /**
    * Add/modify/remove a client device note - set_sta_note()
    *
-   * required paramater <sites>   = name or array of site names
    * required parameter <user_id> = id of the client-device to be modified
    * optional parameter <note>    = note to be applied to the client-device
    *
@@ -260,7 +259,6 @@ class Controller extends EventEmitter {
   /**
    * Add/modify/remove a client device name - set_sta_name()
    *
-   * required paramater <sites>   = name or array of site names
    * required parameter <user_id> = id of the client device to be modified
    * optional parameter <name>    = name to be applied to the client device
    *
@@ -275,7 +273,6 @@ class Controller extends EventEmitter {
    * Fetch 5 minutes site stats method - stat_5minutes_site()
    *
    * returns an array of 5-minute stats objects for the current site
-   * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
    *
@@ -313,7 +310,6 @@ class Controller extends EventEmitter {
   /**
    * Fetch Hourly site stats method - stat_hourly_site()
    *
-   * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
    *
@@ -421,7 +417,6 @@ class Controller extends EventEmitter {
    * Fetch 5 minutes stats method for a single access point or all access points - stat_5minutes_aps()
    *
    * returns an array of 5-minute stats objects
-   * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
    * optional parameter <mac>   = AP MAC address to return stats for
@@ -457,7 +452,6 @@ class Controller extends EventEmitter {
   /**
    * Fetch Hourly stats method for a single access point or all access points - stat_hourly_aps()
    *
-   * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
    * optional parameter <mac>   = AP MAC address to return stats for
@@ -491,7 +485,6 @@ class Controller extends EventEmitter {
   /**
    * Fetch Daily stats method for a single access point or all access points - stat_daily_aps()
    *
-   * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in milliseconds
    * optional parameter <end>   = Unix timestamp in milliseconds
    * optional parameter <mac>   = AP MAC address to return stats for
@@ -500,7 +493,7 @@ class Controller extends EventEmitter {
    * - defaults to the past 7*24 hours
    * - UniFi controller does not keep these stats longer than 5 hours with versions < 4.6.6
    */
-  getDailyApStats(cb, start = null, end = null, mac = null) {
+  getDailyApStats(start = null, end = null, mac = null) {
     if (end === null) {
       end = Date.now();
     }
@@ -536,7 +529,7 @@ class Controller extends EventEmitter {
    *                       stats for all APs are returned
    * @return array         returns an array of monthly stats objects
    */
-  getMonthlyApStats(cb, start = null, end = null, mac = null) {
+  getMonthlyApStats(start = null, end = null, mac = null) {
     if (end === null) {
       end = Date.now();
     }
@@ -923,7 +916,6 @@ class Controller extends EventEmitter {
    * Fetch login sessions - stat_sessions()
    *
    * returns an array of login session objects for all devices or a single device
-   * required paramater <sites> = name or array of site names
    * optional parameter <start> = Unix timestamp in seconds
    * optional parameter <end>   = Unix timestamp in seconds
    * optional parameter <mac>   = client MAC address to return sessions for (can only be used when start and end are also provided)
@@ -955,7 +947,6 @@ class Controller extends EventEmitter {
   /**
    * Fetch latest 'n' login sessions for a single client device - stat_sta_sessions_latest()
    *
-   * required paramater <sites> = name or array of site names
    * required parameter <mac>   = client MAC address
    * optional parameter <limit> = maximum number of sessions to get (defaults to 5)
    *
@@ -1041,7 +1032,6 @@ class Controller extends EventEmitter {
    *
    * returns an array of online client device objects, or in case of a single device request, returns a single client device object
    *
-   * required paramater <sites>   = name or array of site names
    * optional parameter <client_mac> = the MAC address of a single online client device for which the call must be made
    */
   getClientDevices(client_mac = '') {
@@ -1051,7 +1041,6 @@ class Controller extends EventEmitter {
   /**
    * Fetch details for a single client device - stat_client()
    *
-   * required paramater <sites>   = name or array of site names
    * optional parameter <client_mac> = the MAC address of a single online client device for which the call must be made
    */
   getClientDevice(client_mac = '') {
@@ -1061,7 +1050,6 @@ class Controller extends EventEmitter {
   /**
    * Assign client device to another group - set_usergroup()
    *
-   * required paramater <sites>    = name or array of site names
    * required parameter <user_id>  = id of the user device to be modified
    * required parameter <group_id> = id of the user group to assign user to
    *
@@ -1100,7 +1088,6 @@ class Controller extends EventEmitter {
   /**
    * Fetch user groups - list_usergroups()
    *
-   * required paramater <sites>   = name or array of site names
    */
   getUserGroups() {
     return this._request('/api/s/<SITE>/list/usergroup');
@@ -1111,7 +1098,6 @@ class Controller extends EventEmitter {
    *
    * returns an array containing a single object with attributes of the new usergroup ("_id", "name", "qos_rate_max_down", "qos_rate_max_up", "site_id") on success
    *
-   * required paramater <sites>      = name or array of site names
    * required parameter <group_name> = name of the user group
    * optional parameter <group_dn>   = limit download bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
    * optional parameter <group_up>   = limit upload bandwidth in Kbps (default = -1, which sets bandwidth to unlimited)
@@ -1130,7 +1116,6 @@ class Controller extends EventEmitter {
    *
    * returns an array containing a single object with attributes of the updated usergroup on success
    *
-   * required paramater <sites>      = name or array of site names
    * required parameter <group_id>   = _id of the user group
    * required parameter <site_id>    = _id of the site
    * required parameter <group_name> = name of the user group
@@ -1153,7 +1138,6 @@ class Controller extends EventEmitter {
    *
    * returns true on success
    *
-   * required paramater <sites>    = name or array of site names
    * required parameter <group_id> = _id value of the user group to delete
    *
    */
@@ -1299,8 +1283,6 @@ class Controller extends EventEmitter {
   /**
    * List health metrics - list_health()
    *
-   * required paramater <sites> = name or array of site names
-   *
    */
   getHealth() {
     return this._request('/api/s/<SITE>/stat/health');
@@ -1310,7 +1292,6 @@ class Controller extends EventEmitter {
    * List dashboard metrics - list_dashboard()
    *
    * returns an array of dashboard metric objects (available since controller version 4.9.1.alpha)
-   * required paramater <sites> = name or array of site names
    * optional parameter <five_minutes> = boolean; if true, return stats based on 5 minute intervals,
    *                                     returns hourly stats by default (supported on controller versions 5.5.* and higher)
    */
@@ -1324,7 +1305,6 @@ class Controller extends EventEmitter {
    * List client devices - list_users()
    *
    * returns an array of known client device objects
-   * required paramater <sites> = name or array of site names
    */
   getUsers() {
     return this._request('/api/s/<SITE>/list/user');
@@ -1333,7 +1313,6 @@ class Controller extends EventEmitter {
   /**
    * List access points and other devices under management of the controller (USW and/or USG devices) - list_devices()
    *
-   * required paramater <sites>      = name or array of site names
    * optional paramater <device_mac> = the MAC address of a single device for which the call must be made
    */
   getAccessDevices(device_mac = '') {
@@ -2502,7 +2481,6 @@ class Controller extends EventEmitter {
   /**
    * List events - list_events()
    *
-   * required paramater <sites>   = name or array of site names
    * optional parameter <historyhours> = hours to go back, default value is 720 hours
    * optional parameter <start>        = which event number to start with (useful for paging of results), default value is 0
    * optional parameter <limit>        = number of events to return, default value is 3000
@@ -2521,7 +2499,6 @@ class Controller extends EventEmitter {
   /**
    * List alarms - list_alarms()
    *
-   * required paramater <sites>   = name or array of site names
    * optional parameter <payload> = json payload of flags to filter by
    *                                Example: {archived: 'false', key: 'EVT_GW_WANTransition'}
    *                                return only unarchived for a specific key
@@ -2707,7 +2684,6 @@ class Controller extends EventEmitter {
   /**
    * Update device settings, base (using REST) - set_device_settings_base()
    *
-   * required paramater <sites>     = name or array of site names
    * required parameter <device_id> = 24 char string; _id of the device which can be found with the list_devices() function
    * required parameter <payload>   = stdClass object or associative array containing the configuration to apply to the device, must be a
    *                                  (partial) object/array structured in the same manner as is returned by list_devices() for the device.
@@ -2857,34 +2833,34 @@ class Controller extends EventEmitter {
    *
    * @return array containing translations of UniFi device "state" values to humanized form
    */
-  getDeviceStates(sites, cb) {
-    cb(null, {deviceState: {
-      0: 'offline',
-      1: 'connected',
-      2: 'pending adoption',
-      4: 'updating',
-      5: 'provisioning',
-      6: 'unreachable',
-      7: 'adopting',
-      9: 'adoption error',
-      11: 'isolated'
-    }
+  getDeviceStates() {
+    return new Promise(resolve => {
+      resolve({deviceState: {
+        0: 'offline',
+        1: 'connected',
+        2: 'pending adoption',
+        4: 'updating',
+        5: 'provisioning',
+        6: 'unreachable',
+        7: 'adopting',
+        9: 'adoption error',
+        11: 'isolated'}
+      });
     });
   }
 
   /**
    * Upgrade External Firmware (5.4.9+)
    *
-   * required paramater <sites>        = name or array of site names
    * required parameter <mac>          = device MAC address
    * required parameter <firmware_url> = external URL to firmware data
    *
    */
-  upgradeExternalFirmware(sites, mac, firmware_url, cb) {
-    const json = {url: firmware_url,
+  upgradeExternalFirmware(mac, firmware_url) {
+    const payload = {url: firmware_url,
       mac: mac.toLowerCase()};
 
-    this._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', json, sites, cb);
+    return this._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', payload);
   }
 
   /**
@@ -2900,16 +2876,8 @@ class Controller extends EventEmitter {
    *                                      boolean result (true/false) or "array" when the method must return an array
    * @return bool|array                   returns results as requested, returns false on incorrect parameters
    */
-  customApiRequest(sites, path, cb, request_method, payload) {
-    if (typeof (request_method) === 'undefined') {
-      request_method = 'GET';
-    }
-
-    if (typeof (payload) === 'undefined') {
-      payload = null;
-    }
-
-    this._request(path, payload, sites, cb, request_method);
+  customApiRequest(path, request_method = null, payload = null) {
+    return this._request(path, payload, request_method);
   }
 
   /** PRIVATE METHODS */
