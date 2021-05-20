@@ -2971,7 +2971,6 @@ class Controller extends EventEmitter {
     return new Promise((resolve, reject) => {
       this._isClosed = false;
       this.login(null, null, reconnect).then(() => {
-        // This._listen();
         resolve(true);
       }).catch(error => {
         reject(error);
@@ -3038,180 +3037,67 @@ class Controller extends EventEmitter {
     });
   }
 
-  /*
-    Const getbaseurl = () => {
-      if (this._unifios === false || url.includes('login') || url.includes('logout')) {
-        return this._baseurl;
-      }
+  listen() {
+    return new Promise((resolve, reject) => {
+      this._cookieJar.getCookieString(this._baseurl.href).then(cookies => {
+        let eventsUrl = `wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`;
 
-      return this._baseurl + '/proxy/network';
-    };
-
-    let proc_sites;
-    if (sites === null) {
-      proc_sites = [{}];
-    } else if (Array.isArray(sites) === false) {
-      proc_sites = [sites];
-    } else {
-      proc_sites = sites;
-    }
-
-    let count = 0;
-    let results = [];
-    async.whilst(
-      callback => {
-        return callback(null, (count < proc_sites.length));
-      },
-      callback => {
-        let reqfunc;
-        const options = {
-          url: getbaseurl() + url.replace('<SITE>', typeof (proc_sites[count]) === 'string' ? proc_sites[count] : ''),
-          headers: this._unifios === true ?
-            {
-              'Content-Type': 'application/json',
-              'X-CSRF-Token': this._csrfToken
-            } : {
-              'Content-Type': 'application/json'
-            },
-          jar: this._cookies
-        };
-
-        // Identify which request method we are using (GET, POST, PUT, DELETE) based
-        // on the json data supplied and the overriding method
-        if (json !== null) {
-          reqfunc = method === 'PUT' ? request.put : request.post;
-
-          options.json = json;
-        } else if (typeof (method) === 'undefined') {
-          reqfunc = request.get;
-        } else {
-          switch (method) {
-            case 'DELETE': {
-              reqfunc = request.del;
-
-              break;
-            }
-
-            case 'POST': {
-              reqfunc = request.post;
-
-              break;
-            }
-
-            case 'PUT': {
-              reqfunc = request.put;
-
-              break;
-            }
-
-            case 'PATCH': {
-              reqfunc = request.patch;
-
-              break;
-            }
-
-            default: {
-              reqfunc = request.get;
-            }
-          }
+        if (this._unifios) {
+          eventsUrl = `wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`;
         }
 
-        reqfunc(options, (error, response, body) => {
-          this._last_results_raw = body;
-          if (error) {
-            callback(error);
-          } else if (body && response.statusCode >= 200 && response.statusCode < 400 &&
-                     (typeof (body) !== 'undefined' && typeof (body.meta) !== 'undefined' && body.meta.rc === 'ok')) {
-            results.push(body.data);
-            callback(null);
-          } else if (typeof (body) !== 'undefined' && typeof (body.meta) !== 'undefined' && body.meta.rc === 'error') {
-            callback(body.meta.msg);
-          } else if (url.startsWith('/v2/api/') === true) {
-            // To deal with a response coming from the new v2 API
-            if (typeof (body) !== 'undefined' && typeof (body.errorCode) !== 'undefined') {
-              if (typeof (body.message) === 'undefined') {
-                callback(null);
-              } else {
-                callback(body.message);
-              }
-            } else {
-              callback(body);
-            }
-          } else {
-            callback(null);
+        this._ws = new WebSocket(eventsUrl, {
+          perMessageDeflate: false,
+          rejectUnauthorized: !this.opts.insecure,
+          headers: {
+            Cookie: cookies
           }
         });
 
-        count++;
-      },
-      error => {
-        if (typeof (cb) === 'function') {
-          if (sites === null) {
-            results = results[0];
+        const pingpong = setInterval(() => {
+          this._ws.send('ping');
+        }, 15000);
+
+        this._ws.on('open', () => {
+          this._isReconnecting = false;
+          this.emit('ctrl.connect');
+        });
+
+        this._ws.on('message', data => {
+          if (data === 'pong') {
+            this.emit('ctrl.pong');
+            return;
           }
 
-          cb(error ? error : false, results);
-        }
-      }
-    );
-  }
-*/
-
-  _listen() {
-    console.log(this._baseurl.href);
-    this._cookieJar.getCookieString(this._baseurl.href).then(cookies => {
-      console.log('got cookies');
-      let eventsUrl = `wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`;
-
-      if (this._unifios) {
-        eventsUrl = `wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`;
-      }
-
-      this._ws = new WebSocket(eventsUrl, {
-        perMessageDeflate: false,
-        rejectUnauthorized: !this.opts.insecure,
-        headers: {
-          Cookie: cookies
-        }
-      });
-
-      const pingpong = setInterval(() => {
-        this._ws.send('ping');
-      }, 15000);
-
-      this._ws.on('open', () => {
-        this._isReconnecting = false;
-        this.emit('ctrl.connect');
-      });
-
-      this._ws.on('message', data => {
-        if (data === 'pong') {
-          return;
-        }
-
-        try {
-          const parsed = JSON.parse(data);
-          if ('data' in parsed && Array.isArray(parsed.data)) {
-            for (const entry of parsed.data) {
-              this._event(entry);
+          try {
+            const parsed = JSON.parse(data);
+            if ('meta' in parsed && Array.isArray(parsed.data)) {
+              for (const entry of parsed.data) {
+                this._event(parsed.meta, entry);
+              }
             }
+          } catch (error) {
+            this.emit('ctrl.error', error);
           }
-        } catch (error) {
+        });
+
+        this._ws.on('close', () => {
+          this.emit('ctrl.close');
+          clearInterval(pingpong);
+          this._reconnect();
+        });
+
+        this._ws.on('error', error => {
           this.emit('ctrl.error', error);
-        }
-      });
+          clearInterval(pingpong);
+          this._reconnect();
+        });
 
-      this._ws.on('close', () => {
-        this.emit('ctrl.close');
-        clearInterval(pingpong);
-        this._reconnect();
-      });
-
-      this._ws.on('error', error => {
-        this.emit('ctrl.error', error);
-        clearInterval(pingpong);
-        this._reconnect();
-      });
+        resolve(true);
+      })
+        .catch(error => {
+          reject(error);
+        });
     });
   }
 
@@ -3222,15 +3108,16 @@ class Controller extends EventEmitter {
     this._ws.system.close();
   }
 
-  _event(data) {
-    console.log('EVENT: ' + JSON.parse(data));
-    if (data && data.key) {
-      // TODO clarifiy what to do with events without key...
-      const match = data.key.match(/EVT_([A-Z]{2})_(.*)/);
-      if (match) {
-        const [, group, event] = match;
-        this.emit([group.toLowerCase(), event.toLowerCase()].join('.'), data);
+  _event(meta, data) {
+    if (meta && data && meta.message && meta.rc === 'ok') {
+      const messageType = meta.message.toLowerCase();
+      let keyType = 'generic';
+      if (data.key) {
+        keyType = data.key.toLowerCase();
       }
+
+      // Emit the event
+      this.emit([messageType, keyType].join('.'), [data, meta]);
     }
   }
 
