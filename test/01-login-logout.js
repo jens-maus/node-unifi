@@ -287,11 +287,36 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('setUserGroup(): ' + JSON.stringify(result)));
         } else {
-          // result[0].note.should.equal('createUserTest note changed');
+          result[0].note.should.equal('createUserTest note');
+          result[0].name.should.equal('createUserTest');
+          result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
+          result[0].is_wired.should.equal(true);
+          result[0].is_guest.should.equal(false);
+          result[0]._id.should.equal(createdUserID);
+          result[0].usergroup_id.should.equal(testGroupID);
+          // console.log(JSON.stringify(result));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Update client fixedip
+  it('editClientFixedIP()', done => {
+    controller.editClientFixedIP(createdUserID, true)
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('editClientFixedIP(): ' + JSON.stringify(result)));
+        } else {
+          // result[0].note.should.equal('createUserTest note');
           // result[0].name.should.equal('createUserTest');
           // result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
           // result[0].is_wired.should.equal(true);
           // result[0].is_guest.should.equal(false);
+          // result[0]._id.should.equal(createdUserID);
+          // result[0].usergroup_id.should.equal(testGroupID);
           console.log(JSON.stringify(result));
           done();
         }
@@ -731,7 +756,7 @@ describe('Running tests', () => {
         if (typeof (users_data) === 'undefined' || users_data.length < 0) {
           done(new Error('getAllUsers(): ' + JSON.stringify(users_data)));
         } else {
-          console.log(JSON.stringify(users_data));
+          // console.log(JSON.stringify(users_data));
           done();
         }
       })
