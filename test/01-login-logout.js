@@ -269,7 +269,7 @@ describe('Running tests', () => {
           result[0].data[0].is_guest.should.equal(false);
           result[0].data[0].usergroup_id.should.equal('');
           createdUserID = result[0].data[0]._id;
-          // console.log(JSON.stringify(result));
+          console.log(JSON.stringify(result));
           done();
         } else {
           done(result[0].meta.msg);
@@ -305,7 +305,7 @@ describe('Running tests', () => {
 
   // Update client fixedip
   it('editClientFixedIP()', done => {
-    controller.editClientFixedIP(createdUserID, true)
+    controller.editClientFixedIP(createdUserID, true, null, '192.168.1.1')
       .then(result => {
         if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('editClientFixedIP(): ' + JSON.stringify(result)));
