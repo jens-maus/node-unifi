@@ -119,6 +119,23 @@ describe('Running tests', () => {
       });
   });
 
+  // RE-CONNECT CLIENT
+  /* WONTWORK: requires active AP connection
+  it('reconnectClient()', done => {
+    controller.reconnectClient('aa:bb:CC:DD:EE:FF')
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length < 0) {
+          done(new Error('reconnectClient(): ' + JSON.stringify(result)));
+        } else {
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+  */
+
   // Block a client device
   it('blockClient()', done => {
     controller.blockClient('aa:bb:CC:DD:EE:FF')
@@ -128,6 +145,22 @@ describe('Running tests', () => {
         } else {
           result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
           result[0].blocked.should.equal(true);
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // List blocked client devices
+  it('getBlockedUsers()', done => {
+    controller.getBlockedUsers()
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('getBlockedUsers(): ' + JSON.stringify(result)));
+        } else {
+          console.log(JSON.stringify(result));
           done();
         }
       })
@@ -282,6 +315,21 @@ describe('Running tests', () => {
       });
   });
 
+  // Monthly site stats method
+  it('getMonthlySiteStats()', done => {
+    controller.getMonthlySiteStats()
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length < 0) {
+          done(new Error('getMonthlySiteStats(): ' + JSON.stringify(result)));
+        } else {
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
   // 5 minutes stats method for a single access point or all access points
   it('get5minApStats()', done => {
     controller.get5minApStats()
@@ -318,6 +366,21 @@ describe('Running tests', () => {
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getDailyApStats(): ' + JSON.stringify(result)));
+        } else {
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Monthly stats method for a single access point or all access points
+  it('getMonthlyApStats()', done => {
+    controller.getMonthlyApStats()
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length < 0) {
+          done(new Error('getMonthlyApStats(): ' + JSON.stringify(result)));
         } else {
           done();
         }
@@ -372,6 +435,21 @@ describe('Running tests', () => {
       });
   });
 
+  // Monthly stats method for a single user/client device
+  it('getMonthlyUserStats()', done => {
+    controller.getMonthlyUserStats('ff:ee:dd:cc:bb:aa')
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length < 0) {
+          done(new Error('getMonthlyUserStats(): ' + JSON.stringify(result)));
+        } else {
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
   // 5 minutes gateway stats method
   it('get5minGatewayStats()', done => {
     controller.get5minGatewayStats()
@@ -408,6 +486,21 @@ describe('Running tests', () => {
       .then(result => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getDailyGatewayStats(): ' + JSON.stringify(result)));
+        } else {
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Monthly gateway stats method
+  it('getMonthlyGatewayStats()', done => {
+    controller.getMonthlyGatewayStats()
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length < 0) {
+          done(new Error('getMonthlyGatewayStats(): ' + JSON.stringify(result)));
         } else {
           done();
         }
@@ -454,6 +547,7 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getSessions(): ' + JSON.stringify(result)));
         } else {
+          console.log(JSON.stringify(result));
           done();
         }
       })
@@ -469,6 +563,7 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getLatestSessions(): ' + JSON.stringify(result)));
         } else {
+          console.log(JSON.stringify(result));
           done();
         }
       })
@@ -508,6 +603,22 @@ describe('Running tests', () => {
       });
   });
 
+  // Fetch guest devices
+  it('getGuests()', done => {
+    controller.getGuests()
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('getGuests(): ' + JSON.stringify(result)));
+        } else {
+          console.log(JSON.stringify(result));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
   // GET CLIENT DEVICES
   it('getClientDevices()', done => {
     controller.getClientDevices()
@@ -515,6 +626,7 @@ describe('Running tests', () => {
         if (typeof (client_data) === 'undefined' || client_data.length < 0) {
           done(new Error('getClientDevices(): ' + JSON.stringify(client_data)));
         } else {
+          console.log(JSON.stringify(client_data));
           done();
         }
       })
@@ -530,6 +642,7 @@ describe('Running tests', () => {
         if (typeof (users_data) === 'undefined' || users_data.length < 0) {
           done(new Error('getAllUsers(): ' + JSON.stringify(users_data)));
         } else {
+          console.log(JSON.stringify(users_data));
           done();
         }
       })
