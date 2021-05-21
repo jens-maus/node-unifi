@@ -2997,6 +2997,7 @@ class Controller extends EventEmitter {
             reject(new Error('empty response data'));
           }
         }).catch(error => {
+          console.log(error.toJSON());
           reject(error);
         });
       }).catch(error => {
