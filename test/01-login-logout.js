@@ -191,6 +191,45 @@ describe('Running tests', () => {
       });
   });
 
+  // Create user group
+  let testGroupID = null;
+  it('createUserGroup()', done => {
+    controller.createUserGroup('Testgroup')
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('createUserGroup(): ' + JSON.stringify(result)));
+        } else {
+          result[0].name.should.equal('Testgroup');
+          result[0].qos_rate_max_down.should.equal(-1);
+          testGroupID = result[0]._id;
+          // console.log(JSON.stringify(result));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Edit user group
+  it('editUserGroup()', done => {
+    controller.editUserGroup(testGroupID, defaultSiteID, 'Testgroup', 100, 200)
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('editUserGroup(): ' + JSON.stringify(result)));
+        } else {
+          result[0].name.should.equal('Testgroup');
+          result[0].qos_rate_max_down.should.equal(100);
+          result[0].qos_rate_max_up.should.equal(200);
+          // console.log(JSON.stringify(result));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
   // List user groups
   let defaultGroupID = null;
   it('getUserGroups()', done => {
@@ -202,39 +241,6 @@ describe('Running tests', () => {
           result[0].name.should.equal('Default');
           result[0].attr_no_delete.should.equal(true);
           defaultGroupID = result[0]._id;
-          done();
-        }
-      })
-      .catch(error => {
-        done(error);
-      });
-  });
-
-  // Create user group
-  let testGroupID = null;
-  it('createUserGroup()', done => {
-    controller.createUserGroup('Testgroup')
-      .then(result => {
-        if (typeof (result) === 'undefined' || result.length <= 0) {
-          done(new Error('createUserGroup(): ' + JSON.stringify(result)));
-        } else {
-          testGroupID = result[0]._id;
-          console.log(JSON.stringify(result));
-          done();
-        }
-      })
-      .catch(error => {
-        done(error);
-      });
-  });
-
-  // Edit user group
-  it('editUserGroup()', done => {
-    controller.editUserGroup(testGroupID, defaultSiteID, 'Testgroup', 100)
-      .then(result => {
-        if (typeof (result) === 'undefined' || result.length <= 0) {
-          done(new Error('editUserGroup(): ' + JSON.stringify(result)));
-        } else {
           console.log(JSON.stringify(result));
           done();
         }
@@ -259,6 +265,7 @@ describe('Running tests', () => {
           result[0].data[0].is_wired.should.equal(true);
           result[0].data[0].is_guest.should.equal(false);
           createdUserID = result[0].data[0]._id;
+          console.log(JSON.stringify(result));
           done();
         } else {
           done(result[0].meta.msg);
@@ -675,6 +682,7 @@ describe('Running tests', () => {
   });
 
   // GET CLIENT DEVICE
+  /* WONTWORK: No active client device
   it('getClientDevice()', done => {
     controller.getClientDevice()
       .then(client_data => {
@@ -689,6 +697,7 @@ describe('Running tests', () => {
         done(error);
       });
   });
+  */
 
   // GET ALL USERS EVER CONNECTED
   it('getAllUsers()', done => {
