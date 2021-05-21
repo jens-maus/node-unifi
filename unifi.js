@@ -1082,7 +1082,7 @@ class Controller extends EventEmitter {
       }
     }
 
-    return this._request('/api/s/<SITE>/rest/user/' + client_id.trim(), payload);
+    return this._request('/api/s/<SITE>/rest/user/' + client_id.trim(), payload, 'PUT');
   }
 
   /**
