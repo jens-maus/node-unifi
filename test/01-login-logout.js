@@ -1,5 +1,5 @@
 /* global describe, it, beforeEach */
-/* eslint-disable camelcase, import/no-unassigned-import */
+/* eslint-disable camelcase, import/no-unassigned-import, capitalized-comments */
 
 require('should');
 const unifi = require('../unifi.js');
@@ -165,7 +165,7 @@ describe('Running tests', () => {
           result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
           result[0].blocked.should.equal(true);
           result[0].name.should.equal('Testdevice');
-          //console.log(JSON.stringify(result));
+          // console.log(JSON.stringify(result));
           done();
         }
       })
@@ -586,7 +586,7 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getSessions(): ' + JSON.stringify(result)));
         } else {
-          //console.log(JSON.stringify(result));
+          // console.log(JSON.stringify(result));
           done();
         }
       })
@@ -602,7 +602,7 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getLatestSessions(): ' + JSON.stringify(result)));
         } else {
-          //console.log(JSON.stringify(result));
+          // console.log(JSON.stringify(result));
           done();
         }
       })
@@ -649,7 +649,7 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getGuests(): ' + JSON.stringify(result)));
         } else {
-          //console.log(JSON.stringify(result));
+          // console.log(JSON.stringify(result));
           done();
         }
       })
@@ -665,7 +665,7 @@ describe('Running tests', () => {
         if (typeof (client_data) === 'undefined' || client_data.length < 0) {
           done(new Error('getClientDevices(): ' + JSON.stringify(client_data)));
         } else {
-          //console.log(JSON.stringify(client_data));
+          // console.log(JSON.stringify(client_data));
           done();
         }
       })
