@@ -67,6 +67,7 @@ describe('Running tests', () => {
   });
 
   // GET SITE STATS
+  let defaultSiteID = null;
   it('getSitesStats()', done => {
     controller.getSitesStats()
       .then(sites => {
@@ -75,6 +76,7 @@ describe('Running tests', () => {
         } else {
           sites[0].name.should.equal('default');
           sites[0].desc.should.equal('Default');
+          defaultSiteID = sites[0]._id;
           done();
         }
       })
@@ -160,7 +162,10 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('getBlockedUsers(): ' + JSON.stringify(result)));
         } else {
-          console.log(JSON.stringify(result));
+          result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
+          result[0].blocked.should.equal(true);
+          result[0].name.should.equal('Testdevice');
+          //console.log(JSON.stringify(result));
           done();
         }
       })
@@ -197,6 +202,40 @@ describe('Running tests', () => {
           result[0].name.should.equal('Default');
           result[0].attr_no_delete.should.equal(true);
           defaultGroupID = result[0]._id;
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Create user group
+  let testGroupID = null;
+  it('createUserGroup()', done => {
+    controller.createUserGroup('Testgroup')
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('createUserGroup(): ' + JSON.stringify(result)));
+        } else {
+          testGroupID = result[0]._id;
+          console.log(JSON.stringify(result));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Edit user group
+  it('editUserGroup()', done => {
+    controller.editUserGroup(testGroupID, defaultSiteID, 'Testgroup', 100)
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('editUserGroup(): ' + JSON.stringify(result)));
+        } else {
+          console.log(JSON.stringify(result));
           done();
         }
       })
@@ -547,7 +586,7 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getSessions(): ' + JSON.stringify(result)));
         } else {
-          console.log(JSON.stringify(result));
+          //console.log(JSON.stringify(result));
           done();
         }
       })
@@ -563,7 +602,7 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getLatestSessions(): ' + JSON.stringify(result)));
         } else {
-          console.log(JSON.stringify(result));
+          //console.log(JSON.stringify(result));
           done();
         }
       })
@@ -607,10 +646,10 @@ describe('Running tests', () => {
   it('getGuests()', done => {
     controller.getGuests()
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length <= 0) {
+        if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('getGuests(): ' + JSON.stringify(result)));
         } else {
-          console.log(JSON.stringify(result));
+          //console.log(JSON.stringify(result));
           done();
         }
       })
@@ -625,6 +664,22 @@ describe('Running tests', () => {
       .then(client_data => {
         if (typeof (client_data) === 'undefined' || client_data.length < 0) {
           done(new Error('getClientDevices(): ' + JSON.stringify(client_data)));
+        } else {
+          //console.log(JSON.stringify(client_data));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // GET CLIENT DEVICE
+  it('getClientDevice()', done => {
+    controller.getClientDevice()
+      .then(client_data => {
+        if (typeof (client_data) === 'undefined' || client_data.length < 0) {
+          done(new Error('getClientDevice(): ' + JSON.stringify(client_data)));
         } else {
           console.log(JSON.stringify(client_data));
           done();
