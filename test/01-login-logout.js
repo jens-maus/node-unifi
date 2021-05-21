@@ -235,13 +235,16 @@ describe('Running tests', () => {
   it('getUserGroups()', done => {
     controller.getUserGroups()
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length <= 0) {
+        if (typeof (result) === 'undefined' || result.length < 2) {
           done(new Error('getUserGroups(): ' + JSON.stringify(result)));
         } else {
           result[0].name.should.equal('Default');
           result[0].attr_no_delete.should.equal(true);
+          result[1].name.should.equal('Testgroup');
+          result[1].qos_rate_max_down.should.equal(100);
+          result[1].qos_rate_max_up.should.equal(200);
           defaultGroupID = result[0]._id;
-          console.log(JSON.stringify(result));
+          // console.log(JSON.stringify(result));
           done();
         }
       })
@@ -264,11 +267,33 @@ describe('Running tests', () => {
           result[0].data[0].note.should.equal('createUserTest note');
           result[0].data[0].is_wired.should.equal(true);
           result[0].data[0].is_guest.should.equal(false);
+          result[0].data[0].usergroup_id.should.equal('');
           createdUserID = result[0].data[0]._id;
-          console.log(JSON.stringify(result));
+          // console.log(JSON.stringify(result));
           done();
         } else {
           done(result[0].meta.msg);
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Assign client device to another group
+  it('setUserGroup()', done => {
+    controller.setUserGroup(createdUserID, testGroupID)
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('setUserGroup(): ' + JSON.stringify(result)));
+        } else {
+          // result[0].note.should.equal('createUserTest note changed');
+          // result[0].name.should.equal('createUserTest');
+          // result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
+          // result[0].is_wired.should.equal(true);
+          // result[0].is_guest.should.equal(false);
+          console.log(JSON.stringify(result));
+          done();
         }
       })
       .catch(error => {
