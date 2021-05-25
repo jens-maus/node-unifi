@@ -269,7 +269,7 @@ describe('Running tests', () => {
           result[0].data[0].is_guest.should.equal(false);
           result[0].data[0].usergroup_id.should.equal('');
           createdUserID = result[0].data[0]._id;
-          //console.log(JSON.stringify(result));
+          // console.log(JSON.stringify(result));
           done();
         } else {
           done(result[0].meta.msg);
@@ -295,6 +295,55 @@ describe('Running tests', () => {
           result[0]._id.should.equal(createdUserID);
           result[0].usergroup_id.should.equal(testGroupID);
           // console.log(JSON.stringify(result));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Delete user group
+  it('deleteUserGroup()', done => {
+    controller.deleteUserGroup(testGroupID)
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('getUserGroups(): ' + JSON.stringify(result)));
+        } else {
+          /*
+          result[0].name.should.equal('Default');
+          result[0].attr_no_delete.should.equal(true);
+          result[1].name.should.equal('Testgroup');
+          result[1].qos_rate_max_down.should.equal(100);
+          result[1].qos_rate_max_up.should.equal(200);
+          defaultGroupID = result[0]._id;
+          */
+          testGroupID = null;
+          console.log(JSON.stringify(result));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Fetch AP groups
+  it('getAPGroups()', done => {
+    controller.getAPGroups()
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('getAPGroups(): ' + JSON.stringify(result)));
+        } else {
+          /*
+          result[0].name.should.equal('Default');
+          result[0].attr_no_delete.should.equal(true);
+          result[1].name.should.equal('Testgroup');
+          result[1].qos_rate_max_down.should.equal(100);
+          result[1].qos_rate_max_up.should.equal(200);
+          defaultGroupID = result[0]._id;
+          */
+          console.log(JSON.stringify(result));
           done();
         }
       })
