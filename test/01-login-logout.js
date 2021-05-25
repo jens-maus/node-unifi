@@ -227,19 +227,11 @@ describe('Running tests', () => {
   it('deleteUserGroup()', done => {
     controller.deleteUserGroup(dummyGroupID)
       .then(result => {
-        if (typeof (result) === 'undefined' || result.length <= 0) {
+        if (typeof (result) === 'undefined' || result.length < 0) {
           done(new Error('deleteUserGroup(): ' + JSON.stringify(result)));
         } else {
-          /*
-          result[0].name.should.equal('Default');
-          result[0].attr_no_delete.should.equal(true);
-          result[1].name.should.equal('Testgroup');
-          result[1].qos_rate_max_down.should.equal(100);
-          result[1].qos_rate_max_up.should.equal(200);
-          defaultGroupID = result[0]._id;
-          */
           dummyGroupID = null;
-          console.log(JSON.stringify(result));
+          // console.log(JSON.stringify(result));
           done();
         }
       })
