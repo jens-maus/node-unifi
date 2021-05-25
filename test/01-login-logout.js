@@ -204,7 +204,7 @@ describe('Running tests', () => {
           result[0].qos_rate_max_down.should.equal(-1);
           testGroupID = result[0]._id;
           // console.log(JSON.stringify(result));
-          return controller.creatUserGroup('DUMMYgroup');
+          return controller.createUserGroup('DUMMYgroup');
         }
       })
       .then(result => {
@@ -238,7 +238,7 @@ describe('Running tests', () => {
           result[1].qos_rate_max_up.should.equal(200);
           defaultGroupID = result[0]._id;
           */
-          testGroupID = null;
+          dummyGroupID = null;
           console.log(JSON.stringify(result));
           done();
         }
