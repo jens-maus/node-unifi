@@ -193,6 +193,7 @@ describe('Running tests', () => {
 
   // Create user group
   let testGroupID = null;
+  let dummyGroupID = null;
   it('createUserGroup()', done => {
     controller.createUserGroup('Testgroup')
       .then(result => {
@@ -203,6 +204,42 @@ describe('Running tests', () => {
           result[0].qos_rate_max_down.should.equal(-1);
           testGroupID = result[0]._id;
           // console.log(JSON.stringify(result));
+          return controller.creatUserGroup('DUMMYgroup');
+        }
+      })
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('createUserGroup(DUMMYgroup): ' + JSON.stringify(result)));
+        } else {
+          result[0].name.should.equal('DUMMYgroup');
+          result[0].qos_rate_max_down.should.equal(-1);
+          dummyGroupID = result[0]._id;
+          // console.log(JSON.stringify(result));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // Delete user group
+  it('deleteUserGroup()', done => {
+    controller.deleteUserGroup(dummyGroupID)
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('deleteUserGroup(): ' + JSON.stringify(result)));
+        } else {
+          /*
+          result[0].name.should.equal('Default');
+          result[0].attr_no_delete.should.equal(true);
+          result[1].name.should.equal('Testgroup');
+          result[1].qos_rate_max_down.should.equal(100);
+          result[1].qos_rate_max_up.should.equal(200);
+          defaultGroupID = result[0]._id;
+          */
+          testGroupID = null;
+          console.log(JSON.stringify(result));
           done();
         }
       })
@@ -303,31 +340,6 @@ describe('Running tests', () => {
       });
   });
 
-  // Delete user group
-  it('deleteUserGroup()', done => {
-    controller.deleteUserGroup(testGroupID)
-      .then(result => {
-        if (typeof (result) === 'undefined' || result.length <= 0) {
-          done(new Error('getUserGroups(): ' + JSON.stringify(result)));
-        } else {
-          /*
-          result[0].name.should.equal('Default');
-          result[0].attr_no_delete.should.equal(true);
-          result[1].name.should.equal('Testgroup');
-          result[1].qos_rate_max_down.should.equal(100);
-          result[1].qos_rate_max_up.should.equal(200);
-          defaultGroupID = result[0]._id;
-          */
-          testGroupID = null;
-          console.log(JSON.stringify(result));
-          done();
-        }
-      })
-      .catch(error => {
-        done(error);
-      });
-  });
-
   // Fetch AP groups
   it('getAPGroups()', done => {
     controller.getAPGroups()
@@ -335,15 +347,10 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('getAPGroups(): ' + JSON.stringify(result)));
         } else {
-          /*
-          result[0].name.should.equal('Default');
+          result[0].name.should.equal('All APs');
           result[0].attr_no_delete.should.equal(true);
-          result[1].name.should.equal('Testgroup');
-          result[1].qos_rate_max_down.should.equal(100);
-          result[1].qos_rate_max_up.should.equal(200);
-          defaultGroupID = result[0]._id;
-          */
-          console.log(JSON.stringify(result));
+          result[0].attr_hidden_id.should.equal('default');
+          // console.log(JSON.stringify(result));
           done();
         }
       })
