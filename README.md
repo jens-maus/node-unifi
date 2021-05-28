@@ -84,7 +84,7 @@ Please note that every `controller.XXXXX()` function returns a `Promise`, thus `
 
 ### Event-Emitter WebSockets Interface
 
-Since version 2.0.0 node-unifi supports (thanks to https://github.com/worldwidewoogie/unifi-axios-events) the WebSocket interface
+Since version 2.0.0 node-unifi supports (thanks to [unifi-axios-events](https://github.com/worldwidewoogie/unifi-axios-events)) the WebSocket interface
 of a UniFi controller. This new interface allows to listen for events using `controller.listen()` and automatically receive events
 as soon as the UniFi controller sends them out via its WebSocket functionality. For receiving these events in a nodejs-compatible
 way node-unifi uses internally [EventEmitter2](https://github.com/EventEmitter2/EventEmitter2) which allows to execute actions based
