@@ -130,12 +130,14 @@ controller.login('admin', 'PASSWORD')
   });
 ```
 
+More examples can be found in the "examples" sub-directory of this GitHub repository.
+
 ## Moving from v1 of node-unifi to v2+
 If you are having an application still using the obsolete v1 version of node-unifi and you want to port it to using the new/revised
 v2 version, all you have to do is:
 
 * make sure your application can deal with NodeJS [Promises](https://nodejs.dev/learn/understanding-javascript-promises) as all node-unifi API functions return proper Promises allowing to use `.then()`/`.catch()` statements for synchronous processing of events (see Examples) rather than expecting callback functions, forcing you to nest them properly.
-* eliminate the previously necessary `site` function argument required when calling a node-unifi function. Now you can either use the `{ site: 'my site' }` argument when passing contructor options of node-unifi or you switch to a different site by using `.switchSite('my site')` during runtime.
+* eliminate the previously necessary `site` function argument required when calling a node-unifi function. Now you can either use the `{ site: 'my site' }` argument when passing contructor options to node-unifi or you switch to a different site using `controller.opts.site='my site'` before calling a node-unifi API function.
 
 ## References
 This nodejs package/class uses functionality/Know-How gathered from different third-party projects:
