@@ -45,31 +45,31 @@ const controller = new unifi.Controller({host: '127.0.0.1', port: 8443, sslverif
 controller.login('admin', 'PASSWORD')
   .then(result => {
     console.log('login: ' + result);
-    return unifi.getSitesStats();
+    return controller.getSitesStats();
   })
   // GET SITE STATS
   .then(sites => {
     console.log('getSitesStats: ' + sites[0].name + ':' + sites.length);
     console.log(JSON.stringify(sites));
-    return unifi.getSiteSysinfo();
+    return controller.getSiteSysinfo();
   })
   // GET SITE SYSINFO
   .then(sysinfo => {
     console.log('getSiteSysinfo: ' + sysinfo.length);
     console.log(JSON.stringify(sysinfo));
-    return unifi.getClientDevices();
+    return controller.getClientDevices();
   })
   // GET CLIENT DEVICES
   .then(clientData => {
     console.log('getClientDevices: ' + clientData.length);
     console.log(JSON.stringify(clientData));
-    return unifi.getAllUsers();
+    return controller.getAllUsers();
   })
   // GET ALL USERS EVER CONNECTED
   .then(usersData => {
     console.log('getAllUsers: ' + usersData.length);
     console.log(JSON.stringify(usersData));
-    return unifi.logout();
+    return controller.logout();
   })
   // LOGOUT
   .then(result => {
@@ -129,6 +129,13 @@ controller.login('admin', 'PASSWORD')
     console.log('ERROR: ' + error);
   });
 ```
+
+## Moving from v1 of node-unifi to v2+
+If you are having an application still using the obsolete v1 version of node-unifi and you want to port it to using the new/revised
+v2 version, all you have to do is:
+
+* make sure your application can deal with NodeJS [Promises](https://nodejs.dev/learn/understanding-javascript-promises) as all node-unifi API functions return proper Promises allowing to use `.then()`/`.catch()` statements for synchronous processing of events (see Examples) rather than expecting callback functions.
+* eliminate the previously necessary `site` function argument required when calling a node-unifi function. Now you can either use the `{ site: 'my site' }` argument when passing contructor options of node-unifi or you switch to a different site by using `.switchSite('my site')` during runtime.
 
 ## References
 This nodejs package/class uses functionality/Know-How gathered from different third-party projects:
