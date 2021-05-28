@@ -1,12 +1,12 @@
 Gruntfile.js
 tasks
-node_modules
+.DS_Store
 .idea
 .git
 .github
+.gitignore
 /node_modules
 /unifi-storage
 /examples
-test
-.snyk
+/test
 unifi.png
