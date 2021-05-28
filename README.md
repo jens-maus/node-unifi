@@ -1,4 +1,4 @@
-![Logo](unifi.png)
+<img height="60px" src="unifi.png" align="left">
 # node-unifi
 
 [![Build](https://github.com/jens-maus/node-unifi/workflows/CI/badge.svg)](https://github.com/jens-maus/node-unifi/actions)
@@ -13,14 +13,17 @@
 Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the UniFi-Controller API version starting with v4.x.x up to v6.x.x
 
 ## Features
-* Supports all UniFi-Controller API features introduced with v4.x.x, v5.x.x or v6.x.x
-* Supports CloudKey Gen1, CloudKey Gen2, UnifiOS-based UDM-Pro Controller as well as self-hostd UniFi Controller Software.
-* Returns all data in JSON parsable strings/objects.
+* Support all UniFi-Controller API features introduced with v4.x.x, v5.x.x or v6.x.x.
+* Support CloudKey Gen1, CloudKey Gen2, UnifiOS-based UDM-Pro Controller as well as self-hostd UniFi controller software.
+* Returns all data in well-defined JSON parsable strings/objects.
+* Use of modern [axios](https://github.com/axios/axios)-based nodejs http library.
+* API functions returning NodeJS [Promises](https://nodejs.dev/learn/understanding-javascript-promises) for modern nodejs uses.
+* Support for WebSocket-based push notifications of UniFi controllers for listening for state/object changes using [EventEmitter](https://github.com/EventEmitter2/EventEmitter2)-based nodejs functionality.
 
 ## Requirements
 * Installed [UniFi-Controller](https://www.ubnt.com/download/unifi) version v4, v5 or v6, CloudKey Gen1, Gen2 or UDM-Pro.
-* direct network connectivity between this server and the host and port (normally TCP port 8443 or 443) where the UniFi Controller is running
-* you must use **local accounts**, not UniFi Cloud accounts nor 2FA, to access the UniFi Controller API through this class
+* Direct network connectivity between the application using node-unifi and the host:port (normally TCP port 8443 or 443) where the UniFi controller is running on.
+* Use of **local accounts** for authentication; not UniFi Cloud accounts nor 2FA.
 
 ## Installation
 node-unifi can be installed using the following npm command:
@@ -29,14 +32,14 @@ node-unifi can be installed using the following npm command:
 npm install node-unifi
 ```
 
-## Example
+## Examples
 node-unifi has been designed to be used quite straight forward and without introducing
 ackward language constructs. The following example should give a brief introduction on
-how to use node-unifi in your own applications:
+how to use node-unifi in your own applications using its Promises-based API interface:
 
 ```js
 const unifi = require('node-unifi');
-const controller = new unifi.Controller({host: '127.0.0.1', port: 8443, insecure: true});
+const controller = new unifi.Controller({host: '127.0.0.1', port: 8443, sslverify: false});
 
 // LOGIN
 controller.login('admin', 'PASSWORD')
@@ -79,10 +82,59 @@ controller.login('admin', 'PASSWORD')
 
 Please note that every `controller.XXXXX()` function returns a `Promise`, thus `.then()` and `.catch()` can be used accordingly.
 
+### Event-Emitter WebSockets Interface
+
+Since version 2.0.0 node-unifi supports (thanks to https://github.com/worldwidewoogie/unifi-axios-events) the WebSocket interface
+of a UniFi controller. This new interface allows to listen for events using `controller.listen()` and automatically receive events
+as soon as the UniFi controller sends them out via its WebSocket functionality. For receiving these events in a nodejs-compatible
+way node-unifi uses internally [EventEmitter2](https://github.com/EventEmitter2/EventEmitter2) which allows to execute actions based
+on event filters defined by `controller.on(...)`.
+
+An example on how to use this EventEmitter-based functionality of node-unifi to immediately receive state changes rather than
+regularly having to poll a unifi controller for changes can be seen here:
+
+```js
+const unifi = require('node-unifi');
+const controller = new unifi.Controller({host: '127.0.0.1', port: 8443, sslverify: false});
+
+// LOGIN
+controller.login('admin', 'PASSWORD')
+  .then(result => {
+    console.log('login: ' + result);
+
+    // LISTEN for WebSocket events
+    return controller.listen();
+  })
+  .then(result => {
+    console.log('listen: ' + result);
+
+    // Listen for alert.client_connected
+    controller.on('alert.client_connected', function (data) {
+      const ts = new Date(data[0].timestamp).toISOString();
+      console.log(`${ts} - ${this.event}: ${data[0].parameters.CLIENT.id} (${data[0].parameters.CLIENT.name})`);
+    });
+
+    // Listen for alert.client_disconnected
+    controller.on('alert.client_disconnected', function (data) {
+      const ts = new Date(data[0].timestamp).toISOString();
+      console.log(`${ts} - ${this.event}: ${data[0].parameters.CLIENT.id} (${data[0].parameters.CLIENT.name})`);
+    });
+
+    // Listen for ctrl.* events
+    controller.on('ctrl.*', function () {
+      console.log(`${this.event}`);
+    });
+  })
+  .catch(error => {
+    console.log('ERROR: ' + error);
+  });
+```
+
 ## References
 This nodejs package/class uses functionality/Know-How gathered from different third-party projects:
 
-* [UniFi-API-client](https://github.com/Art-of-WiFi/UniFi-API-client)
+* [Art-of-WiFi/UniFi-API-client](https://github.com/Art-of-WiFi/UniFi-API-client)
+* [worldwidewoogie/unifi-axios-events](https://github.com/worldwidewoogie/unifi-axios-events)
 * [unifi_sh_api](https://dl.ui.com/unifi/5.12.35/unifi_sh_api)
 
 ## Use-Cases
