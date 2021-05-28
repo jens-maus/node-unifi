@@ -50,7 +50,7 @@ class Controller extends EventEmitter {
     this.opts.username = this.opts.username || 'admin';
     this.opts.password = this.opts.password || 'ubnt';
     this.opts.site = this.opts.site || 'default';
-    this.opts.insecure = this.opts.insecure || false;
+    this.opts.sslverify = this.opts.sslverify || true;
 
     this._baseurl = new URL(`https://${options.host}:${options.port}`);
     this._cookieJar = new tough.CookieJar();
@@ -2893,7 +2893,7 @@ class Controller extends EventEmitter {
         this._instance = axios.create({
           jar: this._cookieJar,
           withCredentials: true,
-          httpsAgent: new https.Agent({rejectUnauthorized: !this.opts.insecure, requestCert: true, keepAlive: true})
+          httpsAgent: new https.Agent({rejectUnauthorized: this.opts.sslverify, requestCert: true, keepAlive: true})
         });
         this._instance.get(this._baseurl.toString()).then(response => {
           if (response.headers['x-csrf-token']) {
@@ -3017,7 +3017,7 @@ class Controller extends EventEmitter {
 
         this._ws = new WebSocket(eventsUrl, {
           perMessageDeflate: false,
-          rejectUnauthorized: !this.opts.insecure,
+          rejectUnauthorized: this.opts.sslverify,
           headers: {
             Cookie: cookies
           }

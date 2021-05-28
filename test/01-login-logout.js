@@ -34,7 +34,7 @@ describe('Running tests', () => {
     });
   });
 
-  const controller = new unifi.Controller({host: CONTROLLER_IP, port: CONTROLLER_PORT, insecure: true});
+  const controller = new unifi.Controller({host: CONTROLLER_IP, port: CONTROLLER_PORT, sslverify: false});
 
   // LOGIN
   it('login()', done => {
