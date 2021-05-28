@@ -2880,6 +2880,73 @@ class Controller extends EventEmitter {
     return this._request(path, payload, request_method);
   }
 
+  /**
+   * WebSocket listen function
+   */
+  listen() {
+    return new Promise((resolve, reject) => {
+      this._cookieJar.getCookieString(this._baseurl.href).then(cookies => {
+        let eventsUrl = `wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`;
+
+        if (this._unifios) {
+          eventsUrl = `wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`;
+        }
+
+        this._ws = new WebSocket(eventsUrl, {
+          perMessageDeflate: false,
+          rejectUnauthorized: this.opts.sslverify,
+          headers: {
+            Cookie: cookies
+          }
+        });
+
+        const pingpong = setInterval(() => {
+          this._ws.send('ping');
+        }, 15000);
+
+        this._ws.on('open', () => {
+          this._isReconnecting = false;
+          this.emit('ctrl.connect');
+        });
+
+        this._ws.on('message', data => {
+          if (data === 'pong') {
+            this.emit('ctrl.pong');
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(data);
+            if ('meta' in parsed && Array.isArray(parsed.data)) {
+              for (const entry of parsed.data) {
+                this._event(parsed.meta, entry);
+              }
+            }
+          } catch (error) {
+            this.emit('ctrl.error', error);
+          }
+        });
+
+        this._ws.on('close', () => {
+          this.emit('ctrl.close');
+          clearInterval(pingpong);
+          this._reconnect();
+        });
+
+        this._ws.on('error', error => {
+          this.emit('ctrl.error', error);
+          clearInterval(pingpong);
+          this._reconnect();
+        });
+
+        resolve(true);
+      })
+      .catch(error => {
+        reject(error);
+      });
+    });
+  }
+
   /** PRIVATE METHODS */
 
   /**
@@ -3003,70 +3070,6 @@ class Controller extends EventEmitter {
       }).catch(error => {
         reject(error);
       });
-    });
-  }
-
-  listen() {
-    return new Promise((resolve, reject) => {
-      this._cookieJar.getCookieString(this._baseurl.href).then(cookies => {
-        let eventsUrl = `wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`;
-
-        if (this._unifios) {
-          eventsUrl = `wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`;
-        }
-
-        this._ws = new WebSocket(eventsUrl, {
-          perMessageDeflate: false,
-          rejectUnauthorized: this.opts.sslverify,
-          headers: {
-            Cookie: cookies
-          }
-        });
-
-        const pingpong = setInterval(() => {
-          this._ws.send('ping');
-        }, 15000);
-
-        this._ws.on('open', () => {
-          this._isReconnecting = false;
-          this.emit('ctrl.connect');
-        });
-
-        this._ws.on('message', data => {
-          if (data === 'pong') {
-            this.emit('ctrl.pong');
-            return;
-          }
-
-          try {
-            const parsed = JSON.parse(data);
-            if ('meta' in parsed && Array.isArray(parsed.data)) {
-              for (const entry of parsed.data) {
-                this._event(parsed.meta, entry);
-              }
-            }
-          } catch (error) {
-            this.emit('ctrl.error', error);
-          }
-        });
-
-        this._ws.on('close', () => {
-          this.emit('ctrl.close');
-          clearInterval(pingpong);
-          this._reconnect();
-        });
-
-        this._ws.on('error', error => {
-          this.emit('ctrl.error', error);
-          clearInterval(pingpong);
-          this._reconnect();
-        });
-
-        resolve(true);
-      })
-        .catch(error => {
-          reject(error);
-        });
     });
   }
 
