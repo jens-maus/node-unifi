@@ -1,4 +1,4 @@
-<img height="60px" src="unifi.png" align="left">
+<img height="100px" src="unifi.png" align="left"><br/>
 # node-unifi
 
 [![Build](https://github.com/jens-maus/node-unifi/workflows/CI/badge.svg)](https://github.com/jens-maus/node-unifi/actions)
