@@ -2940,8 +2940,7 @@ class Controller extends EventEmitter {
         });
 
         resolve(true);
-      })
-      .catch(error => {
+      }).catch(error => {
         reject(error);
       });
     });
