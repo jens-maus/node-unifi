@@ -1694,7 +1694,6 @@ class Controller extends EventEmitter {
     return new Promise((resolve, reject) => {
       this._request('/status', {})
         .then(result => {
-          result = this._last_results_raw;
           if (result === null) {
             reject(new Error('false'));
           } else {
@@ -1719,7 +1718,6 @@ class Controller extends EventEmitter {
     return new Promise((resolve, reject) => {
       this._request('/dl/firmware/bundles.json', {})
         .then(result => {
-          result = this._last_results_raw;
           if (result === null) {
             reject(new Error('false'));
           } else {
