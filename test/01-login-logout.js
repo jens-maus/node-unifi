@@ -874,12 +874,9 @@ describe('Running tests', () => {
   it('getStatus()', done => {
     controller.getStatus()
       .then(status_data => {
-        if (typeof (status_data) === 'undefined' || status_data.length <= 0) {
+        if (typeof (status_data) === 'undefined') {
           done(new Error('getStatus(): ' + JSON.stringify(status_data)));
         } else {
-          // self_data[0].email.should.equal('demo@ubnt.com');
-          // self_data[0].site_role.should.equal('admin');
-          console.log(JSON.stringify(status_data));
           done();
         }
       })
@@ -895,9 +892,8 @@ describe('Running tests', () => {
         if (typeof (status_data) === 'undefined' || status_data.length <= 0) {
           done(new Error('getFullStatus(): ' + JSON.stringify(status_data)));
         } else {
-          // self_data[0].email.should.equal('demo@ubnt.com');
-          // self_data[0].site_role.should.equal('admin');
-          console.log(JSON.stringify(status_data));
+          status_data.meta.rc.should.equal('ok');
+          status_data.meta.up.should.equal(true);
           done();
         }
       })
@@ -913,9 +909,7 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('getDeviceNameMappings(): ' + JSON.stringify(result)));
         } else {
-          // result[0].email.should.equal('demo@ubnt.com');
-          // result[0].site_role.should.equal('admin');
-          console.log(JSON.stringify(result));
+          result.BZ2.base_model.should.equal('BZ2');
           done();
         }
       })
