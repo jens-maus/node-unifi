@@ -870,6 +870,60 @@ describe('Running tests', () => {
       });
   });
 
+  // GET STATUS
+  it('getStatus()', done => {
+    controller.getStatus()
+      .then(status_data => {
+        if (typeof (status_data) === 'undefined' || status_data.length <= 0) {
+          done(new Error('getStatus(): ' + JSON.stringify(status_data)));
+        } else {
+          //self_data[0].email.should.equal('demo@ubnt.com');
+          //self_data[0].site_role.should.equal('admin');
+          console.log(JSON.stringify(status_data));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // GET FULL STATUS
+  it('getFullStatus()', done => {
+    controller.getFullStatus()
+      .then(status_data => {
+        if (typeof (status_data) === 'undefined' || status_data.length <= 0) {
+          done(new Error('getFullStatus(): ' + JSON.stringify(status_data)));
+        } else {
+          //self_data[0].email.should.equal('demo@ubnt.com');
+          //self_data[0].site_role.should.equal('admin');
+          console.log(JSON.stringify(status_data));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
+  // GET DEVICE NAME MAPPINGS
+  it('getDeviceNameMappings()', done => {
+    controller.getDeviceNameMappings()
+      .then(result => {
+        if (typeof (result) === 'undefined' || result.length <= 0) {
+          done(new Error('getDeviceNameMappings(): ' + JSON.stringify(result)));
+        } else {
+          //result[0].email.should.equal('demo@ubnt.com');
+          //result[0].site_role.should.equal('admin');
+          console.log(JSON.stringify(result));
+          done();
+        }
+      })
+      .catch(error => {
+        done(error);
+      });
+  });
+
   // LOGOUT
   it('logout()', done => {
     controller.logout()

@@ -1692,9 +1692,8 @@ class Controller extends EventEmitter {
    */
   getFullStatus() {
     return new Promise((resolve, reject) => {
-      this._request('/status', {})
+      this._request('/status', {}, null, true)
         .then(result => {
-          result = this._last_results_raw;
           if (result === null) {
             reject(new Error('false'));
           } else {
@@ -1717,9 +1716,8 @@ class Controller extends EventEmitter {
    */
   getDeviceNameMappings() {
     return new Promise((resolve, reject) => {
-      this._request('/dl/firmware/bundles.json', {})
+      this._request('/dl/firmware/bundles.json', {}, null, true)
         .then(result => {
-          result = this._last_results_raw;
           if (result === null) {
             reject(new Error('false'));
           } else {
@@ -3028,7 +3026,7 @@ class Controller extends EventEmitter {
   /**
    * Private function to send out a generic URL request to a UniFi-Controller
    */
-  _request(path, payload = null, method = null) {
+  _request(path, payload = null, method = null, raw = false) {
     return new Promise((resolve, reject) => {
       this._ensureLoggedIn().then(() => {
         // Identify which request method we are using (GET, POST, PUT, DELETE) based
@@ -3048,7 +3046,11 @@ class Controller extends EventEmitter {
           if (body !== null && typeof (body) !== 'undefined') {
             if (typeof (body.meta) !== 'undefined') {
               if (response.status >= 200 && response.status < 400 && body.meta.rc === 'ok') {
-                resolve(body.data);
+                if (raw === true) {
+                  resolve(body);
+                } else {
+                  resolve(body.data);
+                }
               } else if (typeof (body.meta.msg) === 'undefined') {
                 reject(new Error('generic error'));
               } else {
@@ -3063,7 +3065,6 @@ class Controller extends EventEmitter {
             reject(new Error('empty response data'));
           }
         }).catch(error => {
-          // Console.log(error.toJSON());
           reject(error);
         });
       }).catch(error => {
@@ -3094,15 +3095,23 @@ class Controller extends EventEmitter {
 
   _ensureLoggedIn() {
     return new Promise((resolve, reject) => {
-      this._instance.get(`${this._baseurl.href}api/${this._unifios ? 'users/' : ''}self`).then(() => {
-        resolve(true);
-      }).catch(() => {
-        this.login().then(() => {
+      if (typeof (this._instance) === 'undefined') {
+        this._init().then(() => {
           resolve(true);
         }).catch(error => {
           reject(error);
         });
-      });
+      } else {
+        this._instance.get(`${this._baseurl.href}api/${this._unifios ? 'users/' : ''}self`).then(() => {
+          resolve(true);
+        }).catch(() => {
+          this.login().then(() => {
+            resolve(true);
+          }).catch(error => {
+            reject(error);
+          });
+        });
+      }
     });
   }
 
