@@ -877,8 +877,8 @@ describe('Running tests', () => {
         if (typeof (status_data) === 'undefined' || status_data.length <= 0) {
           done(new Error('getStatus(): ' + JSON.stringify(status_data)));
         } else {
-          //self_data[0].email.should.equal('demo@ubnt.com');
-          //self_data[0].site_role.should.equal('admin');
+          // self_data[0].email.should.equal('demo@ubnt.com');
+          // self_data[0].site_role.should.equal('admin');
           console.log(JSON.stringify(status_data));
           done();
         }
@@ -895,8 +895,8 @@ describe('Running tests', () => {
         if (typeof (status_data) === 'undefined' || status_data.length <= 0) {
           done(new Error('getFullStatus(): ' + JSON.stringify(status_data)));
         } else {
-          //self_data[0].email.should.equal('demo@ubnt.com');
-          //self_data[0].site_role.should.equal('admin');
+          // self_data[0].email.should.equal('demo@ubnt.com');
+          // self_data[0].site_role.should.equal('admin');
           console.log(JSON.stringify(status_data));
           done();
         }
@@ -913,8 +913,8 @@ describe('Running tests', () => {
         if (typeof (result) === 'undefined' || result.length <= 0) {
           done(new Error('getDeviceNameMappings(): ' + JSON.stringify(result)));
         } else {
-          //result[0].email.should.equal('demo@ubnt.com');
-          //result[0].site_role.should.equal('admin');
+          // result[0].email.should.equal('demo@ubnt.com');
+          // result[0].site_role.should.equal('admin');
           console.log(JSON.stringify(result));
           done();
         }
