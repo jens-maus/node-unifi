@@ -29,7 +29,7 @@
     "eslint": ">=7.29.0",
     "pre-commit": "^1.2.2",
     "xo": "~0.39.1",
-    "glob-parent": ">=5.1.2",
+    "glob-parent": ">=6.0.1",
     "should": "latest",
     "mocha": "latest",
     "mocha-clean": "latest",
