@@ -23,7 +23,7 @@
     "https": "^1.0.0",
     "tough-cookie": "^4.0.0",
     "url": "^0.11.0",
-    "ws": "^7.5.0"
+    "ws": "^8.2.0"
   },
   "devDependencies": {
     "eslint": ">=7.32.0",
