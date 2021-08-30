@@ -57,6 +57,7 @@ class Controller extends EventEmitter {
     this._unifios = false;
     this._isClosed = true;
     this._autoReconnectInterval = 5 * 1000; // Ms
+    this._pingPongInterval = 3 * 1000; // Ms
     this._isInit = false;
   }
 
@@ -2898,21 +2899,22 @@ class Controller extends EventEmitter {
 
         const pingpong = setInterval(() => {
           this._ws.send('ping');
-        }, 15000);
+        }, this._pingPongInterval);
 
         this._ws.on('open', () => {
           this._isReconnecting = false;
           this.emit('ctrl.connect');
         });
 
-        this._ws.on('message', data => {
-          if (data === 'pong') {
+        this._ws.on('message', (data, isBinary) => {
+          const message = isBinary ? data : data.toString();
+          if (message === 'pong') {
             this.emit('ctrl.pong');
             return;
           }
 
           try {
-            const parsed = JSON.parse(data);
+            const parsed = JSON.parse(message);
             if ('meta' in parsed && Array.isArray(parsed.data)) {
               for (const entry of parsed.data) {
                 this._event(parsed.meta, entry);
@@ -2997,28 +2999,24 @@ class Controller extends EventEmitter {
     });
   }
 
-  _connect(reconnect = true) {
+  _connect() {
     return new Promise((resolve, reject) => {
       this._isClosed = false;
       this.login(null, null).then(() => {
         resolve(true);
       }).catch(error => {
-        if (reconnect === true) {
-          this._reconnect();
-        } else {
-          reject(error);
-        }
+        reject(error);
       });
     });
   }
 
   _reconnect() {
-    if (!this._isReconnecting && !this._isClosed) {
+    if (this._isReconnecting === false && this._isClosed === false) {
       this._isReconnecting = true;
       setTimeout(() => {
         this.emit('ctrl.reconnect');
         this._isReconnecting = false;
-        this._connect(false).catch(() => {
+        this.listen().catch(() => {
           console.dir('_reconnect() encountered an error');
         });
       }, this._autoReconnectInterval);
