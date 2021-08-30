@@ -67,7 +67,7 @@ class Controller extends EventEmitter {
    *
    * returns true upon success
    */
-  login(username = null, password = null, reconnect = false) {
+  login(username = null, password = null) {
     return new Promise((resolve, reject) => {
       // Allows to override username+password
       if (username !== null) {
@@ -96,10 +96,8 @@ class Controller extends EventEmitter {
             password: this.opts.password
           }).then(() => {
             resolve(true);
-          }).catch(() => {
-            if (!reconnect) {
-              this._reconnect();
-            }
+          }).catch(error => {
+            reject(error);
           });
         }
       }).catch(error => {
@@ -2999,13 +2997,17 @@ class Controller extends EventEmitter {
     });
   }
 
-  _connect(reconnect = false) {
+  _connect(reconnect = true) {
     return new Promise((resolve, reject) => {
       this._isClosed = false;
-      this.login(null, null, reconnect).then(() => {
+      this.login(null, null).then(() => {
         resolve(true);
       }).catch(error => {
-        reject(error);
+        if (reconnect === true) {
+          this._reconnect();
+        } else {
+          reject(error);
+        }
       });
     });
   }
@@ -3016,7 +3018,7 @@ class Controller extends EventEmitter {
       setTimeout(() => {
         this.emit('ctrl.reconnect');
         this._isReconnecting = false;
-        this._connect(true).catch(() => {
+        this._connect(false).catch(() => {
           console.dir('_reconnect() encountered an error');
         });
       }, this._autoReconnectInterval);
