@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "axios": "^0.21.3",
-    "axios-cookiejar-support": "^1.0.1",
+    "axios-cookiejar-support": "^2.0.2",
     "eventemitter2": "^6.4.4",
     "https": "^1.0.0",
     "tough-cookie": "^4.0.0",
