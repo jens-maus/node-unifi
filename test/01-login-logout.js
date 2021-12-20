@@ -30,7 +30,7 @@ describe('Running tests', () => {
   // process
   beforeEach(async () => {
     await new Promise(resolve => {
-      setTimeout(resolve, 500);
+      setTimeout(resolve, 1000);
     });
   });
 
