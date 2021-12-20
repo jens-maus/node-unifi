@@ -9,6 +9,12 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -50,8 +56,10 @@ jobs:
         # wait for unifi-controller to be ready
         while ! curl -ks https://127.0.0.1:8443; do echo waiting for unifi-controller; sleep 2; done
 
-    #- name: remote debug tmate session
-    #  uses: mxschmitt/action-tmate@v1
+    # remote debug tmate session
+    - name: debug tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
 
     # run npm tests
     - name: npm install, build, and test
