@@ -26,15 +26,10 @@
 'use strict';
 
 const EventEmitter = require('eventemitter2').EventEmitter2;
-const https = require('https');
 const WebSocket = require('ws');
 const axios = require('axios');
-const {wrapper: axiosCookieJarSupport} = require('axios-cookiejar-support');
-const tough = require('tough-cookie');
-
-// Make sure to call the axiosCookieJarSupport wrapper
-// so that axios calls will be wrapped per default.
-axiosCookieJarSupport(axios);
+const {CookieJar} = require('tough-cookie');
+const {HttpCookieAgent, HttpsCookieAgent} = require('http-cookie-agent');
 
 /// ///////////////////////////////////////////////////////////
 // PUBLIC CLASS
@@ -56,7 +51,7 @@ class Controller extends EventEmitter {
     this.opts.sslverify = (typeof (this.opts.sslverify) === 'undefined' ? true : this.opts.sslverify);
 
     this._baseurl = new URL(`https://${options.host}:${options.port}`);
-    this._cookieJar = new tough.CookieJar();
+    this._cookieJar = new CookieJar();
     this._unifios = false;
     this._isClosed = true;
     this._autoReconnectInterval = 5 * 1000; // Ms
@@ -2958,8 +2953,8 @@ class Controller extends EventEmitter {
         resolve(2);
       } else {
         this._instance = axios.create({
-          jar: this._cookieJar,
-          httpsAgent: new https.Agent({rejectUnauthorized: this.opts.sslverify, requestCert: true, keepAlive: true})
+          httpAgent: new HttpCookieAgent({jar: this._cookieJar, rejectUnauthorized: this.opts.sslverify, requestCert: true, keepAlive: true}),
+          httpsAgent: new HttpsCookieAgent({jar: this._cookieJar, rejectUnauthorized: this.opts.sslverify, requestCert: true, keepAlive: true})
         });
         this._instance.get(this._baseurl.toString()).then(response => {
           if (response.headers['x-csrf-token']) {
