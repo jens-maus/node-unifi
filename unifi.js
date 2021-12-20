@@ -29,8 +29,11 @@ const EventEmitter = require('eventemitter2').EventEmitter2;
 const https = require('https');
 const WebSocket = require('ws');
 const axios = require('axios');
-const axiosCookieJarSupport = require('axios-cookiejar-support').default;
+const {wrapper: axiosCookieJarSupport} = require('axios-cookiejar-support');
 const tough = require('tough-cookie');
+
+// Make sure to call the axiosCookieJarSupport wrapper
+// so that axios calls will be wrapped per default.
 axiosCookieJarSupport(axios);
 
 /// ///////////////////////////////////////////////////////////
@@ -2956,7 +2959,6 @@ class Controller extends EventEmitter {
       } else {
         this._instance = axios.create({
           jar: this._cookieJar,
-          withCredentials: true,
           httpsAgent: new https.Agent({rejectUnauthorized: this.opts.sslverify, requestCert: true, keepAlive: true})
         });
         this._instance.get(this._baseurl.toString()).then(response => {
