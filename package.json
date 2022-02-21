@@ -33,7 +33,7 @@
     "mocha": "latest",
     "mocha-clean": "latest",
     "mocha-steps": "latest",
-    "dot-prop": ">=6.0.1"
+    "dot-prop": ">=7.2.0"
   },
   "xo": {
     "space": 2
