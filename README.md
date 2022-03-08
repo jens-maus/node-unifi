@@ -10,10 +10,10 @@
 
 [![NPM](https://nodei.co/npm/node-unifi.png?downloads=true)](https://nodei.co/npm/node-unifi/)
 
-Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the UniFi-Controller API version starting with v4.x.x up to v6.x.x
+Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the UniFi-Controller API version starting with v4.x.x up to v7.x.x
 
 ## Features
-* Support all UniFi-Controller API features introduced with v4.x.x, v5.x.x or v6.x.x.
+* Support all UniFi-Controller API features introduced with v4.x.x, v5.x.x, v6.x.x, v7.x.x.
 * Support CloudKey Gen1, CloudKey Gen2, UnifiOS-based UDM-Pro Controller as well as self-hostd UniFi controller software.
 * Returns all data in well-defined JSON parsable strings/objects.
 * Use of modern [axios](https://github.com/axios/axios)-based nodejs http library.
@@ -21,7 +21,7 @@ Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http:
 * Support for WebSocket-based push notifications of UniFi controllers for listening for state/object changes using [EventEmitter](https://github.com/EventEmitter2/EventEmitter2)-based nodejs functionality.
 
 ## Requirements
-* Installed [UniFi-Controller](https://www.ubnt.com/download/unifi) version v4, v5 or v6, CloudKey Gen1, Gen2 or UDM-Pro.
+* Installed [UniFi-Controller](https://www.ubnt.com/download/unifi) version v4, v5, v6, or v7 CloudKey Gen1, Gen2 or UDM-Pro.
 * Direct network connectivity between the application using node-unifi and the host:port (normally TCP port 8443 or 443) where the UniFi controller is running on.
 * Use of **local accounts** for authentication; not UniFi Cloud accounts nor 2FA.
 * Node.js version >= 12.x
@@ -156,7 +156,7 @@ The following projects are known to use this nodejs class for query/control UniF
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2017-2021 Jens Maus &lt;mail@jens-maus.de&gt;
+Copyright (c) 2017-2022 Jens Maus &lt;mail@jens-maus.de&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
