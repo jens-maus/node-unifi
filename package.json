@@ -19,7 +19,7 @@
   "dependencies": {
     "axios": "^0.26.0",
     "eventemitter2": "^6.4.5",
-    "http-cookie-agent": "^1.0.3",
+    "http-cookie-agent": "^1.0.5",
     "tough-cookie": "^4.0.0",
     "url": "^0.11.0",
     "ws": "^8.5.0"
