@@ -17,7 +17,7 @@
     "url": "git+https://github.com/jens-maus/node-unifi.git"
   },
   "dependencies": {
-    "axios": "^0.26.0",
+    "axios": "^0.26.1",
     "eventemitter2": "^6.4.5",
     "http-cookie-agent": "^1.0.5",
     "tough-cookie": "^4.0.0",
