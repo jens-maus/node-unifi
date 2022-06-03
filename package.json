@@ -22,7 +22,7 @@
     "http-cookie-agent": "^1.0.5",
     "tough-cookie": "^4.0.0",
     "url": "^0.11.0",
-    "ws": "^8.6.0"
+    "ws": "^8.7.0"
   },
   "devDependencies": {
     "eslint": ">=7.32.0",
