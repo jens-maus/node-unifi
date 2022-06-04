@@ -16,9 +16,9 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.75
+ * Based/Compatible to UniFi-API-client class: v1.1.79
  *
- * Copyright (c) 2017-2021 Jens Maus <mail@jens-maus.de>
+ * Copyright (c) 2017-2022 Jens Maus <mail@jens-maus.de>
  *
  * The source code is distributed under the MIT license
  *
@@ -1788,7 +1788,7 @@ class Controller extends EventEmitter {
       x_password};
 
     if (note !== null) {
-      payload.note = note;
+      payload.note = note.trim();
     }
 
     return this._request('/api/s/<SITE>/rest/hotspotop', payload);
@@ -1826,7 +1826,7 @@ class Controller extends EventEmitter {
       quota};
 
     if (note !== null) {
-      payload.note = note;
+      payload.note = note.trim();
     }
 
     if (up !== null) {
@@ -3005,7 +3005,7 @@ class Controller extends EventEmitter {
         this._instance.get(this._baseurl.toString()).then(response => {
           if (response.headers['x-csrf-token']) {
             this._xcsrftoken = response.headers['x-csrf-token'];
-            this._instance.defaults.headers.common['X-CSRF-Token'] = this._xcsrftoken;
+            this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
             this._unifios = true;
           } else {
             this._unifios = false;
@@ -3086,6 +3086,10 @@ class Controller extends EventEmitter {
           data: payload
         }).then(response => {
           const body = response.data;
+          if (response.headers['x-csrf-token']) {
+            this._xcsrftoken = response.headers['x-csrf-token'];
+            this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
+          }
           if (body !== null && typeof (body) !== 'undefined') {
             if (typeof (body.meta) !== 'undefined') {
               if (response.status >= 200 && response.status < 400 && body.meta.rc === 'ok') {
