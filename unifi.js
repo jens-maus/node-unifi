@@ -3090,6 +3090,7 @@ class Controller extends EventEmitter {
             this._xcsrftoken = response.headers['x-csrf-token'];
             this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
           }
+
           if (body !== null && typeof (body) !== 'undefined') {
             if (typeof (body.meta) !== 'undefined') {
               if (response.status >= 200 && response.status < 400 && body.meta.rc === 'ok') {
