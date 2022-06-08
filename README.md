@@ -40,7 +40,7 @@ how to use node-unifi in your own applications using its Promises-based API inte
 
 ```js
 const Unifi = require('node-unifi');
-const unifi = new Unifi.Controller({'<HOSTNAME>', <PORT>, sslverify: false});
+const unifi = new Unifi.Controller({'<HOSTNAME>', '<PORT>', sslverify: false});
 
 (async () => {
   try {
@@ -82,17 +82,17 @@ Please note that every `unifi.XXXXX()` function returns a `Promise`, thus `.then
 ### Event-Emitter WebSockets Interface
 
 Since version 2.0.0 node-unifi supports (thanks to [unifi-axios-events](https://github.com/worldwidewoogie/unifi-axios-events)) the WebSocket interface
-of a UniFi controller. This new interface allows to listen for events using `controller.listen()` and automatically receive events
+of a UniFi controller. This new interface allows to listen for events using `unifi.listen()` and automatically receive events
 as soon as the UniFi controller sends them out via its WebSocket functionality. For receiving these events in a nodejs-compatible
 way node-unifi uses internally [EventEmitter2](https://github.com/EventEmitter2/EventEmitter2) which allows to execute actions based
-on event filters defined by `controller.on(...)`.
+on event filters defined by `unifi.on(...)`.
 
 An example on how to use this EventEmitter-based functionality of node-unifi to immediately receive state changes rather than
 regularly having to poll a unifi controller for changes can be seen here:
 
 ```js
 const Unifi = require('node-unifi');
-const unifi = new Unifi.Controller({'<HOSTNAME>', <PORT>, sslverify: false});
+const unifi = new Unifi.Controller({'<HOSTNAME>', '<PORT>', sslverify: false});
 
 (async () => {
   try {
@@ -133,7 +133,7 @@ If you are having an application still using the obsolete v1 version of node-uni
 v2 version, all you have to do is:
 
 * make sure your application can deal with NodeJS [Promises](https://nodejs.dev/learn/understanding-javascript-promises) as all node-unifi API functions return proper Promises allowing to use `.then()`/`.catch()` or `async`/`await` statements for synchronous processing of events (see Examples) rather than expecting callback functions, forcing you to nest them properly.
-* eliminate the previously necessary `site` function argument required when calling a node-unifi function. Now you can either use the `{ site: 'my site' }` argument when passing contructor options to node-unifi or you switch to a different site using `controller.opts.site='my site'` before calling a node-unifi API function.
+* eliminate the previously necessary `site` function argument required when calling a node-unifi function. Now you can either use the `{ site: 'my site' }` argument when passing contructor options to node-unifi or you switch to a different site using `unifi.opts.site='my site'` before calling a node-unifi API function.
 * as the API functions had been changed to work on a single site only, make sure your app is changed so that it expects a single site JSON return dataset only.
 * The new version by default verifies SSL connections and certificates. To restore the behaviour of the old version set "sslverify: false" in the constructor options
 
