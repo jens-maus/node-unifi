@@ -58,205 +58,148 @@ describe('Running tests', () => {
 
   // GET SITE STATS
   let defaultSiteID = null;
-  it('getSitesStats()', async done => {
-    try {
-      const sites = await controller.getSitesStats();
-      if (typeof (sites) === 'undefined' || sites.length <= 0) {
-        done(new Error('getSitesStats(): ' + JSON.stringify(sites)));
-      } else {
-        sites[0].name.should.equal('default');
-        sites[0].desc.should.equal('Default');
-        defaultSiteID = sites[0]._id;
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getSitesStats()', async () => {
+    const sites = await controller.getSitesStats();
+    if (typeof (sites) === 'undefined' || sites.length <= 0) {
+      throw new Error('getSitesStats(): ' + JSON.stringify(sites));
+    } else {
+      sites[0].name.should.equal('default');
+      sites[0].desc.should.equal('Default');
+      defaultSiteID = sites[0]._id;
     }
   });
 
   // AUTHORIZE GUEST
-  it('authorizeGuest()', async done => {
-    try {
-      const result = await controller.authorizeGuest('aa:bb:CC:DD:EE:FF', 100, 20, 30, 40, 'aa:bb:cc:dd:ee:fa');
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('authorizeGuest(): ' + JSON.stringify(result)));
-      } else {
-        result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
-        result[0].end.should.aboveOrEqual(result[0].start + (100 * 60));
-        result[0].end.should.belowOrEqual(result[0].start + (140 * 60));
-        result[0].qos_rate_max_up.should.equal(20);
-        result[0].qos_rate_max_down.should.equal(30);
-        result[0].qos_usage_quota.should.equal(40);
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('authorizeGuest()', async () => {
+    const result = await controller.authorizeGuest('aa:bb:CC:DD:EE:FF', 100, 20, 30, 40, 'aa:bb:cc:dd:ee:fa');
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('authorizeGuest(): ' + JSON.stringify(result));
+    } else {
+      result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
+      result[0].end.should.aboveOrEqual(result[0].start + (100 * 60));
+      result[0].end.should.belowOrEqual(result[0].start + (140 * 60));
+      result[0].qos_rate_max_up.should.equal(20);
+      result[0].qos_rate_max_down.should.equal(30);
+      result[0].qos_usage_quota.should.equal(40);
     }
   });
 
   // UN-AUTHORIZE GUEST
-  it('unauthorizeGuest()', async done => {
-    try {
-      const result = await controller.unauthorizeGuest('aa:bb:CC:DD:EE:FF');
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('unauthorizeGuest(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('unauthorizeGuest()', async () => {
+    const result = await controller.unauthorizeGuest('aa:bb:CC:DD:EE:FF');
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('unauthorizeGuest(): ' + JSON.stringify(result));
     }
   });
 
   // RE-CONNECT CLIENT
   /* WONTWORK: requires active AP connection
-  it('reconnectClient()', async done => {
-    try {
-      const result = await controller.reconnectClient('aa:bb:CC:DD:EE:FF');
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('reconnectClient(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('reconnectClient()', async () => {
+    const result = await controller.reconnectClient('aa:bb:CC:DD:EE:FF');
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('reconnectClient(): ' + JSON.stringify(result));
     }
   });
   */
 
   // Block a client device
-  it('blockClient()', async done => {
-    try {
-      const result = await controller.blockClient('aa:bb:CC:DD:EE:FF');
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('blockClient(): ' + JSON.stringify(result)));
-      } else {
-        result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
-        result[0].blocked.should.equal(true);
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('blockClient()', async () => {
+    const result = await controller.blockClient('aa:bb:CC:DD:EE:FF');
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('blockClient(): ' + JSON.stringify(result));
+    } else {
+      result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
+      result[0].blocked.should.equal(true);
     }
   });
 
   // List blocked client devices
-  it('getBlockedUsers()', async done => {
-    try {
-      const result = await controller.getBlockedUsers();
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('getBlockedUsers(): ' + JSON.stringify(result)));
-      } else {
-        result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
-        result[0].blocked.should.equal(true);
-        result[0].name.should.equal('Testdevice');
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getBlockedUsers()', async () => {
+    const result = await controller.getBlockedUsers();
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('getBlockedUsers(): ' + JSON.stringify(result));
+    } else {
+      result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
+      result[0].blocked.should.equal(true);
+      result[0].name.should.equal('Testdevice');
+      // console.log(JSON.stringify(result));
     }
   });
 
   // Unblock a client device
-  it('unblockClient()', async done => {
-    try {
-      const result = await controller.unblockClient('aa:bb:CC:DD:EE:FF');
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('unblockClient(): ' + JSON.stringify(result)));
-      } else {
-        result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
-        result[0].blocked.should.equal(false);
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('unblockClient()', async () => {
+    const result = await controller.unblockClient('aa:bb:CC:DD:EE:FF');
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('unblockClient(): ' + JSON.stringify(result));
+    } else {
+      result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
+      result[0].blocked.should.equal(false);
     }
   });
 
   // Create user group
   let testGroupID = null;
   let dummyGroupID = null;
-  it('createUserGroup()', async done => {
-    try {
-      const result = await controller.createUserGroup('Testgroup');
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('createUserGroup(): ' + JSON.stringify(result)));
-      } else {
-        result[0].name.should.equal('Testgroup');
-        result[0].qos_rate_max_down.should.equal(-1);
-        testGroupID = result[0]._id;
+  it('createUserGroup()', async () => {
+    const result = await controller.createUserGroup('Testgroup');
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('createUserGroup(): ' + JSON.stringify(result));
+    } else {
+      result[0].name.should.equal('Testgroup');
+      result[0].qos_rate_max_down.should.equal(-1);
+      testGroupID = result[0]._id;
 
+      // console.log(JSON.stringify(result));
+      const result = await controller.createUserGroup('DUMMYgroup');
+      if (typeof (result) === 'undefined' || result.length <= 0) {
+        throw new Error('createUserGroup(DUMMYgroup): ' + JSON.stringify(result));
+      } else {
+        result[0].name.should.equal('DUMMYgroup');
+        result[0].qos_rate_max_down.should.equal(-1);
+        dummyGroupID = result[0]._id;
         // console.log(JSON.stringify(result));
-        const result = await controller.createUserGroup('DUMMYgroup');
-        if (typeof (result) === 'undefined' || result.length <= 0) {
-          done(new Error('createUserGroup(DUMMYgroup): ' + JSON.stringify(result)));
-        } else {
-          result[0].name.should.equal('DUMMYgroup');
-          result[0].qos_rate_max_down.should.equal(-1);
-          dummyGroupID = result[0]._id;
-          // console.log(JSON.stringify(result));
-          done();
-        }
       }
-    } catch (error) {
-      done(error);
     }
   });
 
   // Delete user group
-  it('deleteUserGroup()', async done => {
-    try {
-      const result = await controller.deleteUserGroup(dummyGroupID);
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('deleteUserGroup(): ' + JSON.stringify(result)));
-      } else {
-        dummyGroupID = null;
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('deleteUserGroup()', async () => {
+    const result = await controller.deleteUserGroup(dummyGroupID);
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('deleteUserGroup(): ' + JSON.stringify(result));
+    } else {
+      dummyGroupID = null;
+      // console.log(JSON.stringify(result));
     }
   });
 
   // Edit user group
-  it('editUserGroup()', async done => {
-    try {
-      const result = await controller.editUserGroup(testGroupID, defaultSiteID, 'Testgroup', 100, 200);
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('editUserGroup(): ' + JSON.stringify(result)));
-      } else {
-        result[0].name.should.equal('Testgroup');
-        result[0].qos_rate_max_down.should.equal(100);
-        result[0].qos_rate_max_up.should.equal(200);
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('editUserGroup()', async () => {
+    const result = await controller.editUserGroup(testGroupID, defaultSiteID, 'Testgroup', 100, 200);
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('editUserGroup(): ' + JSON.stringify(result));
+    } else {
+      result[0].name.should.equal('Testgroup');
+      result[0].qos_rate_max_down.should.equal(100);
+      result[0].qos_rate_max_up.should.equal(200);
+      // console.log(JSON.stringify(result));
     }
   });
 
   // List user groups
   let defaultGroupID = null;
-  it('getUserGroups()', async done => {
-    try {
-      const result = await controller.getUserGroups();
-      if (typeof (result) === 'undefined' || result.length < 2) {
-        done(new Error('getUserGroups(): ' + JSON.stringify(result)));
-      } else {
-        result[0].name.should.equal('Default');
-        result[0].attr_no_delete.should.equal(true);
-        result[1].name.should.equal('Testgroup');
-        result[1].qos_rate_max_down.should.equal(100);
-        result[1].qos_rate_max_up.should.equal(200);
-        defaultGroupID = result[0]._id;
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getUserGroups()', async () => {
+    const result = await controller.getUserGroups();
+    if (typeof (result) === 'undefined' || result.length < 2) {
+      throw new Error('getUserGroups(): ' + JSON.stringify(result));
+    } else {
+      result[0].name.should.equal('Default');
+      result[0].attr_no_delete.should.equal(true);
+      result[1].name.should.equal('Testgroup');
+      result[1].qos_rate_max_down.should.equal(100);
+      result[1].qos_rate_max_up.should.equal(200);
+      defaultGroupID = result[0]._id;
+      // console.log(JSON.stringify(result));
     }
   });
 
