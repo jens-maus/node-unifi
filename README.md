@@ -40,12 +40,12 @@ how to use node-unifi in your own applications using its Promises-based API inte
 
 ```js
 const Unifi = require('node-unifi');
-const unifi = new Unifi.Controller({<HOSTNAME>, <PORT>, sslverify: false});
+const unifi = new Unifi.Controller({'<HOSTNAME>', <PORT>, sslverify: false});
 
 (async () => {
   try {
     // LOGIN
-    const loginData = await unifi.login(<USERNAME>, <PASSWORD>);
+    const loginData = await unifi.login('<USERNAME>', '<PASSWORD>');
     console.log('login: ' + loginData);
 
     // GET SITE STATS
@@ -92,12 +92,12 @@ regularly having to poll a unifi controller for changes can be seen here:
 
 ```js
 const Unifi = require('node-unifi');
-const unifi = new Unifi.Controller({<HOSTNAME>, <PORT>, sslverify: false});
+const unifi = new Unifi.Controller({'<HOSTNAME>', <PORT>, sslverify: false});
 
 (async () => {
   try {
     // LOGIN
-    const loginData = await unifi.login(<USERNAME>, <PASSWORD>);
+    const loginData = await unifi.login('<USERNAME>', '<PASSWORD>');
     console.log('login: ' + loginData);
 
     // LISTEN for WebSocket events

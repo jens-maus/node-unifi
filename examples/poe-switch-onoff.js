@@ -21,7 +21,7 @@ const unifi = new Unifi.Controller({host, port, sslverify: false});
 
     // Get data from a specific unifi device based on MAC address
     const deviceData = await unifi.getAccessDevices(switchmac);
-    //console.log('getAccessDevices: ' + JSON.stringify(deviceData));
+    // Console.log('getAccessDevices: ' + JSON.stringify(deviceData));
 
     // Get device id
     const deviceId = deviceData[0]._id;
@@ -38,6 +38,7 @@ const unifi = new Unifi.Controller({host, port, sslverify: false});
         console.log('switching port ' + portIdx + ' [' + item.name + '] to ' + poeMode);
       }
     }
+
     console.log('portOverrides after: ' + JSON.stringify(portOverrides));
 
     // Send the modified port_overrides and start provisioning
