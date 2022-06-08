@@ -577,7 +577,7 @@ class Controller extends EventEmitter {
 
     attribs = attribs === null ? ['time',
       'rx_bytes',
-      'tx_bytes'] : ['time'].concat(attribs);
+      'tx_bytes'] : ['time', ...attribs];
 
     const payload = {attrs: attribs,
       start,
@@ -614,7 +614,7 @@ class Controller extends EventEmitter {
 
     attribs = attribs === null ? ['time',
       'rx_bytes',
-      'tx_bytes'] : ['time'].concat(attribs);
+      'tx_bytes'] : ['time', ...attribs];
 
     const payload = {attrs: attribs,
       start,
@@ -653,7 +653,7 @@ class Controller extends EventEmitter {
 
     attribs = attribs === null ? ['time',
       'rx_bytes',
-      'tx_bytes'] : ['time'].concat(attribs);
+      'tx_bytes'] : ['time', ...attribs];
 
     const payload = {attrs: attribs,
       start,
@@ -692,7 +692,7 @@ class Controller extends EventEmitter {
 
     attribs = attribs === null ? ['time',
       'rx_bytes',
-      'tx_bytes'] : ['time'].concat(attribs);
+      'tx_bytes'] : ['time', ...attribs];
 
     const payload = {attrs: attribs,
       start,
@@ -732,7 +732,7 @@ class Controller extends EventEmitter {
     attribs = attribs === null ? ['time',
       'mem',
       'cpu',
-      'loadavg_5'] : ['time'].concat(attribs);
+      'loadavg_5'] : ['time', ...attribs];
 
     const payload = {attrs: attribs,
       start,
@@ -768,7 +768,7 @@ class Controller extends EventEmitter {
     attribs = attribs === null ? ['time',
       'mem',
       'cpu',
-      'loadavg_5'] : ['time'].concat(attribs);
+      'loadavg_5'] : ['time', ...attribs];
 
     const payload = {attrs: attribs,
       start,
@@ -804,7 +804,7 @@ class Controller extends EventEmitter {
     attribs = attribs === null ? ['time',
       'mem',
       'cpu',
-      'loadavg_5'] : ['time'].concat(attribs);
+      'loadavg_5'] : ['time', ...attribs];
 
     const payload = {attrs: attribs,
       start,
@@ -840,7 +840,7 @@ class Controller extends EventEmitter {
     attribs = attribs === null ? ['time',
       'mem',
       'cpu',
-      'loadavg_5'] : ['time'].concat(attribs);
+      'loadavg_5'] : ['time', ...attribs];
 
     const payload = {attrs: attribs,
       start,
