@@ -13,18 +13,23 @@ const poeMode = process.argv[8]; // Auto, off
 const Unifi = require('../unifi.js');
 const unifi = new Unifi.Controller({host, port, sslverify: false});
 
-// Login
-unifi.login(username, password)
-  .then(() => {
+(async () => {
+  try {
+    // LOGIN
+    const loginData = await unifi.login(username, password);
+    console.log('login: ' + loginData);
+
     // Get data from a specific unifi device based on MAC address
-    return unifi.getAccessDevices(switchmac);
-  })
-  .then(result => {
+    const deviceData = await unifi.getAccessDevices(switchmac);
+    //console.log('getAccessDevices: ' + JSON.stringify(deviceData));
+
     // Get device id
-    const deviceId = result[0]._id;
+    const deviceId = deviceData[0]._id;
+    console.log('deviceId: ' + deviceId + ' ip: ' + deviceData[0].ip);
 
     // Get port_overrides section
-    const portOverrides = result[0].port_overrides;
+    const portOverrides = deviceData[0].port_overrides;
+    console.log('portOverrides before: ' + JSON.stringify(portOverrides));
 
     // Switch poe_mode to poeMode
     for (const item of portOverrides) {
@@ -33,17 +38,15 @@ unifi.login(username, password)
         console.log('switching port ' + portIdx + ' [' + item.name + '] to ' + poeMode);
       }
     }
+    console.log('portOverrides after: ' + JSON.stringify(portOverrides));
 
     // Send the modified port_overrides and start provisioning
-    return unifi.setDeviceSettingsBase(deviceId, {port_overrides: portOverrides});
-  })
-  .then(() => {
+    await unifi.setDeviceSettingsBase(deviceId, {port_overrides: portOverrides});
+
     // Finalize, logout and finish
-    return unifi.logout();
-  })
-  .then(result => {
-    console.log(JSON.stringify(result));
-  })
-  .catch(error => {
+    const logoutData = await unifi.logout();
+    console.log('logout: ' + JSON.stringify(logoutData));
+  } catch (error) {
     console.log('ERROR: ' + error);
-  });
+  }
+})();

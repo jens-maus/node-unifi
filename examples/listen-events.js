@@ -9,16 +9,16 @@ const password = process.argv[5]; // Controller password
 const Unifi = require('../unifi.js');
 const unifi = new Unifi.Controller({host, port, sslverify: false});
 
-// LOGIN
-unifi.login(username, password)
-  .then(result => {
-    console.log('login: ' + result);
+(async () => {
+  try {
+    // LOGIN
+    const loginData = await unifi.login(username, password);
+    console.log('login: ' + loginData);
 
     // LISTEN for WebSocket events
-    return unifi.listen();
-  })
-  .then(result => {
-    console.log('listen: ' + result);
+    const listenData = await unifi.listen();
+    console.log('listen: ' + listenData);
+
     // Listen for alert.client_connected
     unifi.on('alert.client_connected', function (data) {
       const ts = new Date(data[0].timestamp).toISOString();
@@ -35,7 +35,7 @@ unifi.login(username, password)
     unifi.on('ctrl.*', function () {
       console.log(`${this.event}`);
     });
-  })
-  .catch(error => {
+  } catch (error) {
     console.log('ERROR: ' + error);
-  });
+  }
+})();
