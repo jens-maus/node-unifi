@@ -145,11 +145,12 @@ describe('Running tests', () => {
     if (typeof (result) === 'undefined' || result.length <= 0) {
       throw new Error('createUserGroup(): ' + JSON.stringify(result));
     } else {
+      console.log(JSON.stringify(result));
       result[0].name.should.equal('Testgroup');
       result[0].qos_rate_max_down.should.equal(-1);
       testGroupID = result[0]._id;
-
       // console.log(JSON.stringify(result));
+
       const result = await controller.createUserGroup('DUMMYgroup');
       if (typeof (result) === 'undefined' || result.length <= 0) {
         throw new Error('createUserGroup(DUMMYgroup): ' + JSON.stringify(result));
@@ -355,7 +356,7 @@ describe('Running tests', () => {
   // Daily site stats method
   it('getDailySiteStats()', async done => {
     try {
-      const result = controller.getDailySiteStats();
+      const result = await controller.getDailySiteStats();
       if (typeof (result) === 'undefined' || result.length < 0) {
         done(new Error('getDailySiteStats(): ' + JSON.stringify(result)));
       } else {

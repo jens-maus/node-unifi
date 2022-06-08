@@ -210,7 +210,7 @@ class Controller extends EventEmitter {
    * optional parameter <is_guest>      = boolean; defines whether the new user/client-device is a   guest or not
    * optional parameter <is_wired>      = boolean; defines whether the new user/client-device is wi  red or not
    */
-  createUser(mac, user_group_id, name = null, note = null, is_guest = null, is_wired = null) {
+  async createUser(mac, user_group_id, name = null, note = null, is_guest = null, is_wired = null) {
     const new_user = {mac: mac.toLowerCase(),
       user_group_id
     };
