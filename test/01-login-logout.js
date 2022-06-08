@@ -150,13 +150,13 @@ describe('Running tests', () => {
       testGroupID = result[0]._id;
       // console.log(JSON.stringify(result));
 
-      const result = await controller.createUserGroup('DUMMYgroup');
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        throw new Error('createUserGroup(DUMMYgroup): ' + JSON.stringify(result));
+      const result2 = await controller.createUserGroup('DUMMYgroup');
+      if (typeof (result2) === 'undefined' || result2.length <= 0) {
+        throw new Error('createUserGroup(DUMMYgroup): ' + JSON.stringify(result2));
       } else {
-        result[0].name.should.equal('DUMMYgroup');
-        result[0].qos_rate_max_down.should.equal(-1);
-        dummyGroupID = result[0]._id;
+        result2[0].name.should.equal('DUMMYgroup');
+        result2[0].qos_rate_max_down.should.equal(-1);
+        dummyGroupID = result2[0]._id;
         // console.log(JSON.stringify(result));
       }
     }
@@ -490,150 +490,90 @@ describe('Running tests', () => {
 
   // GET CLIENT DEVICE
   /* WONTWORK: No active client device
-  it('getClientDevice()', async done => {
-    try {
-      const result = await controller.getClientDevice();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getClientDevice(): ' + JSON.stringify(result)));
-      } else {
-        console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getClientDevice()', async () => {
+    const result = await controller.getClientDevice();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getClientDevice(): ' + JSON.stringify(result));
+    } else {
+      console.log(JSON.stringify(result));
     }
   });
   */
 
   // GET ALL USERS EVER CONNECTED
-  it('getAllUsers()', async done => {
-    try {
-      const result = await controller.getAllUsers();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getAllUsers(): ' + JSON.stringify(result)));
-      } else {
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getAllUsers()', async () => {
+    const result = await controller.getAllUsers();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getAllUsers(): ' + JSON.stringify(result));
     }
   });
 
   // GET ALL ACCESS DEVICES
-  it('getAccessDevices()', async done => {
-    try {
-      const result = await controller.getAccessDevices();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getAccessDevices(): ' + JSON.stringify(result)));
-      } else {
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getAccessDevices()', async () => {
+    const result = await controller.getAccessDevices();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getAccessDevices(): ' + JSON.stringify(result));
     }
   });
 
   // GET ALL SESSIONS
-  it('getSessions()', async done => {
-    try {
-      const result = await controller.getSessions();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getSessions(): ' + JSON.stringify(result)));
-      } else {
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getSessions()', async () => {
+    const result = await controller.getSessions();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getSessions(): ' + JSON.stringify(result));
     }
   });
 
   // GET USERS
-  it('getUsers()', async done => {
-    try {
-      const result = await controller.getUsers();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getUsers(): ' + JSON.stringify(result)));
-      } else {
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getUsers()', async () => {
+    const result = await controller.getUsers();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getUsers(): ' + JSON.stringify(result));
     }
   });
 
   // GET SELF
-  it('getSelf()', async done => {
-    try {
-      const result = await controller.getSelf();
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('getSelf(): ' + JSON.stringify(result)));
-      } else {
-        result[0].email.should.equal('demo@ubnt.com');
-        result[0].site_role.should.equal('admin');
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getSelf()', async () => {
+    const result = await controller.getSelf();
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('getSelf(): ' + JSON.stringify(result));
+    } else {
+      result[0].email.should.equal('demo@ubnt.com');
+      result[0].site_role.should.equal('admin');
     }
   });
 
   // GET STATUS
-  it('getStatus()', async done => {
-    try {
-      const result = await controller.getStatus();
-      if (typeof (result) === 'undefined') {
-        done(new Error('getStatus(): ' + JSON.stringify(result)));
-      } else {
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getStatus()', async () => {
+    const result = await controller.getStatus();
+    if (typeof (result) === 'undefined') {
+      throw new TypeError('getStatus(): ' + JSON.stringify(result));
     }
   });
 
   // GET FULL STATUS
-  it('getFullStatus()', async done => {
-    try {
-      const result = await controller.getFullStatus();
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('getFullStatus(): ' + JSON.stringify(result)));
-      } else {
-        result.meta.rc.should.equal('ok');
-        result.meta.up.should.equal(true);
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getFullStatus()', async () => {
+    const result = await controller.getFullStatus();
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('getFullStatus(): ' + JSON.stringify(result));
+    } else {
+      result.meta.rc.should.equal('ok');
+      result.meta.up.should.equal(true);
     }
   });
 
   // GET DEVICE NAME MAPPINGS
-  it('getDeviceNameMappings()', async done => {
-    try {
-      const result = await controller.getDeviceNameMappings();
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('getDeviceNameMappings(): ' + JSON.stringify(result)));
-      } else {
-        result.BZ2.base_model.should.equal('BZ2');
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getDeviceNameMappings()', async () => {
+    const result = await controller.getDeviceNameMappings();
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('getDeviceNameMappings(): ' + JSON.stringify(result));
+    } else {
+      result.BZ2.base_model.should.equal('BZ2');
     }
   });
 
   // LOGOUT
-  it('logout()', async done => {
-    try {
-      await controller.logout();
-      done();
-    } catch (error) {
-      done(error);
-    }
+  it('logout()', async () => {
+    await controller.logout();
   });
 });
