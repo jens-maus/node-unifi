@@ -145,7 +145,6 @@ describe('Running tests', () => {
     if (typeof (result) === 'undefined' || result.length <= 0) {
       throw new Error('createUserGroup(): ' + JSON.stringify(result));
     } else {
-      console.log(JSON.stringify(result));
       result[0].name.should.equal('Testgroup');
       result[0].qos_rate_max_down.should.equal(-1);
       testGroupID = result[0]._id;
@@ -206,463 +205,286 @@ describe('Running tests', () => {
 
   // Create a new user/client-device
   let createdUserID = null;
-  it('createUser()', async done => {
-    try {
-      const result = await controller.createUser('FF:EE:DD:CC:bb:aa', defaultGroupID, 'createUserTest', 'createUserTest note', true, false);
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('createUser(): ' + JSON.stringify(result)));
-      } else if (typeof (result[0].meta.msg) === 'undefined') {
-        result[0].meta.rc.should.equal('ok');
-        result[0].data[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
-        result[0].data[0].name.should.equal('createUserTest');
-        result[0].data[0].note.should.equal('createUserTest note');
-        result[0].data[0].is_wired.should.equal(true);
-        result[0].data[0].is_guest.should.equal(false);
-        result[0].data[0].usergroup_id.should.equal('');
-        createdUserID = result[0].data[0]._id;
-        // console.log(JSON.stringify(result));
-        done();
-      } else {
-        done(result[0].meta.msg);
-      }
-    } catch (error) {
-      done(error);
+  it('createUser()', async () => {
+    const result = await controller.createUser('FF:EE:DD:CC:bb:aa', defaultGroupID, 'createUserTest', 'createUserTest note', true, false);
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('createUser(): ' + JSON.stringify(result));
+    } else if (typeof (result[0].meta.msg) === 'undefined') {
+      result[0].meta.rc.should.equal('ok');
+      result[0].data[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
+      result[0].data[0].name.should.equal('createUserTest');
+      result[0].data[0].note.should.equal('createUserTest note');
+      result[0].data[0].is_wired.should.equal(true);
+      result[0].data[0].is_guest.should.equal(false);
+      result[0].data[0].usergroup_id.should.equal('');
+      createdUserID = result[0].data[0]._id;
+      // console.log(JSON.stringify(result));
+    } else {
+      throw result[0].meta.msg;
     }
   });
 
   // Assign client device to another group
-  it('setUserGroup()', async done => {
-    try {
-      const result = await controller.setUserGroup(createdUserID, testGroupID);
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('setUserGroup(): ' + JSON.stringify(result)));
-      } else {
-        result[0].note.should.equal('createUserTest note');
-        result[0].name.should.equal('createUserTest');
-        result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
-        result[0].is_wired.should.equal(true);
-        result[0].is_guest.should.equal(false);
-        result[0]._id.should.equal(createdUserID);
-        result[0].usergroup_id.should.equal(testGroupID);
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('setUserGroup()', async () => {
+    const result = await controller.setUserGroup(createdUserID, testGroupID);
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('setUserGroup(): ' + JSON.stringify(result));
+    } else {
+      result[0].note.should.equal('createUserTest note');
+      result[0].name.should.equal('createUserTest');
+      result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
+      result[0].is_wired.should.equal(true);
+      result[0].is_guest.should.equal(false);
+      result[0]._id.should.equal(createdUserID);
+      result[0].usergroup_id.should.equal(testGroupID);
+      // console.log(JSON.stringify(result));
     }
   });
 
   // Fetch AP groups
-  it('getAPGroups()', async done => {
-    try {
-      const result = await controller.getAPGroups();
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('getAPGroups(): ' + JSON.stringify(result)));
-      } else {
-        result[0].name.should.equal('All APs');
-        result[0].attr_no_delete.should.equal(true);
-        result[0].attr_hidden_id.should.equal('default');
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getAPGroups()', async () => {
+    const result = await controller.getAPGroups();
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('getAPGroups(): ' + JSON.stringify(result));
+    } else {
+      result[0].name.should.equal('All APs');
+      result[0].attr_no_delete.should.equal(true);
+      result[0].attr_hidden_id.should.equal('default');
+      // console.log(JSON.stringify(result));
     }
   });
 
   // Update client fixedip
   /* WONTWORK: Needs some active device
-  it('editClientFixedIP()', async done => {
-    try {
-      const result = await controller.editClientFixedIP(createdUserID, true, null, '192.168.1.1');
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('editClientFixedIP(): ' + JSON.stringify(result)));
-      } else {
-        console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('editClientFixedIP()', async () => {
+    const result = await controller.editClientFixedIP(createdUserID, true, null, '192.168.1.1');
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('editClientFixedIP(): ' + JSON.stringify(result));
+    } else {
+      console.log(JSON.stringify(result));
     }
   });
   */
 
   // Add/modify/remove a client device not
-  it('setClientNote()', async done => {
-    try {
-      const result = await controller.setClientNote(createdUserID, 'createUserTest note changed');
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('setClientNote(): ' + JSON.stringify(result)));
-      } else {
-        result[0].note.should.equal('createUserTest note changed');
-        result[0].name.should.equal('createUserTest');
-        result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
-        result[0].is_wired.should.equal(true);
-        result[0].is_guest.should.equal(false);
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('setClientNote()', async () => {
+    const result = await controller.setClientNote(createdUserID, 'createUserTest note changed');
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('setClientNote(): ' + JSON.stringify(result));
+    } else {
+      result[0].note.should.equal('createUserTest note changed');
+      result[0].name.should.equal('createUserTest');
+      result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
+      result[0].is_wired.should.equal(true);
+      result[0].is_guest.should.equal(false);
     }
   });
 
   // Add/modify/remove a client device not
-  it('setClientName()', async done => {
-    try {
-      const result = controller.setClientName(createdUserID, 'createUserTest changed');
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('setClientName(): ' + JSON.stringify(result)));
-      } else {
-        result[0].note.should.equal('createUserTest note changed');
-        result[0].name.should.equal('createUserTest changed');
-        result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
-        result[0].is_wired.should.equal(true);
-        result[0].is_guest.should.equal(false);
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('setClientName()', async () => {
+    const result = controller.setClientName(createdUserID, 'createUserTest changed');
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('setClientName(): ' + JSON.stringify(result));
+    } else {
+      result[0].note.should.equal('createUserTest note changed');
+      result[0].name.should.equal('createUserTest changed');
+      result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
+      result[0].is_wired.should.equal(true);
+      result[0].is_guest.should.equal(false);
     }
   });
 
   // 5 minutes site stats method
-  it('get5minSiteStats()', async done => {
-    try {
-      const result = await controller.get5minSiteStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('get5minSiteStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('get5minSiteStats()', async () => {
+    const result = await controller.get5minSiteStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('get5minSiteStats(): ' + JSON.stringify(result));
     }
   });
 
   // Hourly site stats method
-  it('getHourlySiteStats()', async done => {
-    try {
-      const result = await controller.getHourlySiteStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getHourlySiteStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getHourlySiteStats()', async () => {
+    const result = await controller.getHourlySiteStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getHourlySiteStats(): ' + JSON.stringify(result));
     }
   });
 
   // Daily site stats method
-  it('getDailySiteStats()', async done => {
-    try {
-      const result = await controller.getDailySiteStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getDailySiteStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getDailySiteStats()', async () => {
+    const result = await controller.getDailySiteStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getDailySiteStats(): ' + JSON.stringify(result));
     }
   });
 
   // Monthly site stats method
-  it('getMonthlySiteStats()', async done => {
-    try {
-      const result = await controller.getMonthlySiteStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getMonthlySiteStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getMonthlySiteStats()', async () => {
+    const result = await controller.getMonthlySiteStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getMonthlySiteStats(): ' + JSON.stringify(result));
     }
   });
 
   // 5 minutes stats method for a single access point or all access points
-  it('get5minApStats()', async done => {
-    try {
-      const result = await controller.get5minApStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('get5minApStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('get5minApStats()', async () => {
+    const result = await controller.get5minApStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('get5minApStats(): ' + JSON.stringify(result));
     }
   });
 
   // Hourly stats method for a single access point or all access points
-  it('getHourlyApStats()', async done => {
-    try {
-      const result = await controller.getHourlyApStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getHourlyApStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getHourlyApStats()', async () => {
+    const result = await controller.getHourlyApStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getHourlyApStats(): ' + JSON.stringify(result));
     }
   });
 
   // Daily stats method for a single access point or all access points
-  it('getDailyApStats()', async done => {
-    try {
-      const result = await controller.getDailyApStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getDailyApStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getDailyApStats()', async () => {
+    const result = await controller.getDailyApStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getDailyApStats(): ' + JSON.stringify(result));
     }
   });
 
   // Monthly stats method for a single access point or all access points
-  it('getMonthlyApStats()', async done => {
-    try {
-      const result = await controller.getMonthlyApStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getMonthlyApStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getMonthlyApStats()', async () => {
+    const result = await controller.getMonthlyApStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getMonthlyApStats(): ' + JSON.stringify(result));
     }
   });
 
   // 5 minutes stats method for a single user/client device
-  it('get5minUserStats()', async done => {
-    try {
-      const result = await controller.get5minUserStats('ff:ee:dd:cc:bb:aa');
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('get5minUserStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('get5minUserStats()', async () => {
+    const result = await controller.get5minUserStats('ff:ee:dd:cc:bb:aa');
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('get5minUserStats(): ' + JSON.stringify(result));
     }
   });
 
   // Hourly stats method for a a single user/client device
-  it('getHourlyUserStats()', async done => {
-    try {
-      const result = await controller.getHourlyUserStats('ff:ee:dd:cc:bb:aa');
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getHourlyUserStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getHourlyUserStats()', async () => {
+    const result = await controller.getHourlyUserStats('ff:ee:dd:cc:bb:aa');
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getHourlyUserStats(): ' + JSON.stringify(result));
     }
   });
 
   // Daily stats method for a single user/client device
-  it('getDailyUserStats()', async done => {
-    try {
-      const result = await controller.getDailyUserStats('ff:ee:dd:cc:bb:aa');
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getDailyUserStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getDailyUserStats()', async () => {
+    const result = await controller.getDailyUserStats('ff:ee:dd:cc:bb:aa');
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getDailyUserStats(): ' + JSON.stringify(result));
     }
   });
 
   // Monthly stats method for a single user/client device
-  it('getMonthlyUserStats()', async done => {
-    try {
-      const result = await controller.getMonthlyUserStats('ff:ee:dd:cc:bb:aa');
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getMonthlyUserStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getMonthlyUserStats()', async () => {
+    const result = await controller.getMonthlyUserStats('ff:ee:dd:cc:bb:aa');
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getMonthlyUserStats(): ' + JSON.stringify(result));
     }
   });
 
   // 5 minutes gateway stats method
-  it('get5minGatewayStats()', async done => {
-    try {
-      const result = await controller.get5minGatewayStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('get5minGatewayStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('get5minGatewayStats()', async () => {
+    const result = await controller.get5minGatewayStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('get5minGatewayStats(): ' + JSON.stringify(result));
     }
   });
 
   // Hourly gateway stats method
-  it('getHourlyGatewayStats()', async done => {
-    try {
-      const result = await controller.getHourlyGatewayStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getHourlyGatewayStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getHourlyGatewayStats()', async () => {
+    const result = await controller.getHourlyGatewayStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getHourlyGatewayStats(): ' + JSON.stringify(result));
     }
   });
 
   // Daily gateway stats method
-  it('getDailyGatewayStats()', async done => {
-    try {
-      const result = await controller.getDailyGatewayStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getDailyGatewayStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getDailyGatewayStats()', async () => {
+    const result = await controller.getDailyGatewayStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getDailyGatewayStats(): ' + JSON.stringify(result));
     }
   });
 
   // Monthly gateway stats method
-  it('getMonthlyGatewayStats()', async done => {
-    try {
-      const result = await controller.getMonthlyGatewayStats();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getMonthlyGatewayStats(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getMonthlyGatewayStats()', async () => {
+    const result = await controller.getMonthlyGatewayStats();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getMonthlyGatewayStats(): ' + JSON.stringify(result));
     }
   });
 
   // Method to fetch speed test results
-  it('getSpeedTestResults()', async done => {
-    try {
-      const result = await controller.getSpeedTestResults();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getSpeedTestResults(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getSpeedTestResults()', async () => {
+    const result = await controller.getSpeedTestResults();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getSpeedTestResults(): ' + JSON.stringify(result));
     }
   });
 
   // Method to fetch IPS/IDS event
-  it('getIPSEvents()', async done => {
-    try {
-      const result = await controller.getIPSEvents();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getIPSEvents(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getIPSEvents()', async () => {
+    const result = await controller.getIPSEvents();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getIPSEvents(): ' + JSON.stringify(result));
     }
   });
 
   // Show all login sessions
-  it('getSessions()', async done => {
-    try {
-      const result = await controller.getSessions();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getSessions(): ' + JSON.stringify(result)));
-      } else {
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getSessions()', async () => {
+    const result = await controller.getSessions();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getSessions(): ' + JSON.stringify(result));
     }
   });
 
   // Show latest 'n' login sessions for a single client device
-  it('getLatestSessions()', async done => {
-    try {
-      const result = await controller.getLatestSessions('ff:ee:dd:cc:bb:aa');
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getLatestSessions(): ' + JSON.stringify(result)));
-      } else {
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getLatestSessions()', async () => {
+    const result = await controller.getLatestSessions('ff:ee:dd:cc:bb:aa');
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getLatestSessions(): ' + JSON.stringify(result));
     }
   });
 
   // Show all authorizations
-  it('getAllAuthorizations()', async done => {
-    try {
-      const result = await controller.getAllAuthorizations();
-      if (typeof (result) === 'undefined' || result.length <= 0) {
-        done(new Error('getAllAuthorizations(): ' + JSON.stringify(result)));
-      } else {
-        result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getAllAuthorizations()', async () => {
+    const result = await controller.getAllAuthorizations();
+    if (typeof (result) === 'undefined' || result.length <= 0) {
+      throw new Error('getAllAuthorizations(): ' + JSON.stringify(result));
+    } else {
+      result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
     }
   });
 
   // Forget one or more client devices
-  it('forgetClient()', async done => {
-    try {
-      const result = await controller.forgetClient(['aa:bb:cc:dd:ee:ff', 'FF:EE:DD:CC:bb:aa']);
-      if (typeof (result) === 'undefined') {
-        done(new Error('forgetClient(): ' + JSON.stringify(result)));
-      } else {
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('forgetClient()', async () => {
+    const result = await controller.forgetClient(['aa:bb:cc:dd:ee:ff', 'FF:EE:DD:CC:bb:aa']);
+    if (typeof (result) === 'undefined') {
+      throw new TypeError('forgetClient(): ' + JSON.stringify(result));
     }
   });
 
   // Fetch guest devices
-  it('getGuests()', async done => {
-    try {
-      const result = await controller.getGuests();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getGuests(): ' + JSON.stringify(result)));
-      } else {
-        // console.log(JSON.stringify(result));
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getGuests()', async () => {
+    const result = await controller.getGuests();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getGuests(): ' + JSON.stringify(result));
     }
   });
 
   // GET CLIENT DEVICES
-  it('getClientDevices()', async done => {
-    try {
-      const result = await controller.getClientDevices();
-      if (typeof (result) === 'undefined' || result.length < 0) {
-        done(new Error('getClientDevices(): ' + JSON.stringify(result)));
-      } else {
-        // console.log(JSON.stringify(result);
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getClientDevices()', async () => {
+    const result = await controller.getClientDevices();
+    if (typeof (result) === 'undefined' || result.length < 0) {
+      throw new Error('getClientDevices(): ' + JSON.stringify(result));
     }
   });
 
