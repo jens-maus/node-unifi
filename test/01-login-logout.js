@@ -46,18 +46,13 @@ describe('Running tests', () => {
   });
 
   // GET SITE SYSINFO
-  it('getSiteSysinfo()', async done => {
-    try {
-      const sysinfo = await controller.getSiteSysinfo();
-      if (typeof (sysinfo) === 'undefined' || sysinfo.length <= 0) {
-        done(new Error('getSiteSysinfo(): ' + JSON.stringify(sysinfo)));
-      } else {
-        console.log(`      UniFi-Controller: ${sysinfo[0].version} (${sysinfo[0].build})`);
-        sysinfo[0].timezone.should.equal('Europe/Berlin');
-        done();
-      }
-    } catch (error) {
-      done(error);
+  it('getSiteSysinfo()', async () => {
+    const sysinfo = await controller.getSiteSysinfo();
+    if (typeof (sysinfo) === 'undefined' || sysinfo.length <= 0) {
+      throw new Error('getSiteSysinfo(): ' + JSON.stringify(sysinfo));
+    } else {
+      console.log(`      UniFi-Controller: ${sysinfo[0].version} (${sysinfo[0].build})`);
+      sysinfo[0].timezone.should.equal('Europe/Berlin');
     }
   });
 
