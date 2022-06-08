@@ -51,7 +51,7 @@ describe('Running tests', () => {
     if (typeof (sysinfo) === 'undefined' || sysinfo.length <= 0) {
       throw new Error('getSiteSysinfo(): ' + JSON.stringify(sysinfo));
     } else {
-      console.log(`      UniFi-Controller: ${sysinfo[0].version} (${sysinfo[0].build})`);
+      console.log(`  UniFi-Controller: ${sysinfo[0].version} (${sysinfo[0].build})`);
       sysinfo[0].timezone.should.equal('Europe/Berlin');
     }
   });
@@ -286,6 +286,7 @@ describe('Running tests', () => {
     if (typeof (result) === 'undefined' || result.length <= 0) {
       throw new Error('setClientName(): ' + JSON.stringify(result));
     } else {
+      console.log(JSON.stringify(result));
       result[0].note.should.equal('createUserTest note changed');
       result[0].name.should.equal('createUserTest changed');
       result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
