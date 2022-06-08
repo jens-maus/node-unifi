@@ -266,7 +266,7 @@ describe('Running tests', () => {
   });
   */
 
-  // Add/modify/remove a client device not
+  // Add/modify/remove a client device note
   it('setClientNote()', async () => {
     const result = await controller.setClientNote(createdUserID, 'createUserTest note changed');
     if (typeof (result) === 'undefined' || result.length <= 0) {
@@ -280,13 +280,12 @@ describe('Running tests', () => {
     }
   });
 
-  // Add/modify/remove a client device not
+  // Add/modify/remove a client device name
   it('setClientName()', async () => {
-    const result = controller.setClientName(createdUserID, 'createUserTest changed');
+    const result = await controller.setClientName(createdUserID, 'createUserTest changed');
     if (typeof (result) === 'undefined' || result.length <= 0) {
       throw new Error('setClientName(): ' + JSON.stringify(result));
     } else {
-      console.log(JSON.stringify(result));
       result[0].note.should.equal('createUserTest note changed');
       result[0].name.should.equal('createUserTest changed');
       result[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
