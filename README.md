@@ -77,7 +77,7 @@ const unifi = new Unifi.Controller({'<HOSTNAME>', '<PORT>', sslverify: false});
 })();
 ```
 
-Please note that every `unifi.XXXXX()` function returns a `Promise`, thus `.then()`/`.catch()` as well as `async`/`await` can be used accordingly.
+Please note that every `unifi.XXXXX()` function returns a `Promise`, thus `async`/`await` as well as `.then()`/`.catch()` can be used accordingly.
 
 ### Event-Emitter WebSockets Interface
 
@@ -132,7 +132,7 @@ More examples can be found in the "examples" sub-directory of this GitHub reposi
 If you are having an application still using the obsolete v1 version of node-unifi and you want to port it to using the new/revised
 v2 version, all you have to do is:
 
-* make sure your application can deal with NodeJS [Promises](https://nodejs.dev/learn/understanding-javascript-promises) as all node-unifi API functions return proper Promises allowing to use `.then()`/`.catch()` or `async`/`await` statements for synchronous processing of events (see Examples) rather than expecting callback functions, forcing you to nest them properly.
+* make sure your application can deal with NodeJS [Promises](https://nodejs.dev/learn/understanding-javascript-promises) as all node-unifi API functions return proper Promises allowing to use `async`/`await` or `.then()`/`.catch()` logic for synchronous processing of events (see Examples) rather than expecting callback functions, forcing you to nest them properly.
 * eliminate the previously necessary `site` function argument required when calling a node-unifi function. Now you can either use the `{ site: 'my site' }` argument when passing contructor options to node-unifi or you switch to a different site using `unifi.opts.site='my site'` before calling a node-unifi API function.
 * as the API functions had been changed to work on a single site only, make sure your app is changed so that it expects a single site JSON return dataset only.
 * The new version by default verifies SSL connections and certificates. To restore the behaviour of the old version set `sslverify: false` in the constructor options
