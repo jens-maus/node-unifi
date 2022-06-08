@@ -37,16 +37,11 @@ describe('Running tests', () => {
   const controller = new unifi.Controller({host: CONTROLLER_IP, port: CONTROLLER_PORT, sslverify: false});
 
   // LOGIN
-  it('login()', async done => {
+  it('login()', async () => {
     if (controller === null) {
-      done(new Error('uninitialized controller'));
+      throw new Error('uninitialized controller');
     } else {
-      try {
-        await controller.login(CONTROLLER_USER, CONTROLLER_PASS);
-        done();
-      } catch (error) {
-        done(error);
-      }
+      return controller.login(CONTROLLER_USER, CONTROLLER_PASS);
     }
   });
 
