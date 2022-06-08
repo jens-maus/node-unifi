@@ -29,7 +29,7 @@ const EventEmitter = require('eventemitter2').EventEmitter2;
 const WebSocket = require('ws');
 const axios = require('axios');
 const {CookieJar} = require('tough-cookie');
-const {HttpCookieAgent, HttpsCookieAgent} = require('http-cookie-agent');
+const {HttpCookieAgent, HttpsCookieAgent} = require('http-cookie-agent/http');
 
 /// ///////////////////////////////////////////////////////////
 // PUBLIC CLASS
@@ -2998,9 +2998,10 @@ class Controller extends EventEmitter {
       if (this._isInit === true) {
         resolve(2);
       } else {
+        const jar = this._cookieJar;
         this._instance = axios.create({
-          httpAgent: new HttpCookieAgent({jar: this._cookieJar}),
-          httpsAgent: new HttpsCookieAgent({jar: this._cookieJar, rejectUnauthorized: this.opts.sslverify, requestCert: true})
+          httpAgent: new HttpCookieAgent({cookies: {jar}}),
+          httpsAgent: new HttpsCookieAgent({cookies: {jar}, rejectUnauthorized: this.opts.sslverify, requestCert: true})
         });
         this._instance.get(this._baseurl.toString()).then(response => {
           if (response.headers['x-csrf-token']) {
