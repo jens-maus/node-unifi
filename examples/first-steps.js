@@ -9,40 +9,36 @@ const password = process.argv[5]; // Controller password
 const Unifi = require('../unifi.js');
 const unifi = new Unifi.Controller({host, port, sslverify: false});
 
-// LOGIN
-unifi.login(username, password)
-  .then(result => {
-    console.log('login: ' + result);
-    return unifi.getSitesStats();
-  })
-  // GET SITE STATS
-  .then(sites => {
+(async () => {
+  try {
+    // LOGIN
+    const loginData = await unifi.login(username, password);
+    console.log('login: ' + loginData);
+
+    // GET SITE STATS
+    const sites = await unifi.getSitesStats();
     console.log('getSitesStats: ' + sites[0].name + ':' + sites.length);
     console.log(JSON.stringify(sites));
-    return unifi.getSiteSysinfo();
-  })
-  // GET SITE SYSINFO
-  .then(sysinfo => {
+
+    // GET SITE SYSINFO
+    const sysinfo = await unifi.getSiteSysinfo();
     console.log('getSiteSysinfo: ' + sysinfo.length);
     console.log(JSON.stringify(sysinfo));
-    return unifi.getClientDevices();
-  })
-  // GET CLIENT DEVICES
-  .then(clientData => {
+
+    // GET CLIENT DEVICES
+    const clientData = await unifi.getClientDevices();
     console.log('getClientDevices: ' + clientData.length);
     console.log(JSON.stringify(clientData));
-    return unifi.getAllUsers();
-  })
-  // GET ALL USERS EVER CONNECTED
-  .then(usersData => {
+
+    // GET ALL USERS EVER CONNECTED
+    const usersData = await unifi.getAllUsers();
     console.log('getAllUsers: ' + usersData.length);
     console.log(JSON.stringify(usersData));
-    return unifi.logout();
-  })
-  // LOGOUT
-  .then(result => {
-    console.log('logout: ' + JSON.stringify(result));
-  })
-  .catch(error => {
+
+    // LOGOUT
+    const logoutData = await unifi.logout();
+    console.log('logout: ' + JSON.stringify(logoutData));
+  } catch (error) {
     console.log('ERROR: ' + error);
-  });
+  }
+})();

@@ -66,43 +66,37 @@ class Controller extends EventEmitter {
    *
    * returns true upon success
    */
-  login(username = null, password = null) {
-    return new Promise((resolve, reject) => {
-      // Allows to override username+password
-      if (username !== null) {
-        this.opts.username = username;
-      }
+  async login(username = null, password = null) {
+    // Allows to override username+password
+    if (username !== null) {
+      this.opts.username = username;
+    }
 
-      if (password !== null) {
-        this.opts.password = password;
-      }
+    if (password !== null) {
+      this.opts.password = password;
+    }
 
-      // Make sure init() was called
-      this._init().then(result => {
-        // If init() was already called
-        // resolve immediately
-        if (result === 2) {
-          resolve(true);
-        } else {
-          let endpointUrl = `${this._baseurl.href}api/login`;
-          if (this._unifios) {
-            endpointUrl = `${this._baseurl.href}api/auth/login`;
-          }
+    // Make sure init() was called
+    const result = await this._init();
 
-          // Perform the login to the Unifi controller
-          this._instance.post(endpointUrl, {
-            username: this.opts.username,
-            password: this.opts.password
-          }).then(() => {
-            resolve(true);
-          }).catch(error => {
-            reject(error);
-          });
-        }
-      }).catch(error => {
-        reject(error);
-      });
+    // If init() was already called
+    // resolve immediately
+    if (result === 2) {
+      return true;
+    }
+
+    let endpointUrl = `${this._baseurl.href}api/login`;
+    if (this._unifios) {
+      endpointUrl = `${this._baseurl.href}api/auth/login`;
+    }
+
+    // Perform the login to the Unifi controller
+    await this._instance.post(endpointUrl, {
+      username: this.opts.username,
+      password: this.opts.password
     });
+
+    return true;
   }
 
   /**
@@ -110,7 +104,7 @@ class Controller extends EventEmitter {
    *
    * returns true upon success
    */
-  logout() {
+  async logout() {
     if (this._unifios === true) {
       return this._request('/api/auth/logout', null, 'POST');
     }
@@ -1701,20 +1695,13 @@ class Controller extends EventEmitter {
    *
    * @return bool|array  staus array upon success, false upon failure
    */
-  getFullStatus() {
-    return new Promise((resolve, reject) => {
-      this._request('/status', {}, null, true)
-        .then(result => {
-          if (result === null) {
-            reject(new Error('false'));
-          } else {
-            resolve(result);
-          }
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
+  async getFullStatus() {
+    const result = await this._request('/status', {}, null, true);
+    if (result === null) {
+      throw new Error('false');
+    } else {
+      return result;
+    }
   }
 
   /**
@@ -1725,20 +1712,13 @@ class Controller extends EventEmitter {
    *
    * @return bool|array  mappings array upon success, false upon failure
    */
-  getDeviceNameMappings() {
-    return new Promise((resolve, reject) => {
-      this._request('/dl/firmware/bundles.json', {}, null, true)
-        .then(result => {
-          if (result === null) {
-            reject(new Error('false'));
-          } else {
-            resolve(result);
-          }
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
+  async getDeviceNameMappings() {
+    const result = await this._request('/dl/firmware/bundles.json', {}, null, true);
+    if (result === null) {
+      throw new Error('false');
+    } else {
+      return result;
+    }
   }
 
   /**
@@ -2874,20 +2854,18 @@ class Controller extends EventEmitter {
    *
    * @return array containing translations of UniFi device "state" values to humanized form
    */
-  getDeviceStates() {
-    return new Promise(resolve => {
-      resolve({deviceState: {
-        0: 'offline',
-        1: 'connected',
-        2: 'pending adoption',
-        4: 'updating',
-        5: 'provisioning',
-        6: 'unreachable',
-        7: 'adopting',
-        9: 'adoption error',
-        11: 'isolated'}
-      });
-    });
+  async getDeviceStates() {
+    return {deviceState: {
+      0: 'offline',
+      1: 'connected',
+      2: 'pending adoption',
+      4: 'updating',
+      5: 'provisioning',
+      6: 'unreachable',
+      7: 'adopting',
+      9: 'adoption error',
+      11: 'isolated'}
+    };
   }
 
   /**
@@ -2924,68 +2902,63 @@ class Controller extends EventEmitter {
   /**
    * WebSocket listen function
    */
-  listen() {
-    return new Promise((resolve, reject) => {
-      this._cookieJar.getCookieString(this._baseurl.href).then(cookies => {
-        let eventsUrl = `wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`;
+  async listen() {
+    const cookies = await this._cookieJar.getCookieString(this._baseurl.href);
 
-        if (this._unifios) {
-          eventsUrl = `wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`;
-        }
+    let eventsUrl = `wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`;
+    if (this._unifios) {
+      eventsUrl = `wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`;
+    }
 
-        this._ws = new WebSocket(eventsUrl, {
-          perMessageDeflate: false,
-          rejectUnauthorized: this.opts.sslverify,
-          headers: {
-            Cookie: cookies
-          }
-        });
-
-        const pingpong = setInterval(() => {
-          this._ws.send('ping');
-        }, this._pingPongInterval);
-
-        this._ws.on('open', () => {
-          this._isReconnecting = false;
-          this.emit('ctrl.connect');
-        });
-
-        this._ws.on('message', (data, isBinary) => {
-          const message = isBinary ? data : data.toString();
-          if (message === 'pong') {
-            this.emit('ctrl.pong');
-            return;
-          }
-
-          try {
-            const parsed = JSON.parse(message);
-            if ('meta' in parsed && Array.isArray(parsed.data)) {
-              for (const entry of parsed.data) {
-                this._event(parsed.meta, entry);
-              }
-            }
-          } catch (error) {
-            this.emit('ctrl.error', error);
-          }
-        });
-
-        this._ws.on('close', () => {
-          this.emit('ctrl.close');
-          clearInterval(pingpong);
-          this._reconnect();
-        });
-
-        this._ws.on('error', error => {
-          this.emit('ctrl.error', error);
-          clearInterval(pingpong);
-          this._reconnect();
-        });
-
-        resolve(true);
-      }).catch(error => {
-        reject(error);
-      });
+    this._ws = new WebSocket(eventsUrl, {
+      perMessageDeflate: false,
+      rejectUnauthorized: this.opts.sslverify,
+      headers: {
+        Cookie: cookies
+      }
     });
+
+    const pingpong = setInterval(() => {
+      this._ws.send('ping');
+    }, this._pingPongInterval);
+
+    this._ws.on('open', () => {
+      this._isReconnecting = false;
+      this.emit('ctrl.connect');
+    });
+
+    this._ws.on('message', (data, isBinary) => {
+      const message = isBinary ? data : data.toString();
+      if (message === 'pong') {
+        this.emit('ctrl.pong');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(message);
+        if ('meta' in parsed && Array.isArray(parsed.data)) {
+          for (const entry of parsed.data) {
+            this._event(parsed.meta, entry);
+          }
+        }
+      } catch (error) {
+        this.emit('ctrl.error', error);
+      }
+    });
+
+    this._ws.on('close', () => {
+      this.emit('ctrl.close');
+      clearInterval(pingpong);
+      this._reconnect();
+    });
+
+    this._ws.on('error', error => {
+      this.emit('ctrl.error', error);
+      clearInterval(pingpong);
+      this._reconnect();
+    });
+
+    return (true);
   }
 
   /** PRIVATE METHODS */
@@ -2993,76 +2966,70 @@ class Controller extends EventEmitter {
   /**
    * Init
    */
-  _init() {
-    return new Promise((resolve, reject) => {
-      if (this._isInit === true) {
-        resolve(2);
-      } else {
-        const jar = this._cookieJar;
-        this._instance = axios.create({
-          httpAgent: new HttpCookieAgent({cookies: {jar}}),
-          httpsAgent: new HttpsCookieAgent({cookies: {jar}, rejectUnauthorized: this.opts.sslverify, requestCert: true})
-        });
-        this._instance.get(this._baseurl.toString()).then(response => {
-          if (response.headers['x-csrf-token']) {
-            this._xcsrftoken = response.headers['x-csrf-token'];
-            this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
-            this._unifios = true;
-          } else {
-            this._unifios = false;
-          }
+  async _init() {
+    if (this._isInit === true) {
+      return 2;
+    }
 
-          // DEBUG
-          /*
-          this._instance.interceptors.request.use(request => {
-            console.dir({ 'Starting Request': request }, { depth: null })
-            return request
-          })
-          this._instance.interceptors.response.use(response => {
-            console.dir({ 'Response:': response }, { depth: null })
-            return response
-          })
-          */
-
-          this._isInit = true;
-          this._connect().then(response => {
-            if (response === true) {
-              resolve(1);
-            } else {
-              this._isInit = false;
-              reject(new Error('init failed'));
-            }
-          }).catch(error => {
-            this._isInit = false;
-            reject(error);
-          });
-        }).catch(error => {
-          reject(error);
-        });
-      }
+    const jar = this._cookieJar;
+    this._instance = axios.create({
+      httpAgent: new HttpCookieAgent({cookies: {jar}}),
+      httpsAgent: new HttpsCookieAgent({cookies: {jar}, rejectUnauthorized: this.opts.sslverify, requestCert: true})
     });
+
+    const response = await this._instance.get(this._baseurl.toString());
+    if (response.headers['x-csrf-token']) {
+      this._xcsrftoken = response.headers['x-csrf-token'];
+      this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
+      this._unifios = true;
+    } else {
+      this._unifios = false;
+    }
+
+    // DEBUG
+    /*
+      this._instance.interceptors.request.use(request => {
+        console.dir({ 'Starting Request': request }, { depth: null })
+        return request
+      })
+      this._instance.interceptors.response.use(response => {
+        console.dir({ 'Response:': response }, { depth: null })
+        return response
+      })
+      */
+
+    this._isInit = true;
+    try {
+      const response = await this._connect();
+      if (response === true) {
+        return 1;
+      }
+
+      this._isInit = false;
+      throw new Error('init failed');
+    } catch (error) {
+      this._isInit = false;
+      throw error;
+    }
   }
 
-  _connect() {
-    return new Promise((resolve, reject) => {
-      this._isClosed = false;
-      this.login(null, null).then(() => {
-        resolve(true);
-      }).catch(error => {
-        reject(error);
-      });
-    });
+  async _connect() {
+    this._isClosed = false;
+    await this.login(null, null);
+    return true;
   }
 
   _reconnect() {
     if (this._isReconnecting === false && this._isClosed === false) {
       this._isReconnecting = true;
-      setTimeout(() => {
+      setTimeout(async () => {
         this.emit('ctrl.reconnect');
         this._isReconnecting = false;
-        this.listen().catch(() => {
-          console.dir('_reconnect() encountered an error');
-        });
+        try {
+          await this.listen();
+        } catch (error) {
+          console.dir('_reconnect() encountered an error: ' + error);
+        }
       }, this._autoReconnectInterval);
     }
   }
@@ -3070,56 +3037,51 @@ class Controller extends EventEmitter {
   /**
    * Private function to send out a generic URL request to a UniFi-Controller
    */
-  _request(path, payload = null, method = null, raw = false) {
-    return new Promise((resolve, reject) => {
-      this._ensureLoggedIn().then(() => {
-        // Identify which request method we are using (GET, POST, PUT, DELETE) based
-        // on the json data supplied and the overriding method
-        if (payload !== null) {
-          method = method === 'PUT' ? 'PUT' : 'POST';
-        } else if (method === null) {
-          method = 'GET';
+  async _request(path, payload = null, method = null, raw = false) {
+    // Ensure that login() was used already
+    await this._ensureLoggedIn();
+
+    // Identify which request method we are using (GET, POST, PUT, DELETE) based
+    // on the json data supplied and the overriding method
+    if (payload !== null) {
+      method = method === 'PUT' ? 'PUT' : 'POST';
+    } else if (method === null) {
+      method = 'GET';
+    }
+
+    // Perform HTTP request
+    const response = await this._instance.request({
+      url: this._url(path),
+      method,
+      data: payload
+    });
+
+    const body = response.data;
+    if (response.headers['x-csrf-token']) {
+      this._xcsrftoken = response.headers['x-csrf-token'];
+      this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
+    }
+
+    if (body !== null && typeof (body) !== 'undefined') {
+      if (typeof (body.meta) !== 'undefined') {
+        if (response.status >= 200 && response.status < 400 && body.meta.rc === 'ok') {
+          if (raw === true) {
+            return body;
+          }
+
+          return body.data;
         }
 
-        this._instance.request({
-          url: this._url(path),
-          method,
-          data: payload
-        }).then(response => {
-          const body = response.data;
-          if (response.headers['x-csrf-token']) {
-            this._xcsrftoken = response.headers['x-csrf-token'];
-            this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
-          }
-
-          if (body !== null && typeof (body) !== 'undefined') {
-            if (typeof (body.meta) !== 'undefined') {
-              if (response.status >= 200 && response.status < 400 && body.meta.rc === 'ok') {
-                if (raw === true) {
-                  resolve(body);
-                } else {
-                  resolve(body.data);
-                }
-              } else if (typeof (body.meta.msg) === 'undefined') {
-                reject(new Error('generic error'));
-              } else {
-                reject(new Error(body.meta.msg));
-              }
-            } else if (response.status >= 200 && response.status < 400) {
-              resolve(body);
-            } else {
-              reject(new Error('invalid status return'));
-            }
-          } else {
-            reject(new Error('empty response data'));
-          }
-        }).catch(error => {
-          reject(error);
-        });
-      }).catch(error => {
-        reject(error);
-      });
-    });
+        const error = typeof (body.meta.msg) === 'undefined' ? new Error('generic error') : new Error(body.meta.msg);
+        throw error;
+      } else if (response.status >= 200 && response.status < 400) {
+        return body;
+      } else {
+        throw new Error('invalid status return');
+      }
+    } else {
+      throw new Error('empty response data');
+    }
   }
 
   _close() {
@@ -3142,26 +3104,19 @@ class Controller extends EventEmitter {
     }
   }
 
-  _ensureLoggedIn() {
-    return new Promise((resolve, reject) => {
-      if (typeof (this._instance) === 'undefined') {
-        this._init().then(() => {
-          resolve(true);
-        }).catch(error => {
-          reject(error);
-        });
-      } else {
-        this._instance.get(`${this._baseurl.href}api/${this._unifios ? 'users/' : ''}self`).then(() => {
-          resolve(true);
-        }).catch(() => {
-          this.login().then(() => {
-            resolve(true);
-          }).catch(error => {
-            reject(error);
-          });
-        });
-      }
-    });
+  async _ensureLoggedIn() {
+    if (typeof (this._instance) === 'undefined') {
+      await this._init();
+      return true;
+    }
+
+    try {
+      await this._instance.get(`${this._baseurl.href}api/${this._unifios ? 'users/' : ''}self`);
+      return true;
+    } catch {
+      await this.login();
+      return true;
+    }
   }
 
   _url(path) {
