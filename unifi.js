@@ -887,7 +887,7 @@ class Controller extends EventEmitter {
    * - requires a USG
    * - supported in UniFi controller versions 5.9.X and higher
    */
-  getIPSEvents(start = null, end = null, limit = 10000) {
+  getIPSEvents(start = null, end = null, limit = 10_000) {
     if (end === null) {
       end = Date.now();
     }

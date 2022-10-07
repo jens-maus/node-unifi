@@ -11,6 +11,7 @@ const portIdx = process.argv[7]; // Integer of switch port
 const poeMode = process.argv[8]; // Auto, off
 
 const Unifi = require('../unifi.js');
+
 const unifi = new Unifi.Controller({host, port, sslverify: false});
 
 (async () => {
