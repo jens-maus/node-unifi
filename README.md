@@ -8,8 +8,6 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RAQSDY9YNZVCL)
 [![GitHub stars](https://img.shields.io/github/stars/jens-maus/node-unifi.svg?style=social&label=Star)](https://github.com/jens-maus/node-unifi/stargazers/)
 
-[![NPM](https://nodei.co/npm/node-unifi.png?downloads=true)](https://nodei.co/npm/node-unifi/)
-
 Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the UniFi-Controller API version starting with v4.x.x up to v7.x.x
 
 ## Features
