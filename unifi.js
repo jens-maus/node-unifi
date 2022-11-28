@@ -27,7 +27,7 @@
 
 const EventEmitter = require('eventemitter2').EventEmitter2;
 const WebSocket = require('ws');
-const axios = require('axios');
+const axios = require('axios').default;
 const {CookieJar} = require('tough-cookie');
 const {HttpCookieAgent, HttpsCookieAgent} = require('http-cookie-agent/http');
 
