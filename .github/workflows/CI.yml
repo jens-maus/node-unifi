@@ -43,9 +43,10 @@ jobs:
     - name: install+run docker-unifi-controller
       run: |
         # create docker-unifi-controller
-        docker create --name=unifi-controller -e PUID=1001 -e PGID=116 -e MEM_LIMIT=1024 -e MEM_STARTUP=1024 -p 8443:8443 -p 8080:8080 -v $GITHUB_WORKSPACE/unifi-storage:/config lscr.io/linuxserver/unifi-controller:latest
+        docker create --name=unifi-controller -e PUID=1001 -e PGID=116 -e MEM_LIMIT=1024 -e MEM_STARTUP=1024 -e TZ=Etc/UTC -p 8443:8443 -p 8080:8080 -v $GITHUB_WORKSPACE/unifi-storage:/config lscr.io/linuxserver/unifi-controller:latest
         # do an initial startup to create databse&co
         docker start unifi-controller
+        sleep 10
         # stop the unifi-controller right away and
         # install our own demo database instead
         docker stop unifi-controller
