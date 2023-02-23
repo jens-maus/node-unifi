@@ -21,7 +21,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     # do a matrix test with different node versions
     strategy:
@@ -43,7 +43,7 @@ jobs:
     - name: install+run docker-unifi-controller
       run: |
         # create docker-unifi-controller
-        docker create --name=unifi-controller -e PUID=1001 -e PGID=116 -e MEM_LIMIT=1024M -p 8443:8443 -v $GITHUB_WORKSPACE/unifi-storage:/config linuxserver/unifi-controller
+        docker create --name=unifi-controller -e PUID=1001 -e PGID=116 -e MEM_LIMIT=1024 -e MEM_STARTUP=1024 -p 8443:8443 -p 8080:8080 -v $GITHUB_WORKSPACE/unifi-storage:/config lscr.io/linuxserver/unifi-controller:latest
         # do an initial startup to create databse&co
         docker start unifi-controller
         # stop the unifi-controller right away and
@@ -54,7 +54,7 @@ jobs:
         # final unifi-controller startup
         docker start unifi-controller
         # wait for unifi-controller to be ready
-        while ! curl -ks https://127.0.0.1:8443; do echo waiting for unifi-controller; sleep 2; done
+        while ! curl -ks https://127.0.0.1:8443; do echo waiting for unifi-controller; ((c++)) && ((c==10)) && break; sleep 2; done
 
     # remote debug tmate session
     - name: debug tmate session
