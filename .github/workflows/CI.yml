@@ -55,7 +55,9 @@ jobs:
         # final unifi-controller startup
         docker start unifi-controller
         # wait for unifi-controller to be ready
-        while ! curl -ks https://127.0.0.1:8443; do echo waiting for unifi-controller; ((c++)) && ((c==10)) && break; sleep 2; done
+        while ! curl -ks https://127.0.0.1:8443; do echo waiting for unifi-controller; ((c++)) && ((c==10)) && break; sleep 3; done
+        # wait some more time to let the unifi network app settle
+        sleep 10
 
     # remote debug tmate session
     - name: debug tmate session
