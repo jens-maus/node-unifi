@@ -28,9 +28,7 @@
     "dot-prop": ">=7.2.0",
     "eslint": ">=7.32.0",
     "glob-parent": ">=6.0.2",
-    "mocha": "latest",
-    "mocha-clean": "latest",
-    "mocha-steps": "latest",
+    "mocha": "^10.2.0",
     "pre-commit": "^1.2.2",
     "should": "latest",
     "xo": "~0.39.1"
