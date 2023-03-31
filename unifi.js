@@ -91,7 +91,7 @@ class Controller extends EventEmitter {
     }
 
     // Perform the login to the Unifi controller
-    let response = await this._instance.post(endpointUrl, {
+    const response = await this._instance.post(endpointUrl, {
       username: this.opts.username,
       password: this.opts.password
     });
