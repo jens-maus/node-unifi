@@ -16,9 +16,9 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.79
+ * Based/Compatible to UniFi-API-client class: v1.1.80
  *
- * Copyright (c) 2017-2022 Jens Maus <mail@jens-maus.de>
+ * Copyright (c) 2017-2023 Jens Maus <mail@jens-maus.de>
  *
  * The source code is distributed under the MIT license
  *
@@ -1321,6 +1321,15 @@ class Controller extends EventEmitter {
   }
 
   /**
+   * List of site devices with a basic subset of fields (e.g., mac, state, adopted, disabled, type, model, name) - list_devices_basic()
+   *
+   * returns an array containing known UniFi device objects)
+   */
+  getAccessDevicesBasic() {
+    return this._request('/api/s/<SITE>/stat/device-basic');
+  }
+
+  /**
    * List access points and other devices under management of the controller (USW and/or USG devices) - list_devices()
    *
    * optional paramater <device_mac> = the MAC address of a single device for which the call must be made
@@ -1361,13 +1370,12 @@ class Controller extends EventEmitter {
   }
 
   /**
-   * Generate backup - generate_backup()
+   * Generate a backup - generate_backup()
    *
    * returns a URL from where the backup file can be downloaded once generated
    *
-   * NOTES:
-   * this is an experimental function, please do not use unless you know exactly
-   * what you're doing
+   * NOTES: this is an experimental function, please do not use unless you know
+   * exactly what you're doing
    */
   generateBackup() {
     return this._request('/api/s/<SITE>/cmd/backup', {cmd: 'backup'});
@@ -1380,6 +1388,16 @@ class Controller extends EventEmitter {
    */
   getBackups() {
     return this._request('/api/s/<SITE>/cmd/backup', {cmd: 'list-backups'});
+  }
+
+  /**
+   * Generate a backup/export of the current site - generate_backup_site()
+   *
+   * NOTES: this is an experimental function, please do not use unless you know
+   * exactly what you're doing
+   */
+  generateBackupSite() {
+    return this._request('/api/s/<SITE>/cmd/backup', {cmd: 'export-site'});
   }
 
   /**
