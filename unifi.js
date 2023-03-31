@@ -91,10 +91,15 @@ class Controller extends EventEmitter {
     }
 
     // Perform the login to the Unifi controller
-    await this._instance.post(endpointUrl, {
+    const response = await this._instance.post(endpointUrl, {
       username: this.opts.username,
       password: this.opts.password
     });
+
+    if (response.headers['x-csrf-token']) {
+      this._xcsrftoken = response.headers['x-csrf-token'];
+      this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
+    }
 
     return true;
   }
