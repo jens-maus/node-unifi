@@ -49,6 +49,7 @@ class Controller extends EventEmitter {
     this.opts.password = (typeof (this.opts.password) === 'undefined' ? 'ubnt' : this.opts.password);
     this.opts.site = (typeof (this.opts.site) === 'undefined' ? 'default' : this.opts.site);
     this.opts.sslverify = (typeof (this.opts.sslverify) === 'undefined' ? true : this.opts.sslverify);
+    this.opts.timeout = (typeof (this.opts.timeout) === 'undefined' ? 5000 : this.opts.timeout);
 
     this._baseurl = new URL(`https://${options.host}:${options.port}`);
     this._cookieJar = new CookieJar();
@@ -94,6 +95,8 @@ class Controller extends EventEmitter {
     const response = await this._instance.post(endpointUrl, {
       username: this.opts.username,
       password: this.opts.password
+    }, {
+      timeout: this.opts.timeout
     });
 
     if (response.headers['x-csrf-token']) {
@@ -3000,7 +3003,9 @@ class Controller extends EventEmitter {
       httpsAgent: new HttpsCookieAgent({cookies: {jar}, rejectUnauthorized: this.opts.sslverify, requestCert: true})
     });
 
-    const response = await this._instance.get(this._baseurl.toString());
+    const response = await this._instance.get(this._baseurl.toString(), {
+      timeout: this.opts.timeout
+    });
     if (response.headers['x-csrf-token']) {
       this._xcsrftoken = response.headers['x-csrf-token'];
       this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
@@ -3023,23 +3028,14 @@ class Controller extends EventEmitter {
 
     this._isInit = true;
     try {
-      const response = await this._connect();
-      if (response === true) {
-        return 1;
-      }
+      this._isClosed = false;
+      await this.login(null, null);
 
-      this._isInit = false;
-      throw new Error('init failed');
+      return 1;
     } catch (error) {
       this._isInit = false;
       throw error;
     }
-  }
-
-  async _connect() {
-    this._isClosed = false;
-    await this.login(null, null);
-    return true;
   }
 
   _reconnect() {
@@ -3076,7 +3072,8 @@ class Controller extends EventEmitter {
     const response = await this._instance.request({
       url: this._url(path),
       method,
-      data: payload
+      data: payload,
+      timeout: this.opts.timeout
     });
 
     const body = response.data;
@@ -3134,7 +3131,9 @@ class Controller extends EventEmitter {
     }
 
     try {
-      await this._instance.get(`${this._baseurl.href}api/${this._unifios ? 'users/' : ''}self`);
+      await this._instance.get(`${this._baseurl.href}api/${this._unifios ? 'users/' : ''}self`, {
+        timeout: this.opts.timeout
+      });
       return true;
     } catch {
       await this.login();
