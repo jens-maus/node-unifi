@@ -21,7 +21,7 @@
     "eventemitter2": "^6.4.9",
     "http-cookie-agent": "^5.0.4",
     "tough-cookie": "^4.1.3",
-    "url": "^0.11.1",
+    "url": "^0.11.2",
     "ws": "^8.13.0"
   },
   "devDependencies": {
