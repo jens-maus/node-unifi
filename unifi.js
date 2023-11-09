@@ -3003,15 +3003,23 @@ class Controller extends EventEmitter {
       httpsAgent: new HttpsCookieAgent({cookies: {jar}, rejectUnauthorized: this.opts.sslverify, requestCert: true})
     });
 
+    // identify if this is UniFiOS or not by calling the baseURL without
+    // any path and then check for the return code, etc.
     const response = await this._instance.get(this._baseurl.toString(), {
       timeout: this.opts.timeout
     });
-    if (response.headers['x-csrf-token']) {
-      this._xcsrftoken = response.headers['x-csrf-token'];
-      this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
-      this._unifios = true;
-    } else {
+
+    // check for UniFiOS
+    if (response.status === 302 && response.headers['location'] === '/manage') {
       this._unifios = false;
+    } else if (response.status === 200) {
+      this._unifios = true;
+      if (response.headers['x-csrf-token']) {
+        this._xcsrftoken = response.headers['x-csrf-token'];
+        this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
+      }
+    } else {
+      throw new Error('failed to detect UniFiOS status');
     }
 
     // DEBUG
