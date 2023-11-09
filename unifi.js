@@ -3006,7 +3006,9 @@ class Controller extends EventEmitter {
     // Identify if this is UniFiOS or not by calling the baseURL without
     // any path and then check for the return code, etc.
     const response = await this._instance.get(this._baseurl.toString(), {
-      timeout: this.opts.timeout
+      timeout: this.opts.timeout,
+      maxRedirects: 0,
+      validateStatus: () => true,
     });
 
     // Check for UniFiOS
