@@ -3008,7 +3008,7 @@ class Controller extends EventEmitter {
     const response = await this._instance.get(this._baseurl.toString(), {
       timeout: this.opts.timeout,
       maxRedirects: 0,
-      validateStatus: () => true,
+      validateStatus: () => true
     });
 
     // Check for UniFiOS
