@@ -2931,12 +2931,17 @@ class Controller extends EventEmitter {
   async listen() {
     const cookies = await this._cookieJar.getCookieString(this._baseurl.href);
 
-    let eventsUrl = `wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`;
+    let eventsUrl = new URL(`wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`);
     if (this._unifios) {
-      eventsUrl = `wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`;
+      eventsUrl = new URL(`wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`);
     }
 
-    this._ws = new WebSocket(eventsUrl, {
+    // Make sure we use clients=v2 URL parameter for the
+    // more advanced version of the UniFi Websocket support
+    eventsUrl.searchParams.set('clients', 'v2');
+
+    // Create WebSocket
+    this._ws = new WebSocket(eventsUrl.href, {
       perMessageDeflate: false,
       rejectUnauthorized: this.opts.sslverify,
       headers: {
