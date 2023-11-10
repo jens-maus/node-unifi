@@ -1932,14 +1932,15 @@ class Controller extends EventEmitter {
   /**
    * Set port forwarding rule - set_port_forwarding()
    *
-   * required parameter <payload> = stdClass object or associative array containing the configuration to create/update the forwarding
-   *                                rule. Must be a (partial) object structured in the same manner as is returned by getPortForwarding().
-   * return true on success
+   * required parameter <rule_id> = id of port forwarding rule retrieved by getPortForwarding
+   * required parameter <enable>  = enable (true) or disable (false) rule
+   *
+   * @return true on success
    */
-  setPortForwarding(rule_id, payload) {
-    return this._request('/api/s/<SITE>/rest/portforward/' + rule_id.trim(), payload, 'PUT');
+  setPortForwarding(rule_id, enable) {
+    return this._request('/api/s/<SITE>/rest/portforward/' + rule_id.trim(), {enabled: enable}, 'PUT');
   }
-	
+
   /**
    * Fetch dynamic DNS settings - list_dynamicdns()
    *
