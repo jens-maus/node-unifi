@@ -2927,10 +2927,8 @@ class Controller extends EventEmitter {
 
   /**
    * WebSocket listen function
-   * 
-   * @param  object       $options        Supply additional options for WebSocket. Currently one implemented option is to add urlParams to the WebSocket URL, e.g.: `{urlParams: {clients: 'v2'}}`.
    */
-  async listen(options) {
+  async listen() {
     const cookies = await this._cookieJar.getCookieString(this._baseurl.href);
 
     let eventsUrl = new URL(`wss://${this._baseurl.host}/wss/s/${this.opts.site}/events`);
@@ -2938,10 +2936,11 @@ class Controller extends EventEmitter {
       eventsUrl = new URL(`wss://${this._baseurl.host}/proxy/network/wss/s/${this.opts.site}/events`);
     }
 
-    for (const [key, value] of Object.entries(options?.urlParams ?? {})) {
-      eventsUrl.searchParams.set(key, value);
-    }
+    // Make sure we use clients=v2 URL parameter for the
+    // more advanced version of the UniFi Websocket support
+    eventsUrl.searchParams.set('clients', 'v2');
 
+    // Create WebSocket
     this._ws = new WebSocket(eventsUrl.href, {
       perMessageDeflate: false,
       rejectUnauthorized: this.opts.sslverify,
