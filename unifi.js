@@ -47,9 +47,11 @@ class Controller extends EventEmitter {
     this.opts.port = (typeof (this.opts.port) === 'undefined' ? 8443 : this.opts.port);
     this.opts.username = (typeof (this.opts.username) === 'undefined' ? 'admin' : this.opts.username);
     this.opts.password = (typeof (this.opts.password) === 'undefined' ? 'ubnt' : this.opts.password);
+    this.opts.token2FA = (typeof (this.opts.token2FA) === 'undefined' ? null : this.opts.token2FA);
     this.opts.site = (typeof (this.opts.site) === 'undefined' ? 'default' : this.opts.site);
     this.opts.sslverify = (typeof (this.opts.sslverify) === 'undefined' ? true : this.opts.sslverify);
     this.opts.timeout = (typeof (this.opts.timeout) === 'undefined' ? 5000 : this.opts.timeout);
+    this.opts.rememberMe = (typeof (this.opts.rememberMe) === 'undefined' ? true : this.opts.rememberMe);
 
     this._baseurl = new URL(`https://${options.host}:${options.port}`);
     this._cookieJar = new CookieJar();
@@ -67,7 +69,7 @@ class Controller extends EventEmitter {
    *
    * returns true upon success
    */
-  async login(username = null, password = null) {
+  async login(username = null, password = null, token2FA = null) {
     // Allows to override username+password
     if (username !== null) {
       this.opts.username = username;
@@ -75,6 +77,10 @@ class Controller extends EventEmitter {
 
     if (password !== null) {
       this.opts.password = password;
+    }
+
+    if (token2FA !== null) {
+      this.opts.token2FA = token2FA;
     }
 
     // Make sure init() was called
@@ -91,14 +97,25 @@ class Controller extends EventEmitter {
       endpointUrl = `${this._baseurl.href}api/auth/login`;
     }
 
-    // Perform the login to the Unifi controller
-    const response = await this._instance.post(endpointUrl, {
+    // Prepare payload data
+    const data = {
       username: this.opts.username,
-      password: this.opts.password
-    }, {
+      password: this.opts.password,
+      rememberMe: this.opts.rememberMe
+    };
+
+    // Add 2FA token to payload
+    if (this.opts.token2FA) {
+      // On UniFiOS 2FA is in 'token' field, else in 'ubic_2fa_token'
+      data[this._unifios ? 'token' : 'ubic_2fa_token'] = this.opts.token2FA;
+    }
+
+    // Perform the login to the Unifi controller
+    const response = await this._instance.post(endpointUrl, data, {
       timeout: this.opts.timeout
     });
 
+    // Catch x-csrf-token if supplied in response
     if (response.headers['x-csrf-token']) {
       this._xcsrftoken = response.headers['x-csrf-token'];
       this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
@@ -3056,7 +3073,7 @@ class Controller extends EventEmitter {
     this._isInit = true;
     try {
       this._isClosed = false;
-      await this.login(null, null);
+      await this.login(null, null, null);
 
       return 1;
     } catch (error) {

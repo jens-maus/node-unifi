@@ -17,11 +17,11 @@ Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http:
 * Use of modern [axios](https://github.com/axios/axios)-based nodejs http library.
 * API functions returning NodeJS [Promises](https://nodejs.dev/learn/understanding-javascript-promises) for modern nodejs uses via `async`/`await` or `then()`/`catch()`.
 * Support for WebSocket-based push notifications of UniFi controllers for listening for state/object changes using [EventEmitter](https://github.com/EventEmitter2/EventEmitter2)-based nodejs functionality.
+* Usable with local and UniFI cloud accounts and with 2FA authentication.
 
 ## Requirements
-* Installed [UniFi-Controller/Network](https://www.ubnt.com/download/unifi) version v4 up to v8 (CloudKey Gen1, Gen2 or UDM-Pro).
+* Installed [UniFi-Controller/Network](https://www.ubnt.com/download/unifi) version v4 up to v8 (UDM-Pro, UDM-SE, UDM, UDR, UDW, CloudKey Gen1/Gen2).
 * Direct network connectivity between the application using node-unifi and the host:port (normally TCP port 443 or 8443) where the UniFi controller is running on.
-* Use of **local accounts** for authentication; not UniFi Cloud accounts nor 2FA.
 * Node.js version >= 14.x
 
 ## Installation
