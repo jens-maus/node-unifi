@@ -22,7 +22,7 @@
     "http-cookie-agent": "^5.0.4",
     "tough-cookie": "^4.1.3",
     "url": "^0.11.3",
-    "ws": "^8.14.2"
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "dot-prop": ">=8.0.2",
