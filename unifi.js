@@ -2140,6 +2140,48 @@ class Controller extends EventEmitter {
   }
 
   /**
+   * Override LED settings for a device (using REST)
+   *
+   * required parameter <device_id>                 = 24 char string; value of _id for the device which can be obtained from the device list
+   * required parameter <override_color>            = string, hexCode; "#ff0000" sets LED to full red.
+   * required parameter <override_color_brightness> = string, 0-100; "100" sets LED to full brightness.
+   * required parameter <override_mode>             = string, off/on/default; "off" disables the LED of the device,
+   *                                                  "on" enables the LED of the device,
+   *                                                  "default" applies the site-wide setting for device LEDs
+   */
+  setLED(device_id, override_color, override_color_brightness, override_mode) {
+    return this._request(
+        '/api/s/<SITE>/rest/device/' + device_id.trim(),
+        {
+          led_override: override_mode,
+          led_override_color: override_color,
+          led_override_color_brightness: override_color_brightness
+        },
+        'PUT'
+    );
+  }
+
+  /**
+   * Override LED Brightness for a device (using REST) - led_override_color_brightness()
+   *
+   * required parameter <device_id>                 = 24 char string; value of _id for the device which can be obtained from the device list
+   * required parameter <override_color_brightness> = string, 0-100; "100" sets LED to full brightness.
+   */
+  setLEDBrightness(device_id, override_color_brightness) {
+    return this._request('/api/s/<SITE>/rest/device/' + device_id.trim(), {led_override_color_brightness: override_color_brightness}, 'PUT');
+  }
+
+  /**
+   * Override LED Color for a device (using REST) - led_override_color()
+   *
+   * required parameter <device_id>      = 24 char string; value of _id for the device which can be obtained from the device list
+   * required parameter <override_color> = string, hexCode; "#ff0000" sets LED to full red.
+   */
+  setLEDColor(device_id, override_color) {
+    return this._request('/api/s/<SITE>/rest/device/' + device_id.trim(), {led_override_color: override_color}, 'PUT');
+  }
+
+  /**
    * Override LED mode for a device (using REST) - led_override()
    *
    * required parameter <device_id>     = 24 char string; value of _id for the device which can be obtained from the device list
