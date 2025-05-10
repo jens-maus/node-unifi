@@ -37,7 +37,7 @@ ackward language constructs. The following example should give a brief introduct
 how to use node-unifi in your own applications using its Promises-based API interface:
 
 ```js
-const Unifi = require('node-unifi');
+import Unifi from 'node-unifi';
 const unifi = new Unifi.Controller({'<HOSTNAME>', '<PORT>', sslverify: false});
 
 (async () => {
@@ -89,7 +89,7 @@ An example on how to use this EventEmitter-based functionality of node-unifi to 
 regularly having to poll a unifi controller for changes can be seen here:
 
 ```js
-const Unifi = require('node-unifi');
+import Unifi from 'node-unifi';
 const unifi = new Unifi.Controller({'<HOSTNAME>', '<PORT>', sslverify: false});
 
 (async () => {
