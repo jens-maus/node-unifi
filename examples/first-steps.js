@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import process from 'node:process';
 import Unifi from '../unifi.js';
 
 // Get necessary data from cmd-line
@@ -10,36 +11,34 @@ const password = process.argv[5]; // Controller password
 
 const unifi = new Unifi.Controller({host, port, sslverify: false});
 
-(async () => {
-  try {
-    // LOGIN
-    const loginData = await unifi.login(username, password);
-    console.log('login: ' + loginData);
+try {
+  // LOGIN
+  const loginData = await unifi.login(username, password);
+  console.log('login: ' + loginData);
 
-    // GET SITE STATS
-    const sites = await unifi.getSitesStats();
-    console.log('getSitesStats: ' + sites[0].name + ':' + sites.length);
-    console.log(JSON.stringify(sites));
+  // GET SITE STATS
+  const sites = await unifi.getSitesStats();
+  console.log('getSitesStats: ' + sites[0].name + ':' + sites.length);
+  console.log(JSON.stringify(sites));
 
-    // GET SITE SYSINFO
-    const sysinfo = await unifi.getSiteSysinfo();
-    console.log('getSiteSysinfo: ' + sysinfo.length);
-    console.log(JSON.stringify(sysinfo));
+  // GET SITE SYSINFO
+  const sysinfo = await unifi.getSiteSysinfo();
+  console.log('getSiteSysinfo: ' + sysinfo.length);
+  console.log(JSON.stringify(sysinfo));
 
-    // GET CLIENT DEVICES
-    const clientData = await unifi.getClientDevices();
-    console.log('getClientDevices: ' + clientData.length);
-    console.log(JSON.stringify(clientData));
+  // GET CLIENT DEVICES
+  const clientData = await unifi.getClientDevices();
+  console.log('getClientDevices: ' + clientData.length);
+  console.log(JSON.stringify(clientData));
 
-    // GET ALL USERS EVER CONNECTED
-    const usersData = await unifi.getAllUsers();
-    console.log('getAllUsers: ' + usersData.length);
-    console.log(JSON.stringify(usersData));
+  // GET ALL USERS EVER CONNECTED
+  const usersData = await unifi.getAllUsers();
+  console.log('getAllUsers: ' + usersData.length);
+  console.log(JSON.stringify(usersData));
 
-    // LOGOUT
-    const logoutData = await unifi.logout();
-    console.log('logout: ' + JSON.stringify(logoutData));
-  } catch (error) {
-    console.log('ERROR: ' + error);
-  }
-})();
+  // LOGOUT
+  const logoutData = await unifi.logout();
+  console.log('logout: ' + JSON.stringify(logoutData));
+} catch (error) {
+  console.log('ERROR: ' + error);
+}

@@ -1,6 +1,7 @@
 /* global describe, it, beforeEach */
 /* eslint-disable import/no-unassigned-import, capitalized-comments */
 
+import process from 'node:process';
 import 'should';
 import unifi from '../unifi.js';
 
@@ -48,7 +49,7 @@ describe('Running tests', () => {
   // GET SITE SYSINFO
   it('getSiteSysinfo()', async () => {
     const sysinfo = await controller.getSiteSysinfo();
-    if (typeof (sysinfo) === 'undefined' || sysinfo.length <= 0) {
+    if ((sysinfo) === undefined || sysinfo.length <= 0) {
       throw new Error('getSiteSysinfo(): ' + JSON.stringify(sysinfo));
     } else {
       console.log(`  UniFi-Controller: ${sysinfo[0].version} (${sysinfo[0].build})`);
@@ -60,7 +61,7 @@ describe('Running tests', () => {
   let defaultSiteID = null;
   it('getSitesStats()', async () => {
     const sites = await controller.getSitesStats();
-    if (typeof (sites) === 'undefined' || sites.length <= 0) {
+    if ((sites) === undefined || sites.length <= 0) {
       throw new Error('getSitesStats(): ' + JSON.stringify(sites));
     } else {
       sites[0].name.should.equal('default');
@@ -72,7 +73,7 @@ describe('Running tests', () => {
   // AUTHORIZE GUEST
   it('authorizeGuest()', async () => {
     const result = await controller.authorizeGuest('aa:bb:CC:DD:EE:FF', 100, 20, 30, 40, 'aa:bb:cc:dd:ee:fa');
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('authorizeGuest(): ' + JSON.stringify(result));
     } else {
       result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -87,7 +88,7 @@ describe('Running tests', () => {
   // UN-AUTHORIZE GUEST
   it('unauthorizeGuest()', async () => {
     const result = await controller.unauthorizeGuest('aa:bb:CC:DD:EE:FF');
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('unauthorizeGuest(): ' + JSON.stringify(result));
     }
   });
@@ -105,7 +106,7 @@ describe('Running tests', () => {
   // Block a client device
   it('blockClient()', async () => {
     const result = await controller.blockClient('aa:bb:CC:DD:EE:FF');
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('blockClient(): ' + JSON.stringify(result));
     } else {
       result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -116,7 +117,7 @@ describe('Running tests', () => {
   // List blocked client devices
   it('getBlockedUsers()', async () => {
     const result = await controller.getBlockedUsers();
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('getBlockedUsers(): ' + JSON.stringify(result));
     } else {
       result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -129,7 +130,7 @@ describe('Running tests', () => {
   // Unblock a client device
   it('unblockClient()', async () => {
     const result = await controller.unblockClient('aa:bb:CC:DD:EE:FF');
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('unblockClient(): ' + JSON.stringify(result));
     } else {
       result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -142,7 +143,7 @@ describe('Running tests', () => {
   let dummyGroupID = null;
   it('createUserGroup()', async () => {
     const result = await controller.createUserGroup('Testgroup');
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('createUserGroup(): ' + JSON.stringify(result));
     } else {
       result[0].name.should.equal('Testgroup');
@@ -151,7 +152,7 @@ describe('Running tests', () => {
       // console.log(JSON.stringify(result));
 
       const result2 = await controller.createUserGroup('DUMMYgroup');
-      if (typeof (result2) === 'undefined' || result2.length <= 0) {
+      if ((result2) === undefined || result2.length <= 0) {
         throw new Error('createUserGroup(DUMMYgroup): ' + JSON.stringify(result2));
       } else {
         result2[0].name.should.equal('DUMMYgroup');
@@ -165,7 +166,7 @@ describe('Running tests', () => {
   // Delete user group
   it('deleteUserGroup()', async () => {
     const result = await controller.deleteUserGroup(dummyGroupID);
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('deleteUserGroup(): ' + JSON.stringify(result));
     } else {
       dummyGroupID = null;
@@ -176,7 +177,7 @@ describe('Running tests', () => {
   // Edit user group
   it('editUserGroup()', async () => {
     const result = await controller.editUserGroup(testGroupID, defaultSiteID, 'Testgroup', 100, 200);
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('editUserGroup(): ' + JSON.stringify(result));
     } else {
       result[0].name.should.equal('Testgroup');
@@ -190,7 +191,7 @@ describe('Running tests', () => {
   let defaultGroupID = null;
   it('getUserGroups()', async () => {
     const result = await controller.getUserGroups();
-    if (typeof (result) === 'undefined' || result.length < 2) {
+    if ((result) === undefined || result.length < 2) {
       throw new Error('getUserGroups(): ' + JSON.stringify(result));
     } else {
       result[0].name.should.equal('Default');
@@ -207,9 +208,9 @@ describe('Running tests', () => {
   let createdUserID = null;
   it('createUser()', async () => {
     const result = await controller.createUser('FF:EE:DD:CC:bb:aa', defaultGroupID, 'createUserTest', 'createUserTest note', true, false);
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('createUser(): ' + JSON.stringify(result));
-    } else if (typeof (result[0].meta.msg) === 'undefined') {
+    } else if ((result[0].meta.msg) === undefined) {
       result[0].meta.rc.should.equal('ok');
       result[0].data[0].mac.should.equal('ff:ee:dd:cc:bb:aa');
       result[0].data[0].name.should.equal('createUserTest');
@@ -227,7 +228,7 @@ describe('Running tests', () => {
   // Assign client device to another group
   it('setUserGroup()', async () => {
     const result = await controller.setUserGroup(createdUserID, testGroupID);
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('setUserGroup(): ' + JSON.stringify(result));
     } else {
       result[0].note.should.equal('createUserTest note');
@@ -244,7 +245,7 @@ describe('Running tests', () => {
   // Fetch AP groups
   it('getAPGroups()', async () => {
     const result = await controller.getAPGroups();
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('getAPGroups(): ' + JSON.stringify(result));
     } else {
       result[0].name.should.equal('All APs');
@@ -269,7 +270,7 @@ describe('Running tests', () => {
   // Add/modify/remove a client device note
   it('setClientNote()', async () => {
     const result = await controller.setClientNote(createdUserID, 'createUserTest note changed');
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('setClientNote(): ' + JSON.stringify(result));
     } else {
       result[0].note.should.equal('createUserTest note changed');
@@ -283,7 +284,7 @@ describe('Running tests', () => {
   // Add/modify/remove a client device name
   it('setClientName()', async () => {
     const result = await controller.setClientName(createdUserID, 'createUserTest changed');
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('setClientName(): ' + JSON.stringify(result));
     } else {
       result[0].note.should.equal('createUserTest note changed');
@@ -297,7 +298,7 @@ describe('Running tests', () => {
   // 5 minutes site stats method
   it('get5minSiteStats()', async () => {
     const result = await controller.get5minSiteStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('get5minSiteStats(): ' + JSON.stringify(result));
     }
   });
@@ -305,7 +306,7 @@ describe('Running tests', () => {
   // Hourly site stats method
   it('getHourlySiteStats()', async () => {
     const result = await controller.getHourlySiteStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getHourlySiteStats(): ' + JSON.stringify(result));
     }
   });
@@ -313,7 +314,7 @@ describe('Running tests', () => {
   // Daily site stats method
   it('getDailySiteStats()', async () => {
     const result = await controller.getDailySiteStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getDailySiteStats(): ' + JSON.stringify(result));
     }
   });
@@ -321,7 +322,7 @@ describe('Running tests', () => {
   // Monthly site stats method
   it('getMonthlySiteStats()', async () => {
     const result = await controller.getMonthlySiteStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getMonthlySiteStats(): ' + JSON.stringify(result));
     }
   });
@@ -329,7 +330,7 @@ describe('Running tests', () => {
   // 5 minutes stats method for a single access point or all access points
   it('get5minApStats()', async () => {
     const result = await controller.get5minApStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('get5minApStats(): ' + JSON.stringify(result));
     }
   });
@@ -337,7 +338,7 @@ describe('Running tests', () => {
   // Hourly stats method for a single access point or all access points
   it('getHourlyApStats()', async () => {
     const result = await controller.getHourlyApStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getHourlyApStats(): ' + JSON.stringify(result));
     }
   });
@@ -345,7 +346,7 @@ describe('Running tests', () => {
   // Daily stats method for a single access point or all access points
   it('getDailyApStats()', async () => {
     const result = await controller.getDailyApStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getDailyApStats(): ' + JSON.stringify(result));
     }
   });
@@ -353,7 +354,7 @@ describe('Running tests', () => {
   // Monthly stats method for a single access point or all access points
   it('getMonthlyApStats()', async () => {
     const result = await controller.getMonthlyApStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getMonthlyApStats(): ' + JSON.stringify(result));
     }
   });
@@ -361,7 +362,7 @@ describe('Running tests', () => {
   // 5 minutes stats method for a single user/client device
   it('get5minUserStats()', async () => {
     const result = await controller.get5minUserStats('ff:ee:dd:cc:bb:aa');
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('get5minUserStats(): ' + JSON.stringify(result));
     }
   });
@@ -369,7 +370,7 @@ describe('Running tests', () => {
   // Hourly stats method for a a single user/client device
   it('getHourlyUserStats()', async () => {
     const result = await controller.getHourlyUserStats('ff:ee:dd:cc:bb:aa');
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getHourlyUserStats(): ' + JSON.stringify(result));
     }
   });
@@ -377,7 +378,7 @@ describe('Running tests', () => {
   // Daily stats method for a single user/client device
   it('getDailyUserStats()', async () => {
     const result = await controller.getDailyUserStats('ff:ee:dd:cc:bb:aa');
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getDailyUserStats(): ' + JSON.stringify(result));
     }
   });
@@ -385,7 +386,7 @@ describe('Running tests', () => {
   // Monthly stats method for a single user/client device
   it('getMonthlyUserStats()', async () => {
     const result = await controller.getMonthlyUserStats('ff:ee:dd:cc:bb:aa');
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getMonthlyUserStats(): ' + JSON.stringify(result));
     }
   });
@@ -393,7 +394,7 @@ describe('Running tests', () => {
   // 5 minutes gateway stats method
   it('get5minGatewayStats()', async () => {
     const result = await controller.get5minGatewayStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('get5minGatewayStats(): ' + JSON.stringify(result));
     }
   });
@@ -401,7 +402,7 @@ describe('Running tests', () => {
   // Hourly gateway stats method
   it('getHourlyGatewayStats()', async () => {
     const result = await controller.getHourlyGatewayStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getHourlyGatewayStats(): ' + JSON.stringify(result));
     }
   });
@@ -409,7 +410,7 @@ describe('Running tests', () => {
   // Daily gateway stats method
   it('getDailyGatewayStats()', async () => {
     const result = await controller.getDailyGatewayStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getDailyGatewayStats(): ' + JSON.stringify(result));
     }
   });
@@ -417,7 +418,7 @@ describe('Running tests', () => {
   // Monthly gateway stats method
   it('getMonthlyGatewayStats()', async () => {
     const result = await controller.getMonthlyGatewayStats();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getMonthlyGatewayStats(): ' + JSON.stringify(result));
     }
   });
@@ -425,7 +426,7 @@ describe('Running tests', () => {
   // Method to fetch speed test results
   it('getSpeedTestResults()', async () => {
     const result = await controller.getSpeedTestResults();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getSpeedTestResults(): ' + JSON.stringify(result));
     }
   });
@@ -433,7 +434,7 @@ describe('Running tests', () => {
   // Method to fetch IPS/IDS event
   it('getIPSEvents()', async () => {
     const result = await controller.getIPSEvents();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getIPSEvents(): ' + JSON.stringify(result));
     }
   });
@@ -441,7 +442,7 @@ describe('Running tests', () => {
   // Show all login sessions
   it('getSessions()', async () => {
     const result = await controller.getSessions();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getSessions(): ' + JSON.stringify(result));
     }
   });
@@ -449,7 +450,7 @@ describe('Running tests', () => {
   // Show latest 'n' login sessions for a single client device
   it('getLatestSessions()', async () => {
     const result = await controller.getLatestSessions('ff:ee:dd:cc:bb:aa');
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getLatestSessions(): ' + JSON.stringify(result));
     }
   });
@@ -457,7 +458,7 @@ describe('Running tests', () => {
   // Show all authorizations
   it('getAllAuthorizations()', async () => {
     const result = await controller.getAllAuthorizations();
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('getAllAuthorizations(): ' + JSON.stringify(result));
     } else {
       result[0].mac.should.equal('aa:bb:cc:dd:ee:ff');
@@ -467,7 +468,7 @@ describe('Running tests', () => {
   // Forget one or more client devices
   it('forgetClient()', async () => {
     const result = await controller.forgetClient(['aa:bb:cc:dd:ee:ff', 'FF:EE:DD:CC:bb:aa']);
-    if (typeof (result) === 'undefined') {
+    if ((result) === undefined) {
       throw new TypeError('forgetClient(): ' + JSON.stringify(result));
     }
   });
@@ -475,7 +476,7 @@ describe('Running tests', () => {
   // Fetch guest devices
   it('getGuests()', async () => {
     const result = await controller.getGuests();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getGuests(): ' + JSON.stringify(result));
     }
   });
@@ -483,7 +484,7 @@ describe('Running tests', () => {
   // GET CLIENT DEVICES
   it('getClientDevices()', async () => {
     const result = await controller.getClientDevices();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getClientDevices(): ' + JSON.stringify(result));
     }
   });
@@ -503,7 +504,7 @@ describe('Running tests', () => {
   // GET ALL USERS EVER CONNECTED
   it('getAllUsers()', async () => {
     const result = await controller.getAllUsers();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getAllUsers(): ' + JSON.stringify(result));
     }
   });
@@ -511,7 +512,7 @@ describe('Running tests', () => {
   // GET ALL ACCESS DEVICES
   it('getAccessDevices()', async () => {
     const result = await controller.getAccessDevices();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getAccessDevices(): ' + JSON.stringify(result));
     }
   });
@@ -519,7 +520,7 @@ describe('Running tests', () => {
   // GET ALL SESSIONS
   it('getSessions()', async () => {
     const result = await controller.getSessions();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getSessions(): ' + JSON.stringify(result));
     }
   });
@@ -527,7 +528,7 @@ describe('Running tests', () => {
   // GET USERS
   it('getUsers()', async () => {
     const result = await controller.getUsers();
-    if (typeof (result) === 'undefined' || result.length < 0) {
+    if ((result) === undefined || result.length < 0) {
       throw new Error('getUsers(): ' + JSON.stringify(result));
     }
   });
@@ -535,7 +536,7 @@ describe('Running tests', () => {
   // GET SELF
   it('getSelf()', async () => {
     const result = await controller.getSelf();
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('getSelf(): ' + JSON.stringify(result));
     } else {
       result[0].email.should.equal('demo@ubnt.com');
@@ -546,7 +547,7 @@ describe('Running tests', () => {
   // GET STATUS
   it('getStatus()', async () => {
     const result = await controller.getStatus();
-    if (typeof (result) === 'undefined') {
+    if ((result) === undefined) {
       throw new TypeError('getStatus(): ' + JSON.stringify(result));
     }
   });
@@ -554,7 +555,7 @@ describe('Running tests', () => {
   // GET FULL STATUS
   it('getFullStatus()', async () => {
     const result = await controller.getFullStatus();
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('getFullStatus(): ' + JSON.stringify(result));
     } else {
       result.meta.rc.should.equal('ok');
@@ -565,7 +566,7 @@ describe('Running tests', () => {
   // GET DEVICE NAME MAPPINGS
   it('getDeviceNameMappings()', async () => {
     const result = await controller.getDeviceNameMappings();
-    if (typeof (result) === 'undefined' || result.length <= 0) {
+    if ((result) === undefined || result.length <= 0) {
       throw new Error('getDeviceNameMappings(): ' + JSON.stringify(result));
     } else {
       result.BZ2.base_model.should.equal('BZ2');
