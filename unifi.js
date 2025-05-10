@@ -3151,7 +3151,7 @@ class Controller extends EventEmitter2 {
     }
 
     const jar = this._cookieJar;
-    this._instance = axios.create({
+    this._instance = this.opts.createAxiosInstance?.({cookies: {jar}}) ?? axios.create({
       httpAgent: new HttpCookieAgent({cookies: {jar}}),
       httpsAgent: new HttpsCookieAgent({cookies: {jar}, rejectUnauthorized: this.opts.sslverify, requestCert: true}),
     });
