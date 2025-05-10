@@ -25,11 +25,11 @@
  */
 'use strict';
 
-const EventEmitter = require('eventemitter2').EventEmitter2;
-const WebSocket = require('ws');
-const axios = require('axios');
-const {CookieJar} = require('tough-cookie');
-const {HttpCookieAgent, HttpsCookieAgent} = require('http-cookie-agent/http');
+import {EventEmitter2 as EventEmitter} from 'eventemitter2/.js';
+import WebSocket from 'ws';
+import axios from 'axios';
+import {CookieJar} from 'tough-cookie';
+import {HttpCookieAgent, HttpsCookieAgent} from 'http-cookie-agent/http.js';
 
 /// ///////////////////////////////////////////////////////////
 // PUBLIC CLASS

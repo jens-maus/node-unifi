@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /* eslint-disable camelcase */
 
-// get necessary data from cmd-line
+import Unifi from '../unifi.js';
+
+// Get necessary data from cmd-line
 const host = process.argv[2]; // Controller host/ip
 const port = process.argv[3]; // Controller port
 const username = process.argv[4]; // Controller username
@@ -9,8 +11,6 @@ const password = process.argv[5]; // Controller password
 const switchmac = process.argv[6]; // MAC of switch
 const portIdx = process.argv[7]; // Integer of switch port
 const poeMode = process.argv[8]; // Auto, off
-
-const Unifi = require('../unifi.js');
 
 const unifi = new Unifi.Controller({host, port, sslverify: false});
 

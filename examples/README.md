@@ -4,7 +4,7 @@ This directory contains some javascript code examples which demonstrate usage of
 
 ### Usage
 
-You can either copy the examples files here to your own working directory, edit and run them. All you have to modify is the `require('../unifi.js')` statement, which should be changed to `require('node-unifi')` once node-unifi has been globally installed. Or you run these examples directly in here.
+You can either copy the examples files here to your own working directory, edit and run them. All you have to modify is the `import Unifi from '../unifi.js'` statement, which should be changed to `import Unifi from 'node-unifi'` once node-unifi has been globally installed. Or you run these examples directly in here.
 
 #### Executing scripts from the command-line
 

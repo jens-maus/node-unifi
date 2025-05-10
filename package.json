@@ -5,6 +5,7 @@
   "author": "Jens Maus <mail@jens-maus.de>",
   "homepage": "https://github.com/jens-maus/node-unifi",
   "license": "MIT",
+  "type": "module",
   "keywords": [
     "network",
     "wifi",

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
+import util from 'node:util';
+import Unifi from '../unifi.js';
+
 // Get necessary data from cmd-line
 const host = process.argv[2]; // Controller host/ip
 const port = process.argv[3]; // Controller port
 const username = process.argv[4]; // Controller username
 const password = process.argv[5]; // Controller password
-
-const util = require('node:util');
-const Unifi = require('../unifi.js');
 
 const unifi = new Unifi.Controller({host, port, sslverify: false});
 

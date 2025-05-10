@@ -1,8 +1,8 @@
 /* global describe, it, beforeEach */
 /* eslint-disable import/no-unassigned-import, capitalized-comments */
 
-require('should');
-const unifi = require('../unifi.js');
+import 'should';
+import unifi from '../unifi.js';
 
 let CONTROLLER_IP = '127.0.0.1';
 if (process.env.CONTROLLER_IP) {
