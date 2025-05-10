@@ -24,11 +24,11 @@
  *
  */
 
-import {EventEmitter2} from 'eventemitter2/.js';
+import EventEmitter2 from 'eventemitter2';
 import WebSocket from 'ws';
 import axios from 'axios';
 import {CookieJar} from 'tough-cookie';
-import {HttpCookieAgent, HttpsCookieAgent} from 'http-cookie-agent/http.js';
+import {HttpCookieAgent, HttpsCookieAgent} from 'http-cookie-agent/http';
 
 /// ///////////////////////////////////////////////////////////
 // PUBLIC CLASS
