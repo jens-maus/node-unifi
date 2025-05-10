@@ -5,6 +5,7 @@
   "author": "Jens Maus <mail@jens-maus.de>",
   "homepage": "https://github.com/jens-maus/node-unifi",
   "license": "MIT",
+  "type": "module",
   "keywords": [
     "network",
     "wifi",
@@ -17,22 +18,21 @@
     "url": "git+https://github.com/jens-maus/node-unifi.git"
   },
   "dependencies": {
-    "axios": "1.7.9",
+    "axios": "1.9.0",
     "eventemitter2": "^6.4.9",
     "http-cookie-agent": "^6.0.8",
-    "tough-cookie": "^4.1.4",
-    "url": "^0.11.4",
-    "ws": "^8.18.1"
+    "tough-cookie": "^5.1.2",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "dot-prop": ">=9.0.0",
-    "eslint": ">=7.32.0",
+    "eslint": "^9.23.0",
     "glob-parent": ">=6.0.2",
-    "mocha": "^10.8.2",
+    "mocha": "^11.2.2",
     "pre-commit": "^1.2.2",
     "should": "latest",
     "braces": "^3.0.3",
-    "xo": "~0.39.1"
+    "xo": "~0.61.0-2"
   },
   "xo": {
     "space": 2
@@ -50,7 +50,7 @@
     "url": "https://github.com/jens-maus/node-unifi/issues"
   },
   "engines": {
-    "node": ">=14.18.0 <15.0.0 || >=16.0.0"
+    "node": ">=22.0.0"
   },
   "readmeFilename": "README.md"
 }

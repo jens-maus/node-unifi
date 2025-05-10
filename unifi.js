@@ -1,4 +1,4 @@
-/* eslint-disable max-params, camelcase */
+/* eslint-disable max-params, max-lines, camelcase */
 
 /**
  *
@@ -23,35 +23,34 @@
  * The source code is distributed under the MIT license
  *
  */
-'use strict';
 
-const EventEmitter = require('eventemitter2').EventEmitter2;
-const WebSocket = require('ws');
-const axios = require('axios');
-const {CookieJar} = require('tough-cookie');
-const {HttpCookieAgent, HttpsCookieAgent} = require('http-cookie-agent/http');
+import EventEmitter2 from 'eventemitter2';
+import WebSocket from 'ws';
+import axios from 'axios';
+import {CookieJar} from 'tough-cookie';
+import {HttpCookieAgent, HttpsCookieAgent} from 'http-cookie-agent/http';
 
 /// ///////////////////////////////////////////////////////////
 // PUBLIC CLASS
 
-class Controller extends EventEmitter {
+class Controller extends EventEmitter2 {
   /** CONSTRUCTOR */
   constructor(options) {
     super({
-      wildcard: true
+      wildcard: true,
     });
 
     // Parse opts
     this.opts = options || {};
-    this.opts.host = (typeof (this.opts.host) === 'undefined' ? 'unifi' : this.opts.host);
-    this.opts.port = (typeof (this.opts.port) === 'undefined' ? 8443 : this.opts.port);
-    this.opts.username = (typeof (this.opts.username) === 'undefined' ? 'admin' : this.opts.username);
-    this.opts.password = (typeof (this.opts.password) === 'undefined' ? 'ubnt' : this.opts.password);
-    this.opts.token2FA = (typeof (this.opts.token2FA) === 'undefined' ? null : this.opts.token2FA);
-    this.opts.site = (typeof (this.opts.site) === 'undefined' ? 'default' : this.opts.site);
-    this.opts.sslverify = (typeof (this.opts.sslverify) === 'undefined' ? true : this.opts.sslverify);
-    this.opts.timeout = (typeof (this.opts.timeout) === 'undefined' ? 5000 : this.opts.timeout);
-    this.opts.rememberMe = (typeof (this.opts.rememberMe) === 'undefined' ? true : this.opts.rememberMe);
+    this.opts.host = ((this.opts.host) === undefined ? 'unifi' : this.opts.host);
+    this.opts.port = ((this.opts.port) === undefined ? 8443 : this.opts.port);
+    this.opts.username = ((this.opts.username) === undefined ? 'admin' : this.opts.username);
+    this.opts.password = ((this.opts.password) === undefined ? 'ubnt' : this.opts.password);
+    this.opts.token2FA = ((this.opts.token2FA) === undefined ? null : this.opts.token2FA);
+    this.opts.site = ((this.opts.site) === undefined ? 'default' : this.opts.site);
+    this.opts.sslverify = ((this.opts.sslverify) === undefined ? true : this.opts.sslverify);
+    this.opts.timeout = ((this.opts.timeout) === undefined ? 5000 : this.opts.timeout);
+    this.opts.rememberMe = ((this.opts.rememberMe) === undefined ? true : this.opts.rememberMe);
 
     this._baseurl = new URL(`https://${options.host}:${options.port}`);
     this._cookieJar = new CookieJar();
@@ -101,7 +100,7 @@ class Controller extends EventEmitter {
     const data = {
       username: this.opts.username,
       password: this.opts.password,
-      rememberMe: this.opts.rememberMe
+      rememberMe: this.opts.rememberMe,
     };
 
     // Add 2FA token to payload
@@ -112,7 +111,7 @@ class Controller extends EventEmitter {
 
     // Perform the login to the Unifi controller
     const response = await this._instance.post(endpointUrl, data, {
-      timeout: this.opts.timeout
+      timeout: this.opts.timeout,
     });
 
     // Catch x-csrf-token if supplied in response
@@ -236,8 +235,9 @@ class Controller extends EventEmitter {
    * optional parameter <is_wired>      = boolean; defines whether the new user/client-device is wi  red or not
    */
   createUser(mac, user_group_id, name = null, note = null, is_guest = null, is_wired = null) {
-    const new_user = {mac: mac.toLowerCase(),
-      user_group_id
+    const new_user = {
+      mac: mac.toLowerCase(),
+      user_group_id,
     };
 
     if (name !== null) {
@@ -307,18 +307,20 @@ class Controller extends EventEmitter {
       start = end - (12 * 3600 * 1000);
     }
 
-    const payload = {attrs: ['bytes',
-      'wan-tx_bytes',
-      'wan-rx_bytes',
-      'wan2-tx_bytes',
-      'wan2-rx_bytes',
-      'wlan_bytes',
-      'num_sta',
-      'lan-num_sta',
-      'wlan-num_sta',
-      'time'],
-    start,
-    end};
+    const payload = {
+      attrs: ['bytes',
+        'wan-tx_bytes',
+        'wan-rx_bytes',
+        'wan2-tx_bytes',
+        'wan2-rx_bytes',
+        'wlan_bytes',
+        'num_sta',
+        'lan-num_sta',
+        'wlan-num_sta',
+        'time'],
+      start,
+      end,
+    };
 
     return this._request('/api/s/<SITE>/stat/report/5minutes.site', payload);
   }
@@ -342,18 +344,20 @@ class Controller extends EventEmitter {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    const payload = {attrs: ['bytes',
-      'wan-tx_bytes',
-      'wan-rx_bytes',
-      'wan2-tx_bytes',
-      'wan2-rx_bytes',
-      'wlan_bytes',
-      'num_sta',
-      'lan-num_sta',
-      'wlan-num_sta',
-      'time'],
-    start,
-    end};
+    const payload = {
+      attrs: ['bytes',
+        'wan-tx_bytes',
+        'wan-rx_bytes',
+        'wan2-tx_bytes',
+        'wan2-rx_bytes',
+        'wlan_bytes',
+        'num_sta',
+        'lan-num_sta',
+        'wlan-num_sta',
+        'time'],
+      start,
+      end,
+    };
 
     return this._request('/api/s/<SITE>/stat/report/hourly.site', payload);
   }
@@ -377,18 +381,20 @@ class Controller extends EventEmitter {
       start = end - (52 * 7 * 24 * 3600 * 1000);
     }
 
-    const payload = {attrs: ['bytes',
-      'wan-tx_bytes',
-      'wan-rx_bytes',
-      'wan2-tx_bytes',
-      'wan2-rx_bytes',
-      'wlan_bytes',
-      'num_sta',
-      'lan-num_sta',
-      'wlan-num_sta',
-      'time'],
-    start,
-    end};
+    const payload = {
+      attrs: ['bytes',
+        'wan-tx_bytes',
+        'wan-rx_bytes',
+        'wan2-tx_bytes',
+        'wan2-rx_bytes',
+        'wlan_bytes',
+        'num_sta',
+        'lan-num_sta',
+        'wlan-num_sta',
+        'time'],
+      start,
+      end,
+    };
 
     return this._request('/api/s/<SITE>/stat/report/daily.site', payload);
   }
@@ -413,18 +419,20 @@ class Controller extends EventEmitter {
       start = end - (52 * 7 * 24 * 3600 * 1000);
     }
 
-    const payload = {attrs: ['bytes',
-      'wan-tx_bytes',
-      'wan-rx_bytes',
-      'wan2-tx_bytes',
-      'wan2-rx_bytes',
-      'wlan_bytes',
-      'num_sta',
-      'lan-num_sta',
-      'wlan-num_sta',
-      'time'],
-    start,
-    end};
+    const payload = {
+      attrs: ['bytes',
+        'wan-tx_bytes',
+        'wan-rx_bytes',
+        'wan2-tx_bytes',
+        'wan2-rx_bytes',
+        'wlan_bytes',
+        'num_sta',
+        'lan-num_sta',
+        'wlan-num_sta',
+        'time'],
+      start,
+      end,
+    };
 
     return this._request('/api/s/<SITE>/stat/report/monthly.site', payload);
   }
@@ -452,11 +460,13 @@ class Controller extends EventEmitter {
       start = end - (12 * 3600 * 1000);
     }
 
-    const payload = {attrs: ['bytes',
-      'num_sta',
-      'time'],
-    start,
-    end};
+    const payload = {
+      attrs: ['bytes',
+        'num_sta',
+        'time'],
+      start,
+      end,
+    };
 
     if (mac !== null) {
       payload.mac = mac.toLowerCase();
@@ -485,11 +495,13 @@ class Controller extends EventEmitter {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    const payload = {attrs: ['bytes',
-      'num_sta',
-      'time'],
-    start,
-    end};
+    const payload = {
+      attrs: ['bytes',
+        'num_sta',
+        'time'],
+      start,
+      end,
+    };
 
     if (mac !== null) {
       payload.mac = mac.toLowerCase();
@@ -518,11 +530,13 @@ class Controller extends EventEmitter {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    const payload = {attrs: ['bytes',
-      'num_sta',
-      'time'],
-    start,
-    end};
+    const payload = {
+      attrs: ['bytes',
+        'num_sta',
+        'time'],
+      start,
+      end,
+    };
 
     if (mac !== null) {
       payload.mac = mac.toLowerCase();
@@ -554,11 +568,13 @@ class Controller extends EventEmitter {
       start = end - (52 * 7 * 24 * 3600 * 1000);
     }
 
-    const payload = {attrs: ['bytes',
-      'num_sta',
-      'time'],
-    start,
-    end};
+    const payload = {
+      attrs: ['bytes',
+        'num_sta',
+        'time'],
+      start,
+      end,
+    };
 
     if (mac !== null) {
       payload.mac = mac.toLowerCase();
@@ -594,14 +610,18 @@ class Controller extends EventEmitter {
       start = end - (12 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'rx_bytes',
-      'tx_bytes'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'rx_bytes',
+        'tx_bytes']
+      : ['time', ...attribs];
 
-    const payload = {attrs: attribs,
+    const payload = {
+      attrs: attribs,
       start,
       end,
-      mac: mac.toLowerCase()};
+      mac: mac.toLowerCase(),
+    };
 
     return this._request('/api/s/<SITE>/stat/report/5minutes.user', payload);
   }
@@ -631,14 +651,18 @@ class Controller extends EventEmitter {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'rx_bytes',
-      'tx_bytes'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'rx_bytes',
+        'tx_bytes']
+      : ['time', ...attribs];
 
-    const payload = {attrs: attribs,
+    const payload = {
+      attrs: attribs,
       start,
       end,
-      mac: mac.toLowerCase()};
+      mac: mac.toLowerCase(),
+    };
 
     return this._request('/api/s/<SITE>/stat/report/hourly.user', payload);
   }
@@ -670,14 +694,18 @@ class Controller extends EventEmitter {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'rx_bytes',
-      'tx_bytes'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'rx_bytes',
+        'tx_bytes']
+      : ['time', ...attribs];
 
-    const payload = {attrs: attribs,
+    const payload = {
+      attrs: attribs,
       start,
       end,
-      mac: mac.toLowerCase()};
+      mac: mac.toLowerCase(),
+    };
 
     return this._request('/api/s/<SITE>/stat/report/daily.user', payload);
   }
@@ -709,14 +737,18 @@ class Controller extends EventEmitter {
       start = end - (13 * 7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'rx_bytes',
-      'tx_bytes'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'rx_bytes',
+        'tx_bytes']
+      : ['time', ...attribs];
 
-    const payload = {attrs: attribs,
+    const payload = {
+      attrs: attribs,
       start,
       end,
-      mac: mac.toLowerCase()};
+      mac: mac.toLowerCase(),
+    };
 
     return this._request('/api/s/<SITE>/stat/report/monthly.user', payload);
   }
@@ -748,14 +780,18 @@ class Controller extends EventEmitter {
       start = end - (12 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'mem',
-      'cpu',
-      'loadavg_5'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'mem',
+        'cpu',
+        'loadavg_5']
+      : ['time', ...attribs];
 
-    const payload = {attrs: attribs,
+    const payload = {
+      attrs: attribs,
       start,
-      end};
+      end,
+    };
 
     return this._request('/api/s/<SITE>/stat/report/5minutes.gw', payload);
   }
@@ -784,14 +820,18 @@ class Controller extends EventEmitter {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'mem',
-      'cpu',
-      'loadavg_5'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'mem',
+        'cpu',
+        'loadavg_5']
+      : ['time', ...attribs];
 
-    const payload = {attrs: attribs,
+    const payload = {
+      attrs: attribs,
       start,
-      end};
+      end,
+    };
 
     return this._request('/api/s/<SITE>/stat/report/hourly.gw', payload);
   }
@@ -820,14 +860,18 @@ class Controller extends EventEmitter {
       start = end - (52 * 7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'mem',
-      'cpu',
-      'loadavg_5'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'mem',
+        'cpu',
+        'loadavg_5']
+      : ['time', ...attribs];
 
-    const payload = {attrs: attribs,
+    const payload = {
+      attrs: attribs,
       start,
-      end};
+      end,
+    };
 
     return this._request('/api/s/<SITE>/stat/report/daily.gw', payload);
   }
@@ -856,14 +900,18 @@ class Controller extends EventEmitter {
       start = end - (52 * 7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'mem',
-      'cpu',
-      'loadavg_5'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'mem',
+        'cpu',
+        'loadavg_5']
+      : ['time', ...attribs];
 
-    const payload = {attrs: attribs,
+    const payload = {
+      attrs: attribs,
       start,
-      end};
+      end,
+    };
 
     return this._request('/api/s/<SITE>/stat/report/monthly.gw', payload);
   }
@@ -894,7 +942,8 @@ class Controller extends EventEmitter {
         'latency',
         'time'],
       start,
-      end};
+      end,
+    };
 
     return this._request('/api/s/<SITE>/stat/report/archive.speedtest', payload);
   }
@@ -921,9 +970,11 @@ class Controller extends EventEmitter {
       start = end - (24 * 3600 * 1000);
     }
 
-    const payload = {start,
+    const payload = {
+      start,
       end,
-      _limit: limit};
+      _limit: limit,
+    };
 
     return this._request('/api/s/<SITE>/stat/ips/event', payload);
   }
@@ -949,9 +1000,11 @@ class Controller extends EventEmitter {
       start = end - (7 * 24 * 3600);
     }
 
-    const payload = {type,
+    const payload = {
+      type,
       start,
-      end};
+      end,
+    };
 
     if (mac !== null) {
       payload.mac = mac.toLowerCase();
@@ -968,9 +1021,11 @@ class Controller extends EventEmitter {
    *
    */
   getLatestSessions(mac, limit = 5) {
-    const payload = {mac: mac.toLowerCase(),
+    const payload = {
+      mac: mac.toLowerCase(),
       _limit: limit,
-      _sort: '-assoc_time'};
+      _sort: '-assoc_time',
+    };
 
     return this._request('/api/s/<SITE>/stat/session', payload);
   }
@@ -1006,9 +1061,11 @@ class Controller extends EventEmitter {
    *    the returned stats per client are all-time totals, irrespective of the value of <historyhours>
    */
   getAllUsers(within = 8760) {
-    const payload = {type: 'all',
+    const payload = {
+      type: 'all',
       conn: 'all',
-      within};
+      within,
+    };
 
     return this._request('/api/s/<SITE>/stat/alluser', payload);
   }
@@ -1023,9 +1080,11 @@ class Controller extends EventEmitter {
    *    the returned stats per client are all-time totals, irrespective of the value of <historyhours>
    */
   getBlockedUsers(within = 8760) {
-    const payload = {type: 'blocked',
+    const payload = {
+      type: 'blocked',
       conn: 'all',
-      within};
+      within,
+    };
 
     return this._request('/api/s/<SITE>/stat/alluser', payload);
   }
@@ -1085,8 +1144,10 @@ class Controller extends EventEmitter {
    *
    */
   editClientFixedIP(client_id, use_fixedip, network_id = null, fixed_ip = null) {
-    const payload = {_id: client_id,
-      use_fixedip};
+    const payload = {
+      _id: client_id,
+      use_fixedip,
+    };
 
     if (use_fixedip === true) {
       if (network_id !== null) {
@@ -1109,8 +1170,10 @@ class Controller extends EventEmitter {
    * @return array|false returns an array containing a single object with attributes of the updated client on success
    */
   editClientName(client_id, name) {
-    const payload = {_id: client_id,
-      name};
+    const payload = {
+      _id: client_id,
+      name,
+    };
 
     return this._request('/api/s/<SITE>/rest/user/' + client_id.trim(), payload, 'PUT');
   }
@@ -1134,9 +1197,11 @@ class Controller extends EventEmitter {
    *
    */
   createUserGroup(group_name, group_dn = -1, group_up = -1) {
-    const payload = {name: group_name,
+    const payload = {
+      name: group_name,
       qos_rate_max_down: group_dn,
-      qos_rate_max_up: group_up};
+      qos_rate_max_up: group_up,
+    };
 
     return this._request('/api/s/<SITE>/rest/usergroup', payload);
   }
@@ -1154,11 +1219,13 @@ class Controller extends EventEmitter {
    *
    */
   editUserGroup(group_id, site_id, group_name, group_dn = -1, group_up = -1) {
-    const payload = {_id: group_id,
+    const payload = {
+      _id: group_id,
       site_id,
       name: group_name,
       qos_rate_max_down: group_dn,
-      qos_rate_max_up: group_up};
+      qos_rate_max_up: group_up,
+    };
 
     return this._request('/api/s/<SITE>/rest/usergroup/' + group_id.trim(), payload, 'PUT');
   }
@@ -1193,8 +1260,9 @@ class Controller extends EventEmitter {
    *
    */
   createAPGroup(group_name, device_macs = []) {
-    const payload = {device_macs,
-      name: group_name
+    const payload = {
+      device_macs,
+      name: group_name,
     };
 
     return this._request('/v2/api/site/<SITE>/apgroups', payload);
@@ -1211,10 +1279,12 @@ class Controller extends EventEmitter {
    *
    */
   editAPGroup(group_id, group_name, device_macs) {
-    const payload = {_id: group_id,
+    const payload = {
+      _id: group_id,
       attr_no_delete: false,
       name: group_name,
-      device_macs};
+      device_macs,
+    };
 
     return this._request('/v2/api/site/<SITE>/apgroups/' + group_id.trim(), payload, 'PUT');
   }
@@ -1250,9 +1320,11 @@ class Controller extends EventEmitter {
    *                                      (default is an empty array)
    */
   createFirewallGroup(group_name, group_type, group_members = []) {
-    const payload = {name: group_name,
+    const payload = {
+      name: group_name,
       group_type,
-      group_members};
+      group_members,
+    };
 
     return this._request('/api/s/<SITE>/rest/firewallgroup', payload);
   }
@@ -1272,11 +1344,13 @@ class Controller extends EventEmitter {
    *
    */
   editFirewallGroup(group_id, site_id, group_name, group_type, group_members = []) {
-    const payload = {_id: group_id,
+    const payload = {
+      _id: group_id,
       name: group_name,
       group_type,
       group_members,
-      site_id};
+      site_id,
+    };
 
     return this._request('/api/s/<SITE>/rest/firewallgroup/' + group_id.trim(), payload, 'PUT');
   }
@@ -1460,8 +1534,10 @@ class Controller extends EventEmitter {
    * NOTES: immediately after being added, the new site is available in the output of the "list_sites" function
    */
   createSite(description) {
-    const payload = {desc: description,
-      cmd: 'add-site'};
+    const payload = {
+      desc: description,
+      cmd: 'add-site',
+    };
 
     return this._request('/api/s/<SITE>/cmd/sitemgr', payload);
   }
@@ -1474,8 +1550,10 @@ class Controller extends EventEmitter {
    *
    */
   deleteSite(site_id) {
-    const payload = {site: site_id,
-      cmd: 'delete-site'};
+    const payload = {
+      site: site_id,
+      cmd: 'delete-site',
+    };
 
     return this._request('/api/s/<SITE>/cmd/sitemgr', payload);
   }
@@ -1489,8 +1567,10 @@ class Controller extends EventEmitter {
    * NOTES: immediately after being changed, the site is available in the output of the list_sites() function
    */
   setSiteName(site_name) {
-    const payload = {desc: site_name,
-      cmd: 'update-site'};
+    const payload = {
+      desc: site_name,
+      cmd: 'update-site',
+    };
 
     return this._request('/api/s/<SITE>/cmd/sitemgr', payload);
   }
@@ -1621,11 +1701,12 @@ class Controller extends EventEmitter {
    * - issuing this command against an existing admin triggers a "re-invite"
    */
   inviteAdmin(name, email, enable_sso = true, readonly = false, device_adopt = false, device_restart = false) {
-    const payload = {name: name.trim(),
+    const payload = {
+      name: name.trim(),
       email: email.trim(),
       for_sso: enable_sso,
       cmd: 'invite-admin',
-      role: 'admin'
+      role: 'admin',
     };
 
     if (readonly === true) {
@@ -1663,9 +1744,10 @@ class Controller extends EventEmitter {
    *                                       when readonly is true.
    */
   assignExistingAdmin(admin_id, readonly = false, device_adopt = false, device_restart = false) {
-    const payload = {cmd: 'grant-admin',
+    const payload = {
+      cmd: 'grant-admin',
       admin: admin_id.trim(),
-      role: 'admin'
+      role: 'admin',
     };
 
     if (readonly === true) {
@@ -1807,8 +1889,10 @@ class Controller extends EventEmitter {
    * optional parameter <note>       = note to attach to the hotspot operator
    */
   createHotspotOperator(name, x_password, note = null) {
-    const payload = {name,
-      x_password};
+    const payload = {
+      name,
+      x_password,
+    };
 
     if (note !== null) {
       payload.note = note.trim();
@@ -1843,10 +1927,12 @@ class Controller extends EventEmitter {
    * NOTES: please use the stat_voucher() method/function to retrieve the newly created voucher(s) by create_time
    */
   createVouchers(minutes, count = 1, quota = 0, note = null, up = null, down = null, megabytes = null) {
-    const payload = {cmd: 'create-voucher',
+    const payload = {
+      cmd: 'create-voucher',
       expire: minutes,
       n: count,
-      quota};
+      quota,
+    };
 
     if (note !== null) {
       payload.note = note.trim();
@@ -1875,8 +1961,10 @@ class Controller extends EventEmitter {
    * required parameter <voucher_id> = 24 char string; _id value of the voucher to revoke
    */
   revokeVoucher(voucher_id) {
-    const payload = {cmd: 'delete-voucher',
-      _id: voucher_id};
+    const payload = {
+      cmd: 'delete-voucher',
+      _id: voucher_id,
+    };
 
     return this._request('/api/s/<SITE>/cmd/hotspot', payload);
   }
@@ -1889,8 +1977,10 @@ class Controller extends EventEmitter {
    * required parameter <guest_id> = 24 char string; _id value of the guest to extend validity
    */
   extendGuestValidity(guest_id) {
-    const payload = {cmd: 'extend',
-      _id: guest_id};
+    const payload = {
+      cmd: 'extend',
+      _id: guest_id,
+    };
 
     return this._request('/api/s/<SITE>/cmd/hotspot', payload);
   }
@@ -2049,8 +2139,10 @@ class Controller extends EventEmitter {
    * required parameter <mac> = device MAC address
    */
   adoptDevice(mac) {
-    const payload = {cmd: 'adopt',
-      mac: mac.toLowerCase()};
+    const payload = {
+      cmd: 'adopt',
+      mac: mac.toLowerCase(),
+    };
 
     return this._request('/api/s/<SITE>/cmd/devmgr', payload);
   }
@@ -2068,14 +2160,16 @@ class Controller extends EventEmitter {
    * @return bool true on success
    */
   advancedAdoptDevice(mac, ip, username, password, url, port = 22, ssh_key_verify = true) {
-    const payload = {cmd: 'adv-adopt',
+    const payload = {
+      cmd: 'adv-adopt',
       mac: mac.toLowerCase(),
       ip,
       username,
       password,
       url,
       port,
-      sshKeyVerify: ssh_key_verify};
+      sshKeyVerify: ssh_key_verify,
+    };
 
     return this._request('/api/s/<SITE>/cmd/devmgr', payload);
   }
@@ -2092,9 +2186,10 @@ class Controller extends EventEmitter {
    * @return bool true on success
    */
   restartDevice(mac, reboot_type = 'soft') {
-    const payload = {cmd: 'restart',
+    const payload = {
+      cmd: 'restart',
       mac: mac.toLowerCase(),
-      reboot_type: reboot_type.toLowerCase()
+      reboot_type: reboot_type.toLowerCase(),
     };
 
     return this._request('/api/s/<SITE>/cmd/devmgr', payload);
@@ -2107,8 +2202,10 @@ class Controller extends EventEmitter {
    * required parameter <mac> = device MAC address
    */
   forceProvision(mac) {
-    const payload = {cmd: 'force-provision',
-      mac: mac.toLowerCase()};
+    const payload = {
+      cmd: 'force-provision',
+      mac: mac.toLowerCase(),
+    };
 
     return this._request('/api/s/<SITE>/cmd/devmgr', payload);
   }
@@ -2158,8 +2255,10 @@ class Controller extends EventEmitter {
    * required parameter <enable> = boolean; true enables flashing LED, false disables
    */
   setLocateAccessPoint(mac, enable) {
-    const payload = {cmd: enable === true ? 'set-locate' : 'unset-locate',
-      mac: mac.toLowerCase()};
+    const payload = {
+      cmd: enable === true ? 'set-locate' : 'unset-locate',
+      mac: mac.toLowerCase(),
+    };
 
     return this._request('/api/s/<SITE>/cmd/devmgr', payload);
   }
@@ -2187,11 +2286,15 @@ class Controller extends EventEmitter {
    * - only supported on pre-5.X.X controller versions
    */
   setAccessPointRadioSettings(ap_id, radio, channel, ht, tx_power_mode, tx_power) {
-    const payload = {radio_table: [{radio,
-      channel,
-      ht,
-      tx_power_mode,
-      tx_power}]};
+    const payload = {
+      radio_table: [{
+        radio,
+        channel,
+        ht,
+        tx_power_mode,
+        tx_power,
+      }],
+    };
 
     return this._request('/api/s/<SITE>/upd/device/' + ap_id.trim(), payload);
   }
@@ -2235,14 +2338,16 @@ class Controller extends EventEmitter {
    *
    */
   setGuestLoginSettings(portal_enabled, portal_customized, redirect_enabled, redirect_url, x_password, expire_number, expire_unit, section_id) {
-    const payload = {portal_enabled,
+    const payload = {
+      portal_enabled,
       portal_customized,
       redirect_enabled,
       redirect_url,
       x_password,
       expire_number,
       expire_unit,
-      _id: section_id};
+      _id: section_id,
+    };
 
     return this._request('/api/s/<SITE>/set/setting/guest_access/' + section_id.trim(), payload);
   }
@@ -2331,9 +2436,10 @@ class Controller extends EventEmitter {
    * required parameter <site_id> = 24 char string; _id of the site to move the device to
    */
   moveDevice(mac, site_id) {
-    const payload = {site: site_id,
+    const payload = {
+      site: site_id,
       mac: mac.toLowerCase(),
-      cmd: 'move-device'
+      cmd: 'move-device',
     };
 
     return this._request('/api/s/<SITE>/cmd/sitemgr', payload);
@@ -2346,8 +2452,9 @@ class Controller extends EventEmitter {
    * required parameter <mac>     = string; MAC address of the device to move
    */
   deleteDevice(mac) {
-    const payload = {mac: mac.toLowerCase(),
-      cmd: 'delete-device'
+    const payload = {
+      mac: mac.toLowerCase(),
+      cmd: 'delete-device',
     };
 
     return this._request('/api/s/<SITE>/cmd/sitemgr', payload);
@@ -2429,7 +2536,7 @@ class Controller extends EventEmitter {
    * @param  boolean $is_guest         optional, apply guest policies or not
    * @param  string  $security         optional, security type (open, wep, wpapsk, wpaeap)
    * @param  string  $wpa_mode         optional, wpa mode (wpa, wpa2, ..)
-   * @param  string  $wpa_enc          optional, encryption (auto, ccmp)
+   * @param  string  $wpa_encode          optional, encryption (auto, ccmp)
    * @param  boolean $vlan_enabled     optional, enable/disable vlan for this wlan
    * @param  int     $vlan             optional, vlan id
    * @param  boolean $uapsd_enabled    optional, enable/disable Unscheduled Automatic Power Save Delivery
@@ -2438,9 +2545,13 @@ class Controller extends EventEmitter {
    * @param  array   $ap_group_ids     optional, array of ap group ids, required for UniFi controller versions 6.0.X and higher
    * @return bool                      true on success
    */
-  createWLan(name, x_passphrase, usergroup_id, wlangroup_id,
-    enabled = true, hide_ssid = false, is_guest = false, security = 'open', wpa_mode = 'wpa2', wpa_enc = 'ccmp', vlan_enabled = false, vlan = null, uapsd_enabled = false, schedule_enabled = false, schedule = {}, ap_group_ids = null) {
-    const payload = {name,
+  createWLan(
+    name, x_passphrase, usergroup_id, wlangroup_id,
+    enabled = true, hide_ssid = false, is_guest = false, security = 'open', wpa_mode = 'wpa2', wpa_encode = 'ccmp',
+    vlan_enabled = false, vlan = null, uapsd_enabled = false, schedule_enabled = false, schedule = {}, ap_group_ids = null,
+  ) {
+    const payload = {
+      name,
       usergroup_id,
       wlangroup_id,
       enabled,
@@ -2448,11 +2559,11 @@ class Controller extends EventEmitter {
       is_guest,
       security,
       wpa_mode,
-      wpa_enc,
+      wpa_enc: wpa_encode,
       vlan_enabled,
       uapsd_enabled,
       schedule_enabled,
-      schedule
+      schedule,
     };
 
     if (vlan !== null && vlan_enabled === true) {
@@ -2539,9 +2650,10 @@ class Controller extends EventEmitter {
    *
    */
   setWLanMacFilter(wlan_id, mac_filter_policy, mac_filter_enabled, macs) {
-    const payload = {mac_filter_enabled,
+    const payload = {
+      mac_filter_enabled,
       mac_filter_policy,
-      mac_filter_list: macs
+      mac_filter_list: macs,
     };
 
     return this.setWLanSettingsBase(wlan_id, payload);
@@ -2555,11 +2667,12 @@ class Controller extends EventEmitter {
    * optional parameter <limit>        = number of events to return, default value is 3000
    */
   getEvents(historyhours = 720, start = 0, limit = 3000) {
-    const payload = {_sort: '-time',
+    const payload = {
+      _sort: '-time',
       within: historyhours,
       type: null,
       _start: start,
-      _limit: limit
+      _limit: limit,
     };
 
     return this._request('/api/s/<SITE>/stat/event', payload);
@@ -2703,10 +2816,11 @@ class Controller extends EventEmitter {
    * - only applies to switches and their PoE ports...
    * - port must be actually providing power
    */
-  powerCycleSwitchPort(switch_mac, port_idx) {
-    const payload = {mac: switch_mac.toLowerCase(),
-      port_idx,
-      cmd: 'power-cycle'
+  powerCycleSwitchPort(switch_mac, port_index) {
+    const payload = {
+      mac: switch_mac.toLowerCase(),
+      port_idx: port_index,
+      cmd: 'power-cycle',
     };
 
     return this._request('/api/s/<SITE>/cmd/devmgr', payload);
@@ -2828,8 +2942,9 @@ class Controller extends EventEmitter {
    * @return bool|array                 containing a single object for the newly created account upon success, else returns false
    */
   createRadiusAccount(name, x_password, tunnel_type = null, tunnel_medium_type = null, vlan = null) {
-    const payload = {name,
-      x_password
+    const payload = {
+      name,
+      x_password,
     };
 
     if (tunnel_type !== null) {
@@ -2910,16 +3025,18 @@ class Controller extends EventEmitter {
    * @return array containing translations of UniFi device "state" values to humanized form
    */
   async getDeviceStates() {
-    return {deviceState: {
-      0: 'offline',
-      1: 'connected',
-      2: 'pending adoption',
-      4: 'updating',
-      5: 'provisioning',
-      6: 'unreachable',
-      7: 'adopting',
-      9: 'adoption error',
-      11: 'isolated'}
+    return {
+      deviceState: {
+        0: 'offline',
+        1: 'connected',
+        2: 'pending adoption',
+        4: 'updating',
+        5: 'provisioning',
+        6: 'unreachable',
+        7: 'adopting',
+        9: 'adoption error',
+        11: 'isolated',
+      },
     };
   }
 
@@ -2931,8 +3048,10 @@ class Controller extends EventEmitter {
    *
    */
   upgradeExternalFirmware(mac, firmware_url) {
-    const payload = {url: firmware_url,
-      mac: mac.toLowerCase()};
+    const payload = {
+      url: firmware_url,
+      mac: mac.toLowerCase(),
+    };
 
     return this._request('/api/s/<SITE>/cmd/devmgr/upgrade-external', payload);
   }
@@ -2974,8 +3093,8 @@ class Controller extends EventEmitter {
       perMessageDeflate: false,
       rejectUnauthorized: this.opts.sslverify,
       headers: {
-        Cookie: cookies
-      }
+        Cookie: cookies,
+      },
     });
 
     const pingpong = setInterval(() => {
@@ -3032,9 +3151,9 @@ class Controller extends EventEmitter {
     }
 
     const jar = this._cookieJar;
-    this._instance = axios.create({
+    this._instance = this.opts.createAxiosInstance?.({cookies: {jar}}) ?? axios.create({
       httpAgent: new HttpCookieAgent({cookies: {jar}}),
-      httpsAgent: new HttpsCookieAgent({cookies: {jar}, rejectUnauthorized: this.opts.sslverify, requestCert: true})
+      httpsAgent: new HttpsCookieAgent({cookies: {jar}, rejectUnauthorized: this.opts.sslverify, requestCert: true}),
     });
 
     // Identify if this is UniFiOS or not by calling the baseURL without
@@ -3042,7 +3161,7 @@ class Controller extends EventEmitter {
     const response = await this._instance.get(this._baseurl.toString(), {
       timeout: this.opts.timeout,
       maxRedirects: 0,
-      validateStatus: () => true
+      validateStatus: () => true,
     });
 
     // Check for UniFiOS
@@ -3117,7 +3236,7 @@ class Controller extends EventEmitter {
       url: this._url(path),
       method,
       data: payload,
-      timeout: this.opts.timeout
+      timeout: this.opts.timeout,
     });
 
     const body = response.data;
@@ -3126,8 +3245,8 @@ class Controller extends EventEmitter {
       this._instance.defaults.headers.common['x-csrf-token'] = this._xcsrftoken;
     }
 
-    if (body !== null && typeof (body) !== 'undefined') {
-      if (typeof (body.meta) !== 'undefined') {
+    if (body !== null && (body) !== undefined) {
+      if ((body.meta) !== undefined) {
         if (response.status >= 200 && response.status < 400 && body.meta.rc === 'ok') {
           if (raw === true) {
             return body;
@@ -3136,7 +3255,7 @@ class Controller extends EventEmitter {
           return body.data;
         }
 
-        const error = typeof (body.meta.msg) === 'undefined' ? new Error('generic error') : new Error(body.meta.msg);
+        const error = (body.meta.msg) === undefined ? new Error('generic error') : new Error(body.meta.msg);
         throw error;
       } else if (response.status >= 200 && response.status < 400) {
         return body;
@@ -3169,14 +3288,14 @@ class Controller extends EventEmitter {
   }
 
   async _ensureLoggedIn() {
-    if (typeof (this._instance) === 'undefined') {
+    if ((this._instance) === undefined) {
       await this._init();
       return true;
     }
 
     try {
       await this._instance.get(`${this._baseurl.href}api/${this._unifios ? 'users/' : ''}self`, {
-        timeout: this.opts.timeout
+        timeout: this.opts.timeout,
       });
       return true;
     } catch {
@@ -3186,9 +3305,7 @@ class Controller extends EventEmitter {
   }
 
   _url(path) {
-    if (this._unifios === true &&
-        path.endsWith('/logout') === false &&
-        path.endsWith('/login') === false) {
+    if (this._unifios === true && path.endsWith('/logout') === false && path.endsWith('/login') === false) {
       return `${this._baseurl.href}proxy/network${path.replace('<SITE>', this.opts.site)}`;
     }
 
@@ -3196,4 +3313,5 @@ class Controller extends EventEmitter {
   }
 }
 
-module.exports = {Controller};
+const Unifi = {Controller};
+export default Unifi;
