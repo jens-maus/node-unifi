@@ -1,4 +1,4 @@
-/* eslint-disable max-params, camelcase */
+/* eslint-disable max-params, max-lines, camelcase */
 
 /**
  *
@@ -610,9 +610,11 @@ class Controller extends EventEmitter2 {
       start = end - (12 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'rx_bytes',
-      'tx_bytes'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'rx_bytes',
+        'tx_bytes']
+      : ['time', ...attribs];
 
     const payload = {
       attrs: attribs,
@@ -649,9 +651,11 @@ class Controller extends EventEmitter2 {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'rx_bytes',
-      'tx_bytes'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'rx_bytes',
+        'tx_bytes']
+      : ['time', ...attribs];
 
     const payload = {
       attrs: attribs,
@@ -690,9 +694,11 @@ class Controller extends EventEmitter2 {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'rx_bytes',
-      'tx_bytes'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'rx_bytes',
+        'tx_bytes']
+      : ['time', ...attribs];
 
     const payload = {
       attrs: attribs,
@@ -731,9 +737,11 @@ class Controller extends EventEmitter2 {
       start = end - (13 * 7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'rx_bytes',
-      'tx_bytes'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'rx_bytes',
+        'tx_bytes']
+      : ['time', ...attribs];
 
     const payload = {
       attrs: attribs,
@@ -772,10 +780,12 @@ class Controller extends EventEmitter2 {
       start = end - (12 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'mem',
-      'cpu',
-      'loadavg_5'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'mem',
+        'cpu',
+        'loadavg_5']
+      : ['time', ...attribs];
 
     const payload = {
       attrs: attribs,
@@ -810,10 +820,12 @@ class Controller extends EventEmitter2 {
       start = end - (7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'mem',
-      'cpu',
-      'loadavg_5'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'mem',
+        'cpu',
+        'loadavg_5']
+      : ['time', ...attribs];
 
     const payload = {
       attrs: attribs,
@@ -848,10 +860,12 @@ class Controller extends EventEmitter2 {
       start = end - (52 * 7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'mem',
-      'cpu',
-      'loadavg_5'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'mem',
+        'cpu',
+        'loadavg_5']
+      : ['time', ...attribs];
 
     const payload = {
       attrs: attribs,
@@ -886,10 +900,12 @@ class Controller extends EventEmitter2 {
       start = end - (52 * 7 * 24 * 3600 * 1000);
     }
 
-    attribs = attribs === null ? ['time',
-      'mem',
-      'cpu',
-      'loadavg_5'] : ['time', ...attribs];
+    attribs = attribs === null
+      ? ['time',
+        'mem',
+        'cpu',
+        'loadavg_5']
+      : ['time', ...attribs];
 
     const payload = {
       attrs: attribs,
@@ -2529,8 +2545,11 @@ class Controller extends EventEmitter2 {
    * @param  array   $ap_group_ids     optional, array of ap group ids, required for UniFi controller versions 6.0.X and higher
    * @return bool                      true on success
    */
-  createWLan(name, x_passphrase, usergroup_id, wlangroup_id,
-    enabled = true, hide_ssid = false, is_guest = false, security = 'open', wpa_mode = 'wpa2', wpa_encode = 'ccmp', vlan_enabled = false, vlan = null, uapsd_enabled = false, schedule_enabled = false, schedule = {}, ap_group_ids = null) {
+  createWLan(
+    name, x_passphrase, usergroup_id, wlangroup_id,
+    enabled = true, hide_ssid = false, is_guest = false, security = 'open', wpa_mode = 'wpa2', wpa_encode = 'ccmp',
+    vlan_enabled = false, vlan = null, uapsd_enabled = false, schedule_enabled = false, schedule = {}, ap_group_ids = null,
+  ) {
     const payload = {
       name,
       usergroup_id,
@@ -3286,9 +3305,7 @@ class Controller extends EventEmitter2 {
   }
 
   _url(path) {
-    if (this._unifios === true
-        && path.endsWith('/logout') === false
-        && path.endsWith('/login') === false) {
+    if (this._unifios === true && path.endsWith('/logout') === false && path.endsWith('/login') === false) {
       return `${this._baseurl.href}proxy/network${path.replace('<SITE>', this.opts.site)}`;
     }
 

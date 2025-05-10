@@ -1,5 +1,5 @@
 /* global describe, it, beforeEach */
-/* eslint-disable import/no-unassigned-import, capitalized-comments */
+/* eslint-disable import-x/no-unassigned-import, capitalized-comments */
 
 import process from 'node:process';
 import 'should';
