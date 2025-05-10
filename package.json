@@ -49,7 +49,7 @@
     "url": "https://github.com/jens-maus/node-unifi/issues"
   },
   "engines": {
-    "node": ">=14.18.0 <15.0.0 || >=16.0.0"
+    "node": ">=22.0.0"
   },
   "readmeFilename": "README.md"
 }
