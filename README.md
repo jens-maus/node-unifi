@@ -8,10 +8,10 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RAQSDY9YNZVCL)
 [![GitHub stars](https://img.shields.io/github/stars/jens-maus/node-unifi.svg?style=social&label=Star)](https://github.com/jens-maus/node-unifi/stargazers/)
 
-Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the UniFi-Controller API version starting with v4.x.x up to v8.x.x
+Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http://www.ubnt.com/) via the official UniFi-Controller API. It is developed to be compatible to the UniFi-Controller API version starting with v4.x.x up to v9.x.x
 
 ## Features
-* Support all UniFi-Controller API features introduced with v4.x.x up to v8.x.x.
+* Support all UniFi-Controller API features introduced with v4.x.x up to v9.x.x.
 * Support CloudKey Gen1, CloudKey Gen2, UnifiOS-based UDM-Pro Controller as well as self-hostd UniFi controller software.
 * Returns all data in well-defined JSON parsable strings/objects.
 * Use of modern [axios](https://github.com/axios/axios)-based nodejs http library.
@@ -20,7 +20,7 @@ Node-UniFi is a NodeJS module that allows to query/control [UniFi devices](http:
 * Usable with local and UniFI cloud accounts and with 2FA authentication.
 
 ## Requirements
-* Installed [UniFi-Controller/Network](https://www.ubnt.com/download/unifi) version v4 up to v8 (UDM-Pro, UDM-SE, UDM, UDR, UDW, CloudKey Gen1/Gen2).
+* Installed [UniFi-Controller/Network](https://www.ubnt.com/download/unifi) version v4 up to v9 (UDM-Pro, UDM-SE, UDM, UDR, UDW, CloudKey Gen1/Gen2).
 * Direct network connectivity between the application using node-unifi and the host:port (normally TCP port 443 or 8443) where the UniFi controller is running on.
 * Node.js version >= 16.x
 
@@ -150,7 +150,7 @@ The following projects are known to use this nodejs class for query/control UniF
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2017-2023 Jens Maus &lt;mail@jens-maus.de&gt;
+Copyright (c) 2017-2025 Jens Maus &lt;mail@jens-maus.de&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
