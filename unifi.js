@@ -16,9 +16,9 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.80
+ * Based/Compatible to UniFi-API-client class: v1.1.81
  *
- * Copyright (c) 2017-2023 Jens Maus <mail@jens-maus.de>
+ * Copyright (c) 2017-2025 Jens Maus <mail@jens-maus.de>
  *
  * The source code is distributed under the MIT license
  *
@@ -1341,18 +1341,21 @@ class Controller extends EventEmitter {
   }
 
   /**
-   * List of site devices with a basic subset of fields (e.g., mac, state, adopted, disabled, type, model, name) - list_devices_basic()
+   * List of UniFi devices with a basic subset of properties (e.g., mac, state, adopted, disabled, type, model, name)
    *
-   * returns an array containing known UniFi device objects)
+   * returns an array containing known UniFi device objects, false upon error
    */
   getAccessDevicesBasic() {
     return this._request('/api/s/<SITE>/stat/device-basic');
   }
 
   /**
-   * List access points and other devices under management of the controller (USW and/or USG devices) - list_devices()
+   * Fetch UniFi devices.
    *
-   * optional paramater <device_mac> = the MAC address of a single device for which the call must be made
+   * @param array|string $device_mac optional, the MAC address of a single UniFi device for which the call must be made
+   *
+   * @return array|false an array containing known UniFi device objects (or a single device when using the <device_mac>
+   *                     parameter), false upon error
    */
   getAccessDevices(device_mac = '') {
     return this._request('/api/s/<SITE>/stat/device/' + device_mac.trim().toLowerCase());
@@ -2478,11 +2481,12 @@ class Controller extends EventEmitter {
    * @param  boolean $schedule_enabled optional, enable/disable wlan schedule
    * @param  array   $schedule         optional, schedule rules
    * @param  array   $ap_group_ids     optional, array of ap group ids, required for UniFi controller versions 6.0.X and higher
+   * @param  array   $payload          optional, array of additional parameters (wlan_bands, wpa3_support, etc.)
    * @return bool                      true on success
    */
   createWLan(name, x_passphrase, usergroup_id, wlangroup_id,
-    enabled = true, hide_ssid = false, is_guest = false, security = 'open', wpa_mode = 'wpa2', wpa_enc = 'ccmp', vlan_enabled = false, vlan = null, uapsd_enabled = false, schedule_enabled = false, schedule = {}, ap_group_ids = null) {
-    const payload = {name,
+    enabled = true, hide_ssid = false, is_guest = false, security = 'open', wpa_mode = 'wpa2', wpa_enc = 'ccmp', vlan_enabled = false, vlan = null, uapsd_enabled = false, schedule_enabled = false, schedule = {}, ap_group_ids = null, payload = {}) {
+    payload = {name,
       usergroup_id,
       wlangroup_id,
       enabled,
@@ -2494,7 +2498,8 @@ class Controller extends EventEmitter {
       vlan_enabled,
       uapsd_enabled,
       schedule_enabled,
-      schedule
+      schedule,
+      ...payload
     };
 
     if (vlan !== null && vlan_enabled === true) {
