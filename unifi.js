@@ -16,7 +16,7 @@
  * The majority of the functions in here are actually based on the PHP UniFi-API-client class
  * which defines compatibility to UniFi-Controller versions v4 and v5+
  *
- * Based/Compatible to UniFi-API-client class: v1.1.81
+ * Based/Compatible to UniFi-API-client class: v1.1.82
  *
  * Copyright (c) 2017-2025 Jens Maus <mail@jens-maus.de>
  *
@@ -1352,13 +1352,13 @@ class Controller extends EventEmitter {
   /**
    * Fetch UniFi devices.
    *
-   * @param array|string $device_mac optional, the MAC address of a single UniFi device for which the call must be made
-   *
-   * @return array|false an array containing known UniFi device objects (or a single device when using the <device_mac>
+   * @param array|string $device_macs optional, array containing the MAC addresses (lowercase strings) of the devices
+   *                                  to filter by, may also be a (lowercase) string containing a single MAC address
+   * @return array|false an array containing known UniFi device objects (optionally filtered by the <device_macs>
    *                     parameter), false upon error
    */
-  getAccessDevices(device_mac = '') {
-    return this._request('/api/s/<SITE>/stat/device/' + device_mac.trim().toLowerCase());
+  getAccessDevices(device_macs = []) {
+    return this._request('/api/s/<SITE>/stat/device', {macs: device_macs});
   }
 
   /**
@@ -2154,13 +2154,13 @@ class Controller extends EventEmitter {
    */
   setLED(device_id, override_color, override_color_brightness, override_mode) {
     return this._request(
-        '/api/s/<SITE>/rest/device/' + device_id.trim(),
-        {
-          led_override: override_mode,
-          led_override_color: override_color,
-          led_override_color_brightness: override_color_brightness
-        },
-        'PUT'
+      '/api/s/<SITE>/rest/device/' + device_id.trim(),
+      {
+        led_override: override_mode,
+        led_override_color: override_color,
+        led_override_color_brightness: override_color_brightness
+      },
+      'PUT'
     );
   }
 
