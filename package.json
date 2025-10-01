@@ -32,7 +32,7 @@
     "pre-commit": "^1.2.2",
     "should": "latest",
     "braces": "^3.0.3",
-    "xo": "~0.39.1"
+    "xo": "~1.2.2"
   },
   "xo": {
     "space": 2
