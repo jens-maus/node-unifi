@@ -28,7 +28,7 @@
     "dot-prop": ">=9.0.0",
     "eslint": ">=7.32.0",
     "glob-parent": ">=6.0.2",
-    "mocha": "^11.7.3",
+    "mocha": "^11.7.4",
     "pre-commit": "^1.2.2",
     "should": "latest",
     "braces": "^3.0.3",
