@@ -26,13 +26,13 @@
   },
   "devDependencies": {
     "dot-prop": ">=9.0.0",
-    "eslint": ">=7.32.0",
+    "eslint": ">=9.39.1",
     "glob-parent": ">=6.0.2",
     "mocha": "^11.7.4",
     "pre-commit": "^1.2.2",
     "should": "latest",
     "braces": "^3.0.3",
-    "xo": "~0.39.1"
+    "xo": "~1.2.3"
   },
   "xo": {
     "space": 2
